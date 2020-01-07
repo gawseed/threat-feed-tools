@@ -2,11 +2,11 @@ import unittest
 
 class test_base_search(unittest.TestCase):
     def test_load_base_search(self):
-        import gawseed.threatfeed.search.ipsearch
-        self.assertTrue(True, "imported gawseed.threatfeed.search.ipsearch")
+        import gawseed.threatfeed.search.ip
+        self.assertTrue(True, "imported gawseed.threatfeed.search.ip")
 
-        created = gawseed.threatfeed.search.ipsearch.IPSearch(None, None)
+        created = gawseed.threatfeed.search.ip.IPSearch(None, None)
         self.assertEqual(type(created),
-                         gawseed.threatfeed.search.ipsearch.IPSearch,
-                         "created a gawseed.threatfeed.search.ipsearch.IPSearch")
+                         gawseed.threatfeed.search.ip.IPSearch,
+                         "created a gawseed.threatfeed.search.ip.IPSearch")
         
