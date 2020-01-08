@@ -32,6 +32,7 @@ from gawseed.threatfeed.search.ssh import SSHSearch
 
 from gawseed.threatfeed.events.printer import EventStreamPrinter
 from gawseed.threatfeed.events.dumper import EventStreamDumper
+from gawseed.threatfeed.events.reporter import EventStreamReporter
 
 debug = False
 
@@ -196,7 +197,7 @@ def get_searcher(args, search_index, data_source):
     # create the searching interface
     if args.data_topic == 'ssh':
         searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
-    elif args.data_topic == 'ip' || args.data_topic == 'conn':
+    elif args.data_topic == 'ip' or args.data_topic == 'conn':
         searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
     elif args.data_topic == 'http':
         searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search =data_source.is_binary())

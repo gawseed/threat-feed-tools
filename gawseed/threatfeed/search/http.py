@@ -1,3 +1,4 @@
+import sys
 import re
 
 from gawseed.threatfeed.search import Search
@@ -10,9 +11,12 @@ class HTTPSearch(Search):
 
         self._relist = []
         for item in search_list:
-            compiled = re.compile(item)
-            self._relist.append({ 'match': search_list[item],
-                                  're': compiled})
+            try: 
+                compiled = re.compile(item)
+                self._relist.append({ 'match': search_list[item],
+                                      're': compiled})
+            except:
+                sys.stderr.write("failed to compile pattern: %s" % (item))
     
     def search(self, row):
         if b'host' not in row or b'uri' not in row or row[b'host'] is None or row[b'uri'] is None:

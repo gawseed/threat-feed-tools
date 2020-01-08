@@ -1,19 +1,25 @@
+from dateutil import parser
+
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
+from msgpack import unpackb
+
 from . import DataSource
 
 class KafkaDataSource(DataSource):
     def __init__(self, bootstrap_servers,
-                 begin_time=None, topic="ssh", max_records=None):
+                 begin_time=None, topic="ssh", max_records=None,
+                 consumer_timeout_ms=None):
         super().__init__()
         self._bootstrap_servers = bootstrap_servers
         self._begin_time = begin_time
         self._topic = topic
         self._max_records = max_records
+        self._consumer_timeout_ms = consumer_timeout_ms
 
     def open(self):
-        consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,
-                                 request_timeout_ms=2000)
+        consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)
+                                 #consumer_timeout_ms=self._consumer_timeout_ms)
         # point to what we want at
         partition = TopicPartition(self._topic,0)
         consumer.assign([partition])
