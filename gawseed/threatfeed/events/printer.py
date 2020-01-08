@@ -28,6 +28,8 @@ class EventStreamPrinter(EventStream):
             for field in self._extra_fields:
                 if field in row:
                     self.out(field, row[field])
+                if field in match:
+                    self.out(field, match[field])
 
-        self.output("-" * 70)
+        self.output("-" * 70 + "\n")
 
