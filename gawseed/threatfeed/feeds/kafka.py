@@ -44,8 +44,7 @@ class KafkaThreatFeed():
 
         timestamp = parser.parse(self._begin_time).timestamp()
 
-        count = 0
-        for entry in self._consumer:
+        for (count, entry) in enumerate(self._consumer):
             entry = self.parse_record(entry)
 
             # tmp hack to work around kafka hanging on some topics;
@@ -56,9 +55,8 @@ class KafkaThreatFeed():
 
             array.append(entry)
             dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
-            if max_records and count > max_records:
+            if max_records and count >= max_records:
                 break
-            count += 1
 
         return (array, dictionary)
 
