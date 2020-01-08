@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': [
-            'threat-search.py = gawseed.threatsearch.main:main',
+            'threat-search.py = gawseed.threatfeed.main:main',
         ]
     },
     classifiers=[
@@ -25,7 +25,9 @@ setuptools.setup(
     install_requires=['pyfsdb>=0.9.2',
                       'kafka-python',
                       'python-dateutil',
-                      'jinja2'],
+                      'jinja2',
+                      'pyyaml',
+                      'msgpack'],
     python_requires = '>=3.0',
     test_suite='nose.collector',
     tests_require=['nose'],
