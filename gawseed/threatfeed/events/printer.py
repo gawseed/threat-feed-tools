@@ -24,7 +24,8 @@ class EventStreamPrinter(EventStream):
         self.out("id_resp_h", row['id_resp_h'])
 
         for field in self._extra_fields:
-            self.out(field, row[field])
+            if field in row:
+                self.out(field, row[field])
 
         self.output("-" * 70)
 
