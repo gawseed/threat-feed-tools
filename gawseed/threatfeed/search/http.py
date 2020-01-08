@@ -1,3 +1,5 @@
+import re
+
 from gawseed.threatfeed.search import Search
 
 class HTTPSearch(Search):
