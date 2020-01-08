@@ -13,7 +13,8 @@ class KafkaThreatFeed():
         self._begin_time = begin_time
 
     def open(self):
-        self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)
+        self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,
+                                       consumer_timeout_ms=1000)
 
         # point to what we want at
         partition = TopicPartition(self._topic, self._partition)
