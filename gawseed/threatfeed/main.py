@@ -77,7 +77,7 @@ def parse_args():
     group.add_argument("--data-kafka-servers", default=[], type=str,
                         nargs="*", help="Kafka server to pull data streams from")
 
-    group.add_argument("-t", "--data-topic", default="dns", type=str,
+    group.add_argument("-t", "--data-topic", default="ssh", type=str,
                         help="Kafka topic to request from the data source")
 
     group = parser.add_argument_group("BRO specific data feed arguments")
@@ -138,12 +138,8 @@ def verbose(msg):
     if debug:
         print(msg)
 
-def main():
-    args = parse_args()
-
-    #
-    # argument/search setup
-    #
+def get_threat_feed(args):
+    """Read in the threat feed stream as a data source to search for"""
 
     # read in the threat feed stream as a data source to search for
     if args.threat_fsdb:
@@ -162,7 +158,11 @@ def main():
         print(search_index)
         exit(0)
 
-    # open the datasource
+    return (threat_source, search_data, search_index)
+
+
+def get_data_source(args):
+    """Get the data source and open it for traversing"""
     if args.fsdb_data:
         data_source = FsdbDataSource(file=args.fsdb_data)
     elif args.bro_data:
@@ -181,14 +181,26 @@ def main():
             print(finding)
         exit(0)
 
+    return data_source
+
+def get_searcher(args, search_index, data_source):
+    """Create a searcher object"""
     # create the searching interface
     if args.data_topic == 'ssh':
         searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
     elif args.data_topic == 'http':
-        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
+        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search =data_source.is_binary())
         
-
     verbose("created searcher: " + str(searcher))
+
+    return searcher
+
+def main():
+    args = parse_args()
+
+    (threat_source, search_data, search_index) = get_threat_feed(args)
+    data_source = get_data_source(args)
+    searcher = get_searcher(args, search_index, data_source)
 
     #output = EventStreamDumper() 
     if args.dump_events:
