@@ -28,7 +28,7 @@ class FsdbThreatFeed():
         for (count,entry) in enumerate(self._tfh):
             array.append(entry)
             dictionary[entry[index_column]] = entry # note, may erase older ones; build array?
-            if max_records and count >= max_records:
+            if max_records and count > max_records:
                 break
 
         return (array, dictionary)

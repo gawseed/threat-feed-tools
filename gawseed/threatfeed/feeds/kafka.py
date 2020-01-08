@@ -56,7 +56,7 @@ class KafkaThreatFeed():
 
             array.append(entry)
             dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
-            if max_records and count >= max_records:
+            if max_records and count > max_records:
                 break
             count += 1
 
