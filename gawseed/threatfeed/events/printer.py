@@ -23,9 +23,11 @@ class EventStreamPrinter(EventStream):
         self.out("id_orig_h", row['id_orig_h'])
         self.out("id_resp_h", row['id_resp_h'])
 
-        for field in self._extra_fields:
-            if field in row:
-                self.out(field, row[field])
+        if len(self._extra_fields) > 0:
+            self.output("Extra information:\n")
+            for field in self._extra_fields:
+                if field in row:
+                    self.out(field, row[field])
 
         self.output("-" * 70)
 
