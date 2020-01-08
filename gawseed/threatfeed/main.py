@@ -26,8 +26,8 @@ from gawseed.threatfeed.datasources.kafka import KafkaDataSource
 from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
 from gawseed.threatfeed.datasources.bro import BroDataSource
 
-from gawseed.threatfeed.search.http import HTTPSearch
 from gawseed.threatfeed.search.ip import IPSearch
+from gawseed.threatfeed.search.http import HTTPSearch
 from gawseed.threatfeed.search.ssh import SSHSearch
 
 from gawseed.threatfeed.events.printer import EventStreamPrinter
@@ -196,6 +196,8 @@ def get_searcher(args, search_index, data_source):
     # create the searching interface
     if args.data_topic == 'ssh':
         searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
+    elif args.data_topic == 'ip' || args.data_topic == 'conn':
+        searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
     elif args.data_topic == 'http':
         searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search =data_source.is_binary())
         
