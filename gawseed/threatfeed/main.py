@@ -52,6 +52,10 @@ def parse_args():
     group.add_argument("-M", "--threat-max-records", default=None, type=int,
                         help="Maximum number of threat records to retrieve and search for ")
 
+    group.add_argument("--threat-timeout", default=1000, type=int,
+                        help="Maximum number of ms to wait for a threat feed before figuring its done")
+
+
     # arguments for kafka threat feeds
     group = parser.add_argument_group("Kafka specific threat feed arguments")
     group.add_argument("-K", "--threat-kafka-servers", default=[], type=str,
@@ -155,7 +159,7 @@ def get_threat_feed(args):
         threat_source = FsdbThreatFeed(args.threat_fsdb)
     else:
         threat_source = KafkaThreatFeed(args.threat_kafka_servers, args.threat_begin_time,
-                                          args.threat_kafka_topic)
+                                        args.threat_kafka_topic, timeout=args.threat_timeout)
     verbose("created threat feed: " + str(threat_source))
 
     threat_source.open()

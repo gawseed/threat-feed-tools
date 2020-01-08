@@ -6,15 +6,16 @@ from kafka.structs import TopicPartition
 
 class KafkaThreatFeed():
     """Pulls threat data from a GAWSEED project (or other) kafka threat-feed source."""
-    def __init__(self, bootstrap_servers, begin_time=None, topic="gawseed_ipaddresses", partition=0):
+    def __init__(self, bootstrap_servers, begin_time=None, topic="gawseed_ipaddresses", partition=0, timeout=1000):
         self._bootstrap_servers = bootstrap_servers
         self._topic = topic
         self._partition = partition
         self._begin_time = begin_time
+        self._timeout=timeout
 
     def open(self):
         self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,
-                                       consumer_timeout_ms=1000)
+                                       consumer_timeout_ms=self._timeout)
 
         # point to what we want at
         partition = TopicPartition(self._topic, self._partition)
@@ -43,7 +44,8 @@ class KafkaThreatFeed():
         array = []
         dictionary = {}
 
-        timestamp = parser.parse(self._begin_time).timestamp()
+        if self._begin_time:
+            timestamp = parser.parse(self._begin_time).timestamp()
 
         for (count, entry) in enumerate(self._consumer):
             entry = self.parse_record(entry)
@@ -51,7 +53,7 @@ class KafkaThreatFeed():
             # tmp hack to work around kafka hanging on some topics;
             # thus we start from the beginning and read everything.
             # this naturally won't scale.
-            if int(entry['timestamp']) < timestamp:
+            if timestamp and int(entry['timestamp']) < timestamp:
                 continue
 
             array.append(entry)
