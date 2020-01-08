@@ -26,10 +26,4 @@ class BroDataSource(FsdbDataSource):
         self._fh = Fsdb(file_handle=self._file_handle,
                         return_type=RETURN_AS_DICTIONARY)
         self._fh.column_names = column_names
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return (next(self._fh))
-
+        # todo:: XXX: we eat a line here; fix this
