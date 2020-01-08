@@ -1,4 +1,4 @@
-import pyfsdb
+from pyfsdb.Fsdb import RETURN_AS_DICTIONARY,Fsdb
 
 from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
 
@@ -23,8 +23,8 @@ class BroDataSource(FsdbDataSource):
         if not column_names:
             raise ValueError("passed bro file isn't in expected bro file format")
 
-        self._fh = fsdb.Fsdb(file_handle=self._file_handle,
-                             return_type=fsdb.RETURN_AS_DICTIONARY)
+        self._fh = Fsdb(file_handle=self._file_handle,
+                        return_type=RETURN_AS_DICTIONARY)
         self._fh.column_names = column_names
 
     def __iter__(self):
