@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+"""This is a generic threat-feed searching application that takes a
+threat feed of various types and matches it against sources of network
+log data to search through.  It can take both threat-feeds and log
+data from multiple sources, including kafka and files.  It's output is
+configurable and can be given a jinja2 template for generic report
+generation.
+"""
+
 import datetime
 import yaml
 
