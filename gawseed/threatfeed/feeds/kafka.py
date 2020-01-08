@@ -1,3 +1,6 @@
+from dateutil import parser
+import json
+
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
 
