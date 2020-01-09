@@ -1,5 +1,6 @@
 import sys
 import jinja2
+import yaml
 
 from gawseed.threatfeed.events import EventStream
 
