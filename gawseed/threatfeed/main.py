@@ -8,16 +8,16 @@ configurable and can be given a jinja2 template for generic report
 generation.
 """
 
+import sys, os
+
 import datetime
 import yaml
+import importlib
 
 import sys
 import time
 import argparse
 from msgpack import unpackb
-
-# ick, remote during packaging:
-import sys, os
 
 from gawseed.threatfeed.feeds.kafka import KafkaThreatFeed
 from gawseed.threatfeed.feeds.fsdb import FsdbThreatFeed
@@ -33,6 +33,10 @@ from gawseed.threatfeed.search.ssh import SSHSearch
 from gawseed.threatfeed.events.printer import EventStreamPrinter
 from gawseed.threatfeed.events.dumper import EventStreamDumper
 from gawseed.threatfeed.events.reporter import EventStreamReporter
+
+YAML_KEY='threat-search'
+THREAT_KEY_KEY='threatsource'
+YAML_SECTIONS=[THREAT_KEY_KEY, ]
 
 debug = False
 
@@ -123,6 +127,11 @@ def parse_args():
     group.add_argument("-J", "--jinja-extra-information", default=None, type=argparse.FileType("r"),
                         help="Extra information in YAML format to include with report generation in 'extra' an field")
 
+    # Configuration
+    group = parser.add_argument_group("Global configuration")
+    group.add_argument("-y", "--config", type=argparse.FileType("r"),
+                       help="A YAML configuration file specifying all modules to be loaded")
+
     # DEBUGGING
     group = parser.add_argument_group("Debugging arguments")
     group.add_argument("--dump-threat-feed", action="store_true",
@@ -151,15 +160,88 @@ def verbose(msg):
     if debug:
         print(msg)
 
-def get_threat_feed(args):
+def load_module_name(module_name):
+    try:
+        lastdotnum = module_name.rindex('.')
+        modulename = module_name[:lastdotnum]   # just the module name
+        class_name = module_name[lastdotnum+1:] # just the class init function name
+
+        module = importlib.import_module(modulename)
+    except:
+        raise ValueError("Error parsing/loading module/class name: " + name)
+
+    if not hasattr(module, class_name):
+        raise ValueError("Error finding class name '" + class_name + "' in module '" + module + "'")
+
+    return getattr(module, class_name)
+
+def load_yaml_config(args):
+    defaults = {
+        'threatsource': {
+            'module': 'kafka',
+            'timeout': 2000,
+        },
+        'datasource': {
+            'module': 'kafka',
+            'topic': 'ssh', # XXX don't make this a default?
+            'keys': ['id_orig_h']
+        },
+        'searcher': {
+            'module': 'ssh' # XXX same
+        },
+        'reporter': {
+            'module': 'eventReporter',
+        }
+    }
+
+    conf = yaml.load(args.config, Loader=yaml.FullLoader)
+    
+    # fill in defaults
+    threatconfs = conf[YAML_KEY]
+    for threatconf in threatconfs:
+        # insert default values if needed
+        for key in defaults:
+            if key not in threatconf:
+                threatconf[key] = {}
+            for subkey in defaults[key]:
+                if subkey not in threatconf[key]:
+                    threatconf[key][subkey] = defaults[key][subkey]
+
+    # load modules?
+    module_xforms = {
+        THREAT_KEY_KEY: {
+            'kafka': 'gawseed.threatfeed.feeds.kafka.KafkaThreatFeed',
+            'fsdb': 'gawseed.threatfeed.feeds.fsdb.FsdbThreatFeed',
+        },
+        'datasource': {
+            'ssh': 'gawseed.threatfeed...'
+        }
+    }
+
+    for threatconf in threatconfs:
+        for section in YAML_SECTIONS:
+            module = threatconf[section]['module']
+            if module in module_xforms[section]:
+                module = module_xforms[section][module]
+            threatconf[section]['class_name'] = load_module_name(module)
+
+    return conf
+        
+
+
+def get_threat_feed(args, conf=None):
     """Read in the threat feed stream as a data source to search for"""
 
     # read in the threat feed stream as a data source to search for
-    if args.threat_fsdb:
+    if conf:
+        threat_source = conf[YAML_KEY][0][THREAT_KEY_KEY]['class_name'](config=conf[YAML_KEY][0][THREAT_KEY_KEY])
+    elif args.threat_fsdb:
         threat_source = FsdbThreatFeed(args.threat_fsdb)
     else:
-        threat_source = KafkaThreatFeed(args.threat_kafka_servers, args.threat_begin_time,
-                                        args.threat_kafka_topic, timeout=args.threat_timeout)
+        threat_source = KafkaThreatFeed({'bootstrapservers': args.threat_kafka_servers,
+                                         'begintime': args.threat_begin_time,
+                                         'topic': args.threat_kafka_topic,
+                                         'timeout': args.threat_timeout})
     verbose("created threat feed: " + str(threat_source))
 
     threat_source.open()
@@ -174,7 +256,7 @@ def get_threat_feed(args):
     return (threat_source, search_data, search_index)
 
 
-def get_data_source(args):
+def get_data_source(args, conf=None):
     """Get the data source and open it for traversing"""
     if args.fsdb_data:
         data_source = FsdbDataSource(file=args.fsdb_data)
@@ -196,7 +278,7 @@ def get_data_source(args):
 
     return data_source
 
-def get_searcher(args, search_index, data_source):
+def get_searcher(args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
     if args.data_topic == 'ssh':
@@ -213,9 +295,13 @@ def get_searcher(args, search_index, data_source):
 def main():
     args = parse_args()
 
-    (threat_source, search_data, search_index) = get_threat_feed(args)
-    data_source = get_data_source(args)
-    searcher = get_searcher(args, search_index, data_source)
+    conf = None
+    if args.config:
+        conf = load_yaml_config(args)
+
+    (threat_source, search_data, search_index) = get_threat_feed(args, conf)
+    data_source = get_data_source(args, conf)
+    searcher = get_searcher(args, search_index, data_source, conf)
 
     #output = EventStreamDumper() 
     if args.dump_events:

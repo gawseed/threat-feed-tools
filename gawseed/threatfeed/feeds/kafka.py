@@ -6,12 +6,14 @@ from kafka.structs import TopicPartition
 
 class KafkaThreatFeed():
     """Pulls threat data from a GAWSEED project (or other) kafka threat-feed source."""
-    def __init__(self, bootstrap_servers, begin_time=None, topic="gawseed_ipaddresses", partition=0, timeout=1000):
-        self._bootstrap_servers = bootstrap_servers
-        self._topic = topic
-        self._partition = partition
-        self._begin_time = begin_time
-        self._timeout=timeout
+    def __init__(self, config):
+        print(config)
+        self._bootstrap_servers = config['bootstrapservers']
+        self._topic = config['topic']
+        self._partition = 0 # xxx
+        self._begin_time = config['begintime']
+        self._timeout = config['timeout']
+        self._config = config
 
     def open(self):
         self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,

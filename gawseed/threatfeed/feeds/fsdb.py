@@ -1,9 +1,10 @@
 import pyfsdb
 
 class FsdbThreatFeed():
-    def __init__(self, fsdb_file=None, value_column="value"):
-        self._fsdb_file = fsdb_file
-        self._value_column = value_column
+    def __init__(self, config):
+        self._fsdb_file = config['file']
+        self._value_column = config['key']
+        self._config = config
 
     def open(self):
         self._tfh = pyfsdb.Fsdb(self._fsdb_file,
