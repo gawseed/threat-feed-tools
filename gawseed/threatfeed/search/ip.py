@@ -5,7 +5,7 @@ class IPSearch(Search):
                  data_iterator,
                  binary_search=False,
                  search_keys = ['id_orig_h', 'id_resp_h']):
-        super().__init__(search_list, data_iterator, binary_search)
+        super().__init__(search_list, data_iterator, binary_search, conf)
         self._search_keys = self.maybe_convert_binary_list(search_keys)
     
     def search(self, row):

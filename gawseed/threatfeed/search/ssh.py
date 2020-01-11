@@ -4,11 +4,15 @@ class SSHSearch(IPSearch):
     def __init__(self, search_list,
                  data_iterator=None,
                  binary_search=False,
-                 search_keys=['id_orig_h', 'id_resp_h'],
-                 auth_success_key='auth_success',
-                 auth_success_value=True):
-        super().__init__(search_list, data_iterator, binary_search, search_keys)
+                 conf):
+        
+        super().__init__(search_list, data_iterator, binary_search, search_keys, conf)
         # Really need a tri-nary option for this
+
+        search_keys=self.config('searchkeys': ['id_orig_h', 'id_resp_h']),
+        auth_success_key=self.config('authsuccesskey', 'auth_success'),
+        auth_success_value=self.config('authsuccessvalue', True):
+
         self._auth_success_key = self.maybe_convert_to_binary(auth_success_key)
         self._auth_success_value = self.maybe_convert_to_binary(auth_success_value)
     

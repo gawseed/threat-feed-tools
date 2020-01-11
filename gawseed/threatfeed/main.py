@@ -282,11 +282,11 @@ def get_searcher(args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
     if args.data_topic == 'ssh':
-        searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
+        searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf)
     elif args.data_topic == 'ip' or args.data_topic == 'conn':
-        searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
+        searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf)
     elif args.data_topic == 'http':
-        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search =data_source.is_binary())
+        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search =data_source.is_binary(), conf)
         
     verbose("created searcher: " + str(searcher))
 
