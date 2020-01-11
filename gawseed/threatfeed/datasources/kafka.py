@@ -7,15 +7,16 @@ from msgpack import unpackb
 from . import DataSource
 
 class KafkaDataSource(DataSource):
-    def __init__(self, bootstrap_servers,
-                 begin_time=None, topic="ssh", max_records=None,
-                 consumer_timeout_ms=None):
-        super().__init__()
-        self._bootstrap_servers = bootstrap_servers
-        self._begin_time = begin_time
-        self._topic = topic
-        self._max_records = max_records
-        self._consumer_timeout_ms = consumer_timeout_ms
+    def __init__(self, conf):
+        super().__init__(conf)
+
+        self.require(['bootstrapservers', 'topic'])
+
+        self._bootstrap_servers = self.config('bootstrap_servers')
+        self._begin_time = self.config('begin_time')
+        self._topic = self.config('topic')
+        self._max_records = self.config('max_records')
+        self._consumer_timeout_ms = self.config('consumer_timeout_ms')
 
     def open(self):
         consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)

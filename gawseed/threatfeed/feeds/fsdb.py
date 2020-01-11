@@ -1,10 +1,11 @@
 import pyfsdb
+from gawseed.threatfeed.config import Config
 
-class FsdbThreatFeed():
+class FsdbThreatFeed(Config):
     def __init__(self, config):
-        self._fsdb_file = config['file']
-        self._value_column = config['key']
-        self._config = config
+        super().__init__(config)
+        self._fsdb_file = self.config('file')
+        self._value_column = self.config('key')
 
     def open(self):
         self._tfh = pyfsdb.Fsdb(self._fsdb_file,

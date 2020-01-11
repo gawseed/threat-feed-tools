@@ -1,19 +1,22 @@
 from dateutil import parser
 import json
 
+from gawseed.threatfeed.config import Config
+
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
 
-class KafkaThreatFeed():
+class KafkaThreatFeed(Config):
     """Pulls threat data from a GAWSEED project (or other) kafka threat-feed source."""
-    def __init__(self, config):
-        print(config)
-        self._bootstrap_servers = config['bootstrapservers']
-        self._topic = config['topic']
-        self._partition = 0 # xxx
-        self._begin_time = config['begintime']
-        self._timeout = config['timeout']
-        self._config = config
+    def __init__(self, conf):
+        super().__init__(conf)
+        self.require(['bootstrapservers', 'topic'])
+
+        self._bootstrap_servers = self.config('bootstrapservers')
+        self._topic = self.config('topic')
+        self._partition = self.config('partition')
+        self._begin_time = self.config('begintime')
+        self._timeout = self.config('timeout')
 
     def open(self):
         self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,

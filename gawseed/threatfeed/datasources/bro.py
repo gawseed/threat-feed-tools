@@ -3,9 +3,10 @@ from pyfsdb.Fsdb import RETURN_AS_DICTIONARY,Fsdb
 from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
 
 class BroDataSource(FsdbDataSource):
-    def __init__(self, file_handle=None, file=None):
-        self._file_handle = file_handle
-        self._file = file
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._file_handle = self.config('file_handle')
+        self._file = self.config('file')
 
     def open(self):
         if self._file and not self._file_handle:

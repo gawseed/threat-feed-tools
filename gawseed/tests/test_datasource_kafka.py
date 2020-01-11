@@ -5,7 +5,8 @@ class test_datasource_kafka(unittest.TestCase):
         import gawseed.threatfeed.datasources.kafka
         self.assertTrue(True, "imported gawseed.threatfeed.datasources.kafka")
 
-        created = gawseed.threatfeed.datasources.kafka.KafkaDataSource(['bogus'])
+        created = gawseed.threatfeed.datasources.kafka.KafkaDataSource({'bootstrapservers': ['bogus'],
+                                                                        'topic': 'bogus'})
         self.assertEqual(type(created),
                          gawseed.threatfeed.datasources.kafka.KafkaDataSource,
                          "created a gawseed.threatfeed.datasources.kafka.KafkaDataSource")

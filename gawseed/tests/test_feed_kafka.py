@@ -5,7 +5,8 @@ class test_feed_kafka(unittest.TestCase):
         import gawseed.threatfeed.feeds.kafka
         self.assertTrue(True, "loaded gawseed.threatfeed.feeds.kafka")
 
-        created = gawseed.threatfeed.feeds.kafka.KafkaThreatFeed(['bogus'])
+        created = gawseed.threatfeed.feeds.kafka.KafkaThreatFeed({'bootstrapservers': ['bogus'],
+                                                                  'topic': 'bogus'})
         self.assertEqual(type(created),
                          gawseed.threatfeed.feeds.kafka.KafkaThreatFeed,
                          "created a gawseed.threatfeed.feeds.kafka.KafkaThreatFeed")

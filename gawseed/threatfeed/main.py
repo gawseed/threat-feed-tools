@@ -259,13 +259,13 @@ def get_threat_feed(args, conf=None):
 def get_data_source(args, conf=None):
     """Get the data source and open it for traversing"""
     if args.fsdb_data:
-        data_source = FsdbDataSource(file=args.fsdb_data)
+        data_source = FsdbDataSource({'file': args.fsdb_data})
     elif args.bro_data:
-        data_source = BroDataSource(file=args.bro_data)
+        data_source = BroDataSource({'file': args.bro_data})
     else:
-        data_source = KafkaDataSource(args.data_kafka_servers,
-                                      begin_time = args.begin_time,
-                                      topic=args.data_topic)
+        data_source = KafkaDataSource({'bootstrapservers': args.data_kafka_servers,
+                                       'begin_time': args.begin_time,
+                                       'topic': args.data_topic})
 
     verbose("created data feed: " + str(data_source))
     data_source.open()

@@ -2,9 +2,14 @@ import pyfsdb
 from . import DataSource
 
 class FsdbDataSource(DataSource):
-    def __init__(self, file_handle=None, file=None):
-        self._file_handle = file_handle
-        self._file = file
+    def __init__(self, conf):
+        super().__init__(conf)
+        
+        self._file_handle = self.config('file_handle')
+        self._file = self.config('file')
+
+        if not self._file_handle and not self._file:
+            self.config_error("either file_handle or file is required for the %s module" % (type(self)))
 
     def open(self):
         self._fh = fsdb.Fsdb(file_handle=self._file_handle, filename=self._file,
