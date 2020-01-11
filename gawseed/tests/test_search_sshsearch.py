@@ -5,7 +5,7 @@ class test_base_search(unittest.TestCase):
         import gawseed.threatfeed.search.ssh
         self.assertTrue(True, "imported gawseed.threatfeed.search.ssh")
 
-        created = gawseed.threatfeed.search.ssh.SSHSearch(None, None)
+        created = gawseed.threatfeed.search.ssh.SSHSearch(None, None, False, {})
         self.assertEqual(type(created),
                          gawseed.threatfeed.search.ssh.SSHSearch,
                          "created a gawseed.threatfeed.search.ssh.SSHSearch")

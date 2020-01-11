@@ -1,7 +1,11 @@
 import sys
 
-class EventStream():
-    def __init__(self, stream=sys.stdout):
+from gawseed.threatfeed.config import Config
+
+class EventStream(Config):
+    def __init__(self, conf):
+        super().__init__(conf)
+        stream = self.config('stream')
         if type(stream) == str:
             self._stream_pattern = stream
         else:

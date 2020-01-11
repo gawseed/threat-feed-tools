@@ -5,8 +5,7 @@ class test_event_reporter(unittest.TestCase):
         import gawseed.threatfeed.events.reporter
         self.assertTrue(True, "imported gawseed.threatfeed.events.reporter")
 
-        with open("/dev/null", "r") as t:
-            created = gawseed.threatfeed.events.reporter.EventStreamReporter(jinja_template=t)
+        created = gawseed.threatfeed.events.reporter.EventStreamReporter({'template': "/dev/null"})
         self.assertEqual(type(created),
                          gawseed.threatfeed.events.reporter.EventStreamReporter,
                          "created a gawseed.threatfeed.events.reporter.EventStreamReporter")

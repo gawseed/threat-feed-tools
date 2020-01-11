@@ -4,10 +4,7 @@ import re
 from gawseed.threatfeed.search import Search
 
 class HTTPSearch(Search):
-    def __init__(self, search_list,
-                 data_iterator=None,
-                 binary_search=False,
-                 conf):
+    def __init__(self, search_list, data_iterator, binary_search, conf):
         super().__init__(search_list, data_iterator, binary_search, conf)
 
         self._relist = []

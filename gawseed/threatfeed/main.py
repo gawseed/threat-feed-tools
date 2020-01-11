@@ -121,10 +121,10 @@ def parse_args():
     group.add_argument("-o", "--output-pattern", default=None, type=str,
                         help="Output a pattern of files instead of stdout; include %%d for a count")
 
-    group.add_argument("-j", "--jinja-template", default=None, type=argparse.FileType("r"),
+    group.add_argument("-j", "--jinja-template", default=None, type=str,
                         help="The jinja template to use when generating reports")
 
-    group.add_argument("-J", "--jinja-extra-information", default=None, type=argparse.FileType("r"),
+    group.add_argument("-J", "--jinja-extra-information", default=None, type=str,
                         help="Extra information in YAML format to include with report generation in 'extra' an field")
 
     # Configuration
@@ -305,14 +305,14 @@ def main():
 
     #output = EventStreamDumper() 
     if args.dump_events:
-        output = EventStreamDumper(stream=args.output_pattern)
+        output = EventStreamDumper({'stream': args.output_pattern})
     elif args.jinja_template:
-        output = EventStreamReporter(stream=args.output_pattern,
-                                     jinja_template=args.jinja_template,
-                                     jinja_extra_information=args.jinja_extra_information)
+        output = EventStreamReporter({'stream': args.output_pattern,
+                                      'template': args.jinja_template,
+                                      'extra_information': args.jinja_extra_information)
     else:
-        output = EventStreamPrinter(stream=args.output_pattern,
-                                    extra_fields=['auth_success']) # auth for ssh
+        output = EventStreamPrinter({'stream': args.output_pattern,
+                                     'extra_fields': ['auth_success']}) # auth for ssh
 
     verbose("created output: " + str(output))
 

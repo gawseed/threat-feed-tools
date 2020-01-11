@@ -3,8 +3,8 @@ import sys
 from gawseed.threatfeed.events import EventStream
 
 class EventStreamDumper(EventStream):
-    def __init__(self, stream=sys.stdout):
-        super().__init__(stream)
+    def __init__(self, conf):
+        super().__init__(conf)
 
     def write(self, count, row, match):
         self.output("match #" + str(count) + ":\n")

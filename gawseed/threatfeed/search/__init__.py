@@ -1,8 +1,8 @@
-from gawseed.threatfeed import Config
+from gawseed.threatfeed.config import Config
 
-class Search(object):
-    def __init__(self, search_list, data_iterator, binary_search=False, conf):
-        super().__init__(config)
+class Search(Config):
+    def __init__(self, search_list, data_iterator, binary_search, conf):
+        super().__init__(conf)
         self._search_list = search_list
         self._data_iterator = data_iterator
         self._binary_search = binary_search

@@ -3,10 +3,10 @@ import sys
 from gawseed.threatfeed.events import EventStream
 
 class EventStreamPrinter(EventStream):
-    def __init__(self, stream=sys.stdout, extra_fields=[]):
-        super().__init__(stream)
-        self._form = "  %-30.30s: %s\n"
-        self._extra_fields = extra_fields
+    def __init__(self, conf):
+        super().__init__(conf)
+        self._form = self.config('format, '"  %-30.30s: %s\n")
+        self._extra_fields = self.config('extra_fields', [])
 
     def out(self, info1, info2):
         self.output(self._form % (info1 + ":", info2))

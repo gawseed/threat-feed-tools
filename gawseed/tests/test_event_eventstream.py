@@ -5,7 +5,7 @@ class test_base_search(unittest.TestCase):
         import gawseed.threatfeed.events
         self.assertTrue(True, "imported gawseed.threatfeed.events")
 
-        created = gawseed.threatfeed.events.EventStream()
+        created = gawseed.threatfeed.events.EventStream({})
         self.assertEqual(type(created),
                          gawseed.threatfeed.events.EventStream,
                          "created a gawseed.threatfeed.event.EventStream")
