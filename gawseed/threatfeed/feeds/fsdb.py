@@ -4,6 +4,7 @@ from gawseed.threatfeed.config import Config
 class FsdbThreatFeed(Config):
     def __init__(self, config):
         super().__init__(config)
+        self.require(['file', 'key'])
         self._fsdb_file = self.config('file')
         self._value_column = self.config('key')
 

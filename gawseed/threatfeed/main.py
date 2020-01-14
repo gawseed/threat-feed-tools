@@ -225,6 +225,8 @@ def load_yaml_config(args):
             'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
             'ip': 'gawseed.threatfeed.search.ip.IPSearch',
             'http': 'gawseed.threatfeed.search.http.HTTPSearch',
+            'dns': 'gawseed.threatfeed.search.dns.DNSSearch',
+            're': 'gawseed.threatfeed.search.re.RESearch',
         },
         REPORTER_KEY: {
             'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',

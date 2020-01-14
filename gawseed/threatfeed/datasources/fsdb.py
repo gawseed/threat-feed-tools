@@ -12,8 +12,8 @@ class FsdbDataSource(DataSource):
             self.config_error("either file_handle or file is required for the %s module" % (type(self)))
 
     def open(self):
-        self._fh = fsdb.Fsdb(file_handle=self._file_handle, filename=self._file,
-                             return_type=fsdb.RETURN_AS_DICTIONARY)
+        self._fh = pyfsdb.Fsdb(file_handle=self._file_handle, filename=self._file,
+                               return_type=pyfsdb.RETURN_AS_DICTIONARY)
 
     def __iter__(self):
         return self

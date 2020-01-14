@@ -1,9 +1,9 @@
 import sys
 import re
 
-from gawseed.threatfeed.search import Search
+from gawseed.threatfeed.search.re import RESearch
 
-class HTTPSearch(Search):
+class HTTPSearch(RESearch):
     def __init__(self, search_list, data_iterator, binary_search, conf={}):
         super().__init__(search_list, data_iterator, binary_search, conf)
     
@@ -16,5 +16,5 @@ class HTTPSearch(Search):
         else:
             url = "http://" + row[b'host'].decode() + "/" + row[b'uri'].decode()
 
-        return super().search(url)
+        return self.search_one(url)
 
