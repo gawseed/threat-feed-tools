@@ -22,5 +22,5 @@ class EventStreamReporter(EventStream):
                                          'row': row,
                                          'match': match,
                                          'extra': self._jinja_extra_information})
-        self.output(output)
+        self.output(output + "\n")
 
