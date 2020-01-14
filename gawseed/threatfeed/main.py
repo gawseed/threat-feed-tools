@@ -35,8 +35,11 @@ from gawseed.threatfeed.events.dumper import EventStreamDumper
 from gawseed.threatfeed.events.reporter import EventStreamReporter
 
 YAML_KEY='threat-search'
-THREAT_KEY_KEY='threatsource'
-YAML_SECTIONS=[THREAT_KEY_KEY, ]
+THREATSOURCE_KEY='threatsource'
+DATASOURCE_KEY='datasource'
+SEARCHER_KEY='searcher'
+REPORTER_KEY='reporter'
+YAML_SECTIONS=[THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY]
 
 debug = False
 
@@ -168,7 +171,7 @@ def load_module_name(module_name):
 
         module = importlib.import_module(modulename)
     except:
-        raise ValueError("Error parsing/loading module/class name: " + name)
+        raise ValueError("Error parsing/loading module/class name: " + module_name)
 
     if not hasattr(module, class_name):
         raise ValueError("Error finding class name '" + class_name + "' in module '" + module + "'")
@@ -209,12 +212,24 @@ def load_yaml_config(args):
 
     # load modules?
     module_xforms = {
-        THREAT_KEY_KEY: {
+        THREATSOURCE_KEY: {
             'kafka': 'gawseed.threatfeed.feeds.kafka.KafkaThreatFeed',
             'fsdb': 'gawseed.threatfeed.feeds.fsdb.FsdbThreatFeed',
         },
-        'datasource': {
-            'ssh': 'gawseed.threatfeed...'
+        DATASOURCE_KEY: {
+            'fsdb': 'gawseed.threatfeed.datasources.fsdb.FsdbDataSource',
+            'bro': 'gawseed.threatfeed.datasources.bro.BroDataSource',
+            'kafka': 'gawseed.threatfeed.datasources.kafka.KafkaDataSource',
+        },
+        SEARCHER_KEY: {
+            'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
+            'ip': 'gawseed.threatfeed.search.ip.IPSearch',
+            'http': 'gawseed.threatfeed.search.http.HTTPSearch',
+        },
+        REPORTER_KEY: {
+            'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',
+            'printer': 'gawseed.threatfeed.events.printer.EventStreamPrinter',
+            'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
         }
     }
 
@@ -234,7 +249,8 @@ def get_threat_feed(args, conf=None):
 
     # read in the threat feed stream as a data source to search for
     if conf:
-        threat_source = conf[YAML_KEY][0][THREAT_KEY_KEY]['class_name'](config=conf[YAML_KEY][0][THREAT_KEY_KEY])
+        obj = conf[YAML_KEY][0][THREATSOURCE_KEY]['class_name']
+        threat_source = obj(conf[YAML_KEY][0][THREATSOURCE_KEY])
     elif args.threat_fsdb:
         threat_source = FsdbThreatFeed(args.threat_fsdb)
     else:
@@ -258,7 +274,10 @@ def get_threat_feed(args, conf=None):
 
 def get_data_source(args, conf=None):
     """Get the data source and open it for traversing"""
-    if args.fsdb_data:
+    if conf:
+        obj = conf[YAML_KEY][0][DATASOURCE_KEY]['class_name']
+        data_source = obj(conf[YAML_KEY][0][DATASOURCE_KEY])
+    elif args.fsdb_data:
         data_source = FsdbDataSource({'file': args.fsdb_data})
     elif args.bro_data:
         data_source = BroDataSource({'file': args.bro_data})
@@ -281,12 +300,15 @@ def get_data_source(args, conf=None):
 def get_searcher(args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
-    if args.data_topic == 'ssh':
-        searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf)
+    if conf:
+        obj = conf[YAML_KEY][0][SEARCHER_KEY]['class_name']
+        searcher = obj(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf=conf[YAML_KEY][0][SEARCHER_KEY])
+    elif args.data_topic == 'ssh':
+        searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
     elif args.data_topic == 'ip' or args.data_topic == 'conn':
-        searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf)
+        searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
     elif args.data_topic == 'http':
-        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search =data_source.is_binary(), conf)
+        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
         
     verbose("created searcher: " + str(searcher))
 
@@ -304,12 +326,15 @@ def main():
     searcher = get_searcher(args, search_index, data_source, conf)
 
     #output = EventStreamDumper() 
-    if args.dump_events:
+    if conf:
+        obj = conf[YAML_KEY][0][REPORTER_KEY]['class_name']
+        output = obj(conf[YAML_KEY][0][REPORTER_KEY])
+    elif args.dump_events:
         output = EventStreamDumper({'stream': args.output_pattern})
     elif args.jinja_template:
         output = EventStreamReporter({'stream': args.output_pattern,
                                       'template': args.jinja_template,
-                                      'extra_information': args.jinja_extra_information)
+                                      'extra_information': args.jinja_extra_information})
     else:
         output = EventStreamPrinter({'stream': args.output_pattern,
                                      'extra_fields': ['auth_success']}) # auth for ssh

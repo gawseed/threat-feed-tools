@@ -5,11 +5,11 @@ from gawseed.threatfeed.events import EventStream
 class EventStreamPrinter(EventStream):
     def __init__(self, conf):
         super().__init__(conf)
-        self._form = self.config('format, '"  %-30.30s: %s\n")
+        self._form = self.config('format', "  %-30.30s: %s\n")
         self._extra_fields = self.config('extra_fields', [])
 
     def out(self, info1, info2):
-        self.output(self._form % (info1 + ":", info2))
+        self.output(self._form % (str(info1) + ":", str(info2)))
 
     def write_row(self, count, row, match):
         self.output("match #" + str(count) + ":\n")

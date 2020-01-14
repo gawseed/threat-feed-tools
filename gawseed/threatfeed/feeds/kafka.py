@@ -10,7 +10,7 @@ class KafkaThreatFeed(Config):
     """Pulls threat data from a GAWSEED project (or other) kafka threat-feed source."""
     def __init__(self, conf):
         super().__init__(conf)
-        self.require(['bootstrapservers', 'topic'])
+        self.require(['bootstrapservers', 'topic', 'partition'])
 
         self._bootstrap_servers = self.config('bootstrapservers')
         self._topic = self.config('topic')
@@ -48,6 +48,8 @@ class KafkaThreatFeed(Config):
     def read(self, max_records=None, value_column='value'):
         array = []
         dictionary = {}
+        if not max_records:
+            max_records = self.config('limit')
 
         if self._begin_time:
             timestamp = parser.parse(self._begin_time).timestamp()
