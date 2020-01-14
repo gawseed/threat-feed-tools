@@ -1,0 +1,15 @@
+it:
+	python3 setup.py build
+
+package:
+	rm -rf dist
+	python3 setup.py sdist bdist_wheel
+
+publish:
+	python3 -m twine upload dist/*
+
+install:
+	python3 setup.py install
+
+test:
+	python3 setup.py test
