@@ -39,7 +39,8 @@ THREATSOURCE_KEY='threatsource'
 DATASOURCE_KEY='datasource'
 SEARCHER_KEY='searcher'
 REPORTER_KEY='reporter'
-YAML_SECTIONS=[THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY]
+ENRICHMENT_KEY='enrichments'
+YAML_SECTIONS=[THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY, ENRICHMENT_KEY]
 
 debug = False
 
@@ -232,15 +233,23 @@ def load_yaml_config(args):
             'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',
             'printer': 'gawseed.threatfeed.events.printer.EventStreamPrinter',
             'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
-        }
+        },
+        ENRICHMENT_KEY: {
+            'url': 'gawseed.threatfeed.enrichments.EnrichmentURL'
+        },
     }
 
     for threatconf in threatconfs:
         for section in YAML_SECTIONS:
-            module = threatconf[section]['module']
-            if module in module_xforms[section]:
-                module = module_xforms[section][module]
-            threatconf[section]['class_name'] = load_module_name(module)
+            if section in threatconf: # some are optional
+                parts = threatconf[section]
+                if type(parts) != list:
+                    parts = [parts]
+                for part in parts:
+                    module = part['module']
+                    if module in module_xforms[section]:
+                        module = module_xforms[section][module]
+                    part['class_name'] = load_module_name(module)
 
     return conf
         
@@ -316,6 +325,17 @@ def get_searcher(args, search_index, data_source, conf=None):
 
     return searcher
 
+def get_enrichments(conf, search_index, data_source):
+    if ENRICHMENT_KEY not in conf[YAML_KEY][0]:
+        return []
+    section = conf[YAML_KEY][0][ENRICHMENT_KEY]
+    enrichers = []
+    for item in section:
+        obj = item['class_name']
+        enricher = obj(item, search_index, data_source, data_source.is_binary())
+        enrichers.append(enricher)
+    return enrichers
+
 def main():
     args = parse_args()
 
@@ -341,13 +361,23 @@ def main():
         output = EventStreamPrinter({'stream': args.output_pattern,
                                      'extra_fields': ['auth_success']}) # auth for ssh
 
+    enrichers = get_enrichments(conf, search_index, data_source)
+
     verbose("created output: " + str(output))
 
     # loop through all the data for matches
     for count, finding in enumerate(next(searcher)):
+        enrichment_data = {}
+
+        # gather enrichment data from the backends
+        for ecount, enricher in enumerate(enrichers):
+            (key, result) = enricher.gather(count, finding[0], finding[1])
+            enrichment_data[key] = result
+
         output.new_output(count)
-        output.write(count, finding[0], finding[1])
+        output.write(count, finding[0], finding[1], enrichment_data)
         output.maybe_close_output()
+
         if args.max_records and count >= args.max_records:
             break
 

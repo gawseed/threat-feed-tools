@@ -12,11 +12,11 @@ class KafkaDataSource(DataSource):
 
         self.require(['bootstrapservers', 'topic'])
 
-        self._bootstrap_servers = self.config('bootstrap_servers')
-        self._begin_time = self.config('begin_time')
+        self._bootstrap_servers = self.config('bootstrapservers')
+        self._begin_time = self.config('begintime')
         self._topic = self.config('topic')
         self._max_records = self.config('max_records')
-        self._consumer_timeout_ms = self.config('consumer_timeout_ms')
+        self._consumer_timeout_ms = self.config('timeout')
 
     def open(self):
         consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)

@@ -13,14 +13,16 @@ class EventStreamReporter(EventStream):
         self._jinja_template = open(self.config('template', "r")).read()
         self._template = jinja2.Template(self._jinja_template)
 
-        self._jinja_extra_information = self.config('extra_information')
+        self._jinja_extra_information = self.config('extra_information', {})
         if self._jinja_extra_information:
-            self._jinja_extra_information = yaml.loads(self._jinja_extra_information, Loader=yaml.FullLoader)
+            fh = open(self._jinja_extra_information, "r")
+            self._jinja_extra_information = yaml.load(fh, Loader=yaml.FullLoader)
 
-    def write_row(self, count, row, match):
+    def write_row(self, count, row, match, enrichments):
         output = self._template.render({ 'count': count,
                                          'row': row,
                                          'match': match,
-                                         'extra': self._jinja_extra_information})
+                                         'extra': self._jinja_extra_information,
+                                         'enrichments': enrichments})
         self.output(output + "\n")
 

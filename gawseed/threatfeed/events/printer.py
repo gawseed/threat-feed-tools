@@ -16,7 +16,7 @@ class EventStreamPrinter(EventStream):
         if key in row:
             self.out(info1, row[key])
 
-    def write_row(self, count, row, match):
+    def write_row(self, count, row, match, enrichments):
         self.output("match #" + str(count) + ":\n")
 
         self.output("Threat information:\n")

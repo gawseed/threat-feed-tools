@@ -39,7 +39,7 @@ class EventStream(Config):
                 new_row[key] = value
         return new_row
 
-    def write(self, count, row, match):
+    def write(self, count, row, match, enrichments):
         row = self.maybe_convert(row)
-        self.write_row(count, row, match)
+        self.write_row(count, row, match, enrichments)
 
