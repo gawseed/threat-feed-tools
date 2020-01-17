@@ -366,6 +366,8 @@ def main():
     verbose("created output: " + str(output))
 
     # loop through all the data for matches
+    if debug:
+        print("reports created: 0", end="\r")
     for count, finding in enumerate(next(searcher)):
         enrichment_data = {}
 
@@ -377,6 +379,9 @@ def main():
         output.new_output(count)
         output.write(count, finding[0], finding[1], enrichment_data)
         output.maybe_close_output()
+
+        if debug:
+            print("reports created: %d" % (count), end="\r")
 
         if args.max_records and count >= args.max_records:
             break
