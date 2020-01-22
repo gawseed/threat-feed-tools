@@ -223,9 +223,18 @@ def dump_config_options(args):
 
             try:
                 module = load_module_name(module_xforms[part][module])
-                x = module({'dump_config': 1})
-            except:
+                # this forces a module to just dump out config settings to stdout
+                if part == SEARCHER_KEY:
+                    x = module(None, None, True, {'dump_config': 1})
+                elif part == ENRICHMENT_KEY:
+                    x = module(None, {'dump_config': 1})
+                else:
+                    x = module({'dump_config': 1})
+            except Exception as e:
                 print("    # couldn't get config for this")
+                if (debug):
+                    print("    # " + str(e))
+                    
         
     exit()
     
