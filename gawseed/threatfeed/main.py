@@ -175,7 +175,7 @@ def parse_args():
     group.add_argument("--dump-events", action="store_true",
                         help="Simply dump all the event data in raw form")
 
-    group.add_argument("--dump-config", action="store_true",
+    group.add_argument("--config-templates", action="store_true",
                        help="Dump all module configuration options")
 
     group.add_argument("-V", "--verbose", action="store_true",
@@ -186,7 +186,7 @@ def parse_args():
         global debug
         debug = True
 
-    if args.dump_config:
+    if args.config_templates:
         dump_config_options(args)
 
     # if args.merge_grep and not args.merge_key:

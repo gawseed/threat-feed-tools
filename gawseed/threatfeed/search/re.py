@@ -11,7 +11,7 @@ class RESearch(Search):
     def __init__(self, search_list, data_iterator, binary_search, conf={}):
         super().__init__(search_list, data_iterator, binary_search, conf)
         self.require(['key'])
-        self._key = self.config('key')
+        self._key = self.config('key', help="The key field to match against in the data stream")
 
         self._relist = []
         for item in search_list:

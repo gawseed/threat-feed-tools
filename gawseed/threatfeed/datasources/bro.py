@@ -5,8 +5,10 @@ from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
 class BroDataSource(FsdbDataSource):
     def __init__(self, conf):
         super().__init__(conf)
-        self._file_handle = self.config('file_handle')
-        self._file = self.config('file')
+        self._file_handle = self.config('file_handle',
+                                        help="A python3 opened file handle for the BRO data to be streamed")
+        self._file = self.config('file',
+                                 help="The file name to read the bro data stream from")
 
     def open(self):
         if self._file and not self._file_handle:

@@ -5,8 +5,10 @@ class FsdbThreatFeed(Config):
     def __init__(self, config):
         super().__init__(config)
         self.require(['file', 'key'])
-        self._fsdb_file = self.config('file')
-        self._value_column = self.config('key')
+        self._fsdb_file = self.config('file',
+                                      help="The file name to read the bro data stream from")
+        self._value_column = self.config('key',
+                                         help="The column name to use for pulling threat data")
 
     def open(self):
         self._tfh = pyfsdb.Fsdb(self._fsdb_file,

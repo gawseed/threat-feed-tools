@@ -12,11 +12,16 @@ class KafkaThreatFeed(Config):
         super().__init__(conf)
         self.require(['bootstrapservers', 'topic', 'partition'])
 
-        self._bootstrap_servers = self.config('bootstrap_servers')
-        self._topic = self.config('topic')
-        self._partition = self.config('partition')
-        self._begin_time = self.config('begin_time')
-        self._timeout = self.config('timeout')
+        self._bootstrap_servers = self.config('bootstrap_servers',
+                                              help="A list of kafka bootstrap servers to query")
+        self._topic = self.config('topic',
+                                  help="The kafka topic to stream from")
+        self._partition = self.config('partition',
+                                      help="The kafka partition to stream from")
+        self._begin_time = self.config('begin_time',
+                                       help="The time to start searching from; no value will mean end of stream")
+        self._timeout = self.config('timeout',
+                                                help="A timeout in milliseconds to wait for server data.")
 
     def open(self):
         self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,
@@ -49,7 +54,7 @@ class KafkaThreatFeed(Config):
         array = []
         dictionary = {}
         if not max_records:
-            max_records = self.config('limit')
+            max_records = self.config('limit') # XXX move to init
 
         if self._begin_time:
             timestamp = parser.parse(self._begin_time).timestamp()

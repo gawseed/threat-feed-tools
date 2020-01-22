@@ -11,12 +11,18 @@ class EnrichmentURL(Config):
 
         self.require(['url'])
 
-        self._url = self.config('url')
-        self._tag = self.config('tag')
-        self._type = self.config('type','text/plain')
-        self._match_key = self.config('match_key', 'value')
-        self._data_key = self.config('data_key', 'key')
-        self._output_key = self.config('output_key', 'geturl')
+        self._url = self.config('url',
+                                help="A URL to use for gathering enrichment data.  It may be a python string to be formatted with a 'tag' and 'match_info' value")
+        self._tag = self.config('tag',
+                                help="The tag to be passed to the URL")
+        self._type = self.config('type','text/plain',
+                                 help="The expected content type to be returned.  Non-matches will be dropped")
+        self._match_key = self.config('match_key', 'value',
+                                      help="The match key column name to be used")
+        self._data_key = self.config('data_key', 'key',
+                                     help="The data key to used")
+        self._output_key = self.config('output_key', 'geturl',
+                                       help="The output key to store the returned data in.")
 
     def geturl(self, url, type='GET', params={}):
         r = self._pool.request(type, url)

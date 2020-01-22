@@ -12,11 +12,16 @@ class KafkaDataSource(DataSource):
 
         self.require(['bootstrapservers', 'topic'])
 
-        self._bootstrap_servers = self.config('bootstrap_servers')
-        self._begin_time = self.config('begin_time')
-        self._topic = self.config('topic')
-        self._max_records = self.config('max_records')
-        self._consumer_timeout_ms = self.config('timeout')
+        self._bootstrap_servers = self.config('bootstrap_servers',
+                                              help="A list of kafka bootstrap servers to query")
+        self._begin_time = self.config('begin_time',
+                                       help="The time to start searching from; no value will mean end of stream")
+        self._topic = self.config('topic',
+                                  help="The kafka topic to search")
+        self._consumer_timeout_ms = self.config('timeout',
+                                                help="A timeout in milliseconds to wait for server data.")
+        self._max_records = self.config('max_records',
+                                        help="The maximum number of records to return")
 
     def open(self):
         consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)

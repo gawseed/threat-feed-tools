@@ -17,8 +17,10 @@ class Config():
             if requirement not in self._config:
                 self.config_error("'%s' is a requirement argument for %s" % (requirement, type(self)))
 
-    def config(self, name, default=None):
+    def config(self, name, default=None, help=None):
         if 'dump_config' in self._config:
+            if help:
+                print("    # %s: %s" % (name, help))
             print("    %s: %s" % (name, default))
             return
         if name in self._config:

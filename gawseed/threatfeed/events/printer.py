@@ -5,9 +5,12 @@ from gawseed.threatfeed.events import EventStream
 class EventStreamPrinter(EventStream):
     def __init__(self, conf):
         super().__init__(conf)
-        self._form = self.config('format', "  %-30.30s: %s\n")
-        self._extra_fields = self.config('extra_fields', [])
-        self._timestamp = self.config('timestamp','ts')
+        self._form = self.config('format', "  %-30.30s: %s\n",
+                                 help="The line format to use when printing")
+        self._extra_fields = self.config('extra_fields', [],
+                                         help="Extra fields to include in the output")
+        self._timestamp = self.config('timestamp','ts',
+                                      help="The column name of the timestamp data")
 
     def out(self, info1, info2):
         self.output(self._form % (str(info1) + ":", str(info2)))
