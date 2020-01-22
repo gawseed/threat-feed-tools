@@ -42,6 +42,34 @@ REPORTER_KEY='reporter'
 ENRICHMENT_KEY='enrichments'
 YAML_SECTIONS=[THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY, ENRICHMENT_KEY]
 
+# load modules?
+module_xforms = {
+    THREATSOURCE_KEY: {
+        'kafka': 'gawseed.threatfeed.feeds.kafka.KafkaThreatFeed',
+        'fsdb': 'gawseed.threatfeed.feeds.fsdb.FsdbThreatFeed',
+    },
+    DATASOURCE_KEY: {
+        'fsdb': 'gawseed.threatfeed.datasources.fsdb.FsdbDataSource',
+        'bro': 'gawseed.threatfeed.datasources.bro.BroDataSource',
+        'kafka': 'gawseed.threatfeed.datasources.kafka.KafkaDataSource',
+    },
+    SEARCHER_KEY: {
+        'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
+        'ip': 'gawseed.threatfeed.search.ip.IPSearch',
+        'http': 'gawseed.threatfeed.search.http.HTTPSearch',
+        'dns': 'gawseed.threatfeed.search.dns.DNSSearch',
+        're': 'gawseed.threatfeed.search.re.RESearch',
+    },
+    REPORTER_KEY: {
+        'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',
+        'printer': 'gawseed.threatfeed.events.printer.EventStreamPrinter',
+        'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
+    },
+    ENRICHMENT_KEY: {
+        'url': 'gawseed.threatfeed.enrichments.EnrichmentURL'
+    },
+}
+
 debug = False
 
 def parse_args():
@@ -147,6 +175,9 @@ def parse_args():
     group.add_argument("--dump-events", action="store_true",
                         help="Simply dump all the event data in raw form")
 
+    group.add_argument("--dump-config", action="store_true",
+                       help="Dump all module configuration options")
+
     group.add_argument("-V", "--verbose", action="store_true",
                         help="Verbose/Debugging output")
 
@@ -154,6 +185,9 @@ def parse_args():
     if args.verbose:
         global debug
         debug = True
+
+    if args.dump_config:
+        dump_config_options(args)
 
     # if args.merge_grep and not args.merge_key:
     #     raise ValueError("--merge-key/-k is required with --merge-grep")
@@ -179,6 +213,22 @@ def load_module_name(module_name):
 
     return getattr(module, class_name)
 
+def dump_config_options(args):
+    print("threat-search:")
+    for part in module_xforms:
+        print("  # ---- %s modules and options" % (part))
+        for module in module_xforms[part]:
+            print("  - %s:" % (part))
+            print("    module: %s" % (module))
+
+            try:
+                module = load_module_name(module_xforms[part][module])
+                x = module({'dump_config': 1})
+            except:
+                print("    # couldn't get config for this")
+        
+    exit()
+    
 def load_yaml_config(args):
     defaults = {
         'threatsource': {
@@ -210,34 +260,6 @@ def load_yaml_config(args):
             for subkey in defaults[key]:
                 if subkey not in threatconf[key]:
                     threatconf[key][subkey] = defaults[key][subkey]
-
-    # load modules?
-    module_xforms = {
-        THREATSOURCE_KEY: {
-            'kafka': 'gawseed.threatfeed.feeds.kafka.KafkaThreatFeed',
-            'fsdb': 'gawseed.threatfeed.feeds.fsdb.FsdbThreatFeed',
-        },
-        DATASOURCE_KEY: {
-            'fsdb': 'gawseed.threatfeed.datasources.fsdb.FsdbDataSource',
-            'bro': 'gawseed.threatfeed.datasources.bro.BroDataSource',
-            'kafka': 'gawseed.threatfeed.datasources.kafka.KafkaDataSource',
-        },
-        SEARCHER_KEY: {
-            'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
-            'ip': 'gawseed.threatfeed.search.ip.IPSearch',
-            'http': 'gawseed.threatfeed.search.http.HTTPSearch',
-            'dns': 'gawseed.threatfeed.search.dns.DNSSearch',
-            're': 'gawseed.threatfeed.search.re.RESearch',
-        },
-        REPORTER_KEY: {
-            'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',
-            'printer': 'gawseed.threatfeed.events.printer.EventStreamPrinter',
-            'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
-        },
-        ENRICHMENT_KEY: {
-            'url': 'gawseed.threatfeed.enrichments.EnrichmentURL'
-        },
-    }
 
     for threatconf in threatconfs:
         for section in YAML_SECTIONS:

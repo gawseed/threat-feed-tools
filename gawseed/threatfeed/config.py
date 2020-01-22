@@ -10,11 +10,17 @@ class Config():
     def require(self, requirements):
         if type(requirements) != list:
             requirements = [requirements]
+        if 'dump_config' in self._config:
+            print("    # required: " + str(requirements))
+            return
         for requirement in requirements:
             if requirement not in self._config:
                 self.config_error("'%s' is a requirement argument for %s" % (requirement, type(self)))
 
     def config(self, name, default=None):
+        if 'dump_config' in self._config:
+            print("    %s: %s" % (name, default))
+            return
         if name in self._config:
             return self._config[name]
         return default
