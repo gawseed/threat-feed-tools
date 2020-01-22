@@ -9,8 +9,9 @@ class EventStreamReporter(EventStream):
         super().__init__(conf)
 
         self.require(['template'])
+        self._template = self.config('template')
 
-        self._jinja_template = open(self.config('template', "r")).read()
+        self._jinja_template = open(self._template, "r").read()
         self._template = jinja2.Template(self._jinja_template)
 
         self._jinja_extra_information = self.config('extra_information', {})
