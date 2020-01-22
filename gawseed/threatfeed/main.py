@@ -268,6 +268,7 @@ def get_threat_feed(args, conf=None):
         threat_source = KafkaThreatFeed({'bootstrapservers': args.threat_kafka_servers,
                                          'begintime': args.threat_begin_time,
                                          'topic': args.threat_kafka_topic,
+                                         'partition': 0,
                                          'timeout': args.threat_timeout})
     verbose("created threat feed: " + str(threat_source))
 

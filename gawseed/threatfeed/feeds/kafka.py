@@ -12,10 +12,10 @@ class KafkaThreatFeed(Config):
         super().__init__(conf)
         self.require(['bootstrapservers', 'topic', 'partition'])
 
-        self._bootstrap_servers = self.config('bootstrapservers')
+        self._bootstrap_servers = self.config('bootstrap_servers')
         self._topic = self.config('topic')
         self._partition = self.config('partition')
-        self._begin_time = self.config('begintime')
+        self._begin_time = self.config('begin_time')
         self._timeout = self.config('timeout')
 
     def open(self):

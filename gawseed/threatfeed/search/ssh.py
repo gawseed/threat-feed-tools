@@ -6,8 +6,8 @@ class SSHSearch(IPSearch):
         super().__init__(search_list, data_iterator, binary_search, conf)
         # Really need a tri-nary option for this
 
-        auth_success_key = self.config('authsuccesskey', 'auth_success')
-        auth_success_value = self.config('authsuccessvalue', True)
+        auth_success_key = self.config('auth_success_key', 'auth_success')
+        auth_success_value = self.config('auth_success_value', True)
 
         self._auth_success_key = self.maybe_convert_to_binary(auth_success_key)
         self._auth_success_value = self.maybe_convert_to_binary(auth_success_value)
