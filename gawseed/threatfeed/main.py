@@ -241,6 +241,8 @@ def dump_config_options(args):
                 if (debug):
                     print("    # " + str(e))
                     
+
+            print("")
         
     exit()
     
