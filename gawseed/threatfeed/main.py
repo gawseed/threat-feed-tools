@@ -228,7 +228,7 @@ def dump_config_options(args):
                 if module.__doc__:
                     doc = module.__doc__
                     doc = re.sub("\n", "\n    # ", doc)
-                    print("    # " + doc)
+                    print("    #     " + doc)
                     
                 if part == SEARCHER_KEY:
                     x = module(None, None, False, {'dump_config': 1})

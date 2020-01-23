@@ -3,6 +3,7 @@ import sys
 from gawseed.threatfeed.events import EventStream
 
 class EventStreamPrinter(EventStream):
+    """Prints simple summaries of events found."""
     def __init__(self, conf):
         super().__init__(conf)
         self._form = self.config('format', "  %-30.30s: %s\n",

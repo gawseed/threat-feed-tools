@@ -4,6 +4,7 @@ import re
 from gawseed.threatfeed.search.re import RESearch
 
 class HTTPSearch(RESearch):
+    """Matches a regexp threat against a host/uri combo data field (aka bro log)"""
     def __init__(self, search_list, data_iterator, binary_search, conf={}):
         super().__init__(search_list, data_iterator, binary_search, conf)
     

@@ -5,6 +5,13 @@ import yaml
 from gawseed.threatfeed.events import EventStream
 
 class EventStreamReporter(EventStream):
+    """Formats output based on a jinja2 template.  The template is passed
+    the following data fields:
+       count: the match number for this run
+       row: the row of the data source that was matched
+       match: the content from the threat feed that trigger the event
+       extra: Any supplemental json data passed in the 'extra_information' config option
+       enrichments: A dictionary of any enrichments that were retrieved"""
     def __init__(self, conf):
         super().__init__(conf)
 

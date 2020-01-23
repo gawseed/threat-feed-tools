@@ -1,6 +1,9 @@
 from gawseed.threatfeed.search.ip import IPSearch
 
 class SSHSearch(IPSearch):
+    """Searches data for threats, but requires the auth_success field to
+    be True. IE, only successful logins will be considered a match.
+    Use the 'ip' module if you don't want this restriction applied."""
     def __init__(self, search_list, data_iterator, binary_search, conf={}):
         
         super().__init__(search_list, data_iterator, binary_search, conf)

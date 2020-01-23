@@ -7,6 +7,7 @@ from msgpack import unpackb
 from . import DataSource
 
 class KafkaDataSource(DataSource):
+    """Loads data from a Kafka data stream"""
     def __init__(self, conf):
         super().__init__(conf)
 

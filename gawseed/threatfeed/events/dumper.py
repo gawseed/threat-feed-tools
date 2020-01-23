@@ -3,6 +3,7 @@ import sys
 from gawseed.threatfeed.events import EventStream
 
 class EventStreamDumper(EventStream):
+    """A debugging event reporter: just outputs python strings of matches found"""
     def __init__(self, conf):
         super().__init__(conf)
 

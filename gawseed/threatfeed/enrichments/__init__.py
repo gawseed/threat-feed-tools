@@ -3,6 +3,7 @@ from gawseed.threatfeed.config import Config
 import json
 
 class EnrichmentURL(Config):
+    """Pulls enrichment data from a supplied URL.  The URL format line will be passed a 'tag' and 'match_info'."""
     def __init__(self, conf, search_index, data_source, is_binary):
         super().__init__(conf)
         

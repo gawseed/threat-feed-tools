@@ -2,6 +2,7 @@ import pyfsdb
 from gawseed.threatfeed.config import Config
 
 class FsdbThreatFeed(Config):
+    """Loads a threat data list from a 'key' column in a FSDB formatted file (see pyfsdb)"""
     def __init__(self, config):
         super().__init__(config)
         self.require(['file', 'key'])

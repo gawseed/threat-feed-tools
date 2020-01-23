@@ -3,6 +3,7 @@ from pyfsdb.Fsdb import RETURN_AS_DICTIONARY,Fsdb
 from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
 
 class BroDataSource(FsdbDataSource):
+    """Loads data from BRO text-based (tab separated) log files"""
     def __init__(self, conf):
         super().__init__(conf)
         self._file_handle = self.config('file_handle',

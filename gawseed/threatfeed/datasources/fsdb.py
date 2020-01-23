@@ -2,6 +2,7 @@ import pyfsdb
 from . import DataSource
 
 class FsdbDataSource(DataSource):
+    """Loads data from a tab-separated FSDB formatted file (see pyfsdb)"""
     def __init__(self, conf):
         super().__init__(conf)
         
