@@ -2,6 +2,10 @@ class Config():
     def __init__(self, config={}):
         self._config = config
 
+    def initialize(self):
+        """Overridable function for doing things beyond config copying in __init__"""
+        pass
+
     def set_defaults(self, defaults={}):
         for default in defaults:
             if default not in self_.config:

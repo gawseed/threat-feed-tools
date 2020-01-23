@@ -10,6 +10,7 @@ class FsdbDataSource(DataSource):
         self._file = self.config('file',
                                  help="The file name to read the bro data stream from")
 
+    def initialize(self):
         if not self._file_handle and not self._file:
             self.config_error("either file_handle or file is required for the %s module" % (type(self)))
 

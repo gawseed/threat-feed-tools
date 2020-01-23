@@ -13,6 +13,7 @@ class RESearch(Search):
         self.require(['key'])
         self._key = self.config('key', help="The key field to match against in the data stream")
 
+    def initialize(self):
         self._relist = []
         for item in search_list:
             try: 

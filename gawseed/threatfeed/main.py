@@ -9,6 +9,7 @@ generation.
 """
 
 import sys, os
+import re
 
 import datetime
 import yaml
@@ -224,10 +225,15 @@ def dump_config_options(args):
             try:
                 module = load_module_name(module_xforms[part][module])
                 # this forces a module to just dump out config settings to stdout
+                if module.__doc__:
+                    doc = module.__doc__
+                    doc = re.sub("\n", "\n    # ", doc)
+                    print("    # " + doc)
+                    
                 if part == SEARCHER_KEY:
-                    x = module(None, None, True, {'dump_config': 1})
+                    x = module(None, None, False, {'dump_config': 1})
                 elif part == ENRICHMENT_KEY:
-                    x = module(None, {'dump_config': 1})
+                    x = module({'dump_config': 1}, None, None, False)
                 else:
                     x = module({'dump_config': 1})
             except Exception as e:
@@ -303,6 +309,7 @@ def get_threat_feed(args, conf=None):
                                          'timeout': args.threat_timeout})
     verbose("created threat feed: " + str(threat_source))
 
+    threat_source.initialize()
     threat_source.open()
     (search_data, search_index) = threat_source.read(args.threat_max_records)
     verbose("  read feed with " + str(len(search_data)) + " entries")
@@ -329,6 +336,8 @@ def get_data_source(args, conf=None):
                                        'begin_time': args.begin_time,
                                        'topic': args.data_topic})
 
+    data_source.initialize()
+
     verbose("created data feed: " + str(data_source))
     data_source.open()
 
@@ -353,6 +362,8 @@ def get_searcher(args, search_index, data_source, conf=None):
     elif args.data_topic == 'http':
         searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
         
+    searcher.initialize()
+    
     verbose("created searcher: " + str(searcher))
 
     return searcher
@@ -365,6 +376,7 @@ def get_enrichments(conf, search_index, data_source):
     for item in section:
         obj = item['class_name']
         enricher = obj(item, search_index, data_source, data_source.is_binary())
+        enricher.initialize()
         enrichers.append(enricher)
     return enrichers
 
@@ -392,6 +404,7 @@ def main():
     else:
         output = EventStreamPrinter({'stream': args.output_pattern,
                                      'extra_fields': ['auth_success']}) # auth for ssh
+    output.initialize()
 
     enrichers = get_enrichments(conf, search_index, data_source)
 

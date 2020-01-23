@@ -11,12 +11,14 @@ class EventStreamReporter(EventStream):
         self.require(['template'])
         self._template = self.config('template',
                                      help="The file name to use as the jinja2 template.")
+        self._jinja_extra_information = self.config('extra_information', {},
+                                                    help="A YAML file name to be loaded as an extra_information field passed to the jinja2 template")
 
+    def initialize(self):
         self._jinja_template = open(self._template, "r").read()
         self._template = jinja2.Template(self._jinja_template)
 
-        self._jinja_extra_information = self.config('extra_information', {},
-                                                    help="A YAML file name to be loaded as an extra_information field passed to the jinja2 template")
+
         if self._jinja_extra_information:
             fh = open(self._jinja_extra_information, "r")
             self._jinja_extra_information = yaml.load(fh, Loader=yaml.FullLoader)
