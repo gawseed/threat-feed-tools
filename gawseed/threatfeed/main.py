@@ -216,19 +216,21 @@ def load_module_name(module_name):
 
 def dump_config_options(args):
     print("threat-search:")
+    first_char="-"
     for part in module_xforms:
-        print("  # ---- %s modules and options" % (part))
+        print("  %s %s:" % (first_char, part))
+        print("    # ---- %s modules and options" % (part))
+        print("    # (pick one module)")
         for module in module_xforms[part]:
-            print("  - %s:" % (part))
-            print("    module: %s" % (module))
+            print("      module: %s" % (module))
 
             try:
                 module = load_module_name(module_xforms[part][module])
                 # this forces a module to just dump out config settings to stdout
                 if module.__doc__:
                     doc = module.__doc__
-                    doc = re.sub("\n", "\n    # ", doc)
-                    print("    #     " + doc)
+                    doc = re.sub("\n", "\n      # ", doc)
+                    print("      #       " + doc)
                     
                 if part == SEARCHER_KEY:
                     x = module(None, None, False, {'dump_config': 1})
@@ -237,13 +239,13 @@ def dump_config_options(args):
                 else:
                     x = module({'dump_config': 1})
             except Exception as e:
-                print("    # couldn't get config for this")
+                print("      # couldn't get config for this")
                 if (debug):
-                    print("    # " + str(e))
+                    print("      # " + str(e))
                     
 
             print("")
-        
+            first_char=" "
     exit()
     
 def load_yaml_config(args):

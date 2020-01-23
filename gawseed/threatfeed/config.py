@@ -15,7 +15,7 @@ class Config():
         if type(requirements) != list:
             requirements = [requirements]
         if 'dump_config' in self._config:
-            print("    # required: " + str(requirements))
+            print("      # required: " + str(requirements))
             return
         for requirement in requirements:
             if requirement not in self._config:
@@ -24,8 +24,8 @@ class Config():
     def config(self, name, default=None, help=None):
         if 'dump_config' in self._config:
             if help:
-                print("    # %s: %s" % (name, help))
-            print("    %s: %s" % (name, default))
+                print("      # %s: %s" % (name, help))
+            print("      %s: %s" % (name, default))
             return
         if name in self._config:
             return self._config[name]
