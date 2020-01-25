@@ -13,12 +13,16 @@ class RESearch(Search):
         self.require(['key'])
         self._key = self.config('key', help="The key field to match against in the data stream")
 
+        self._search_list = search_list
+        self._data_iterator = data_iterator
+        self._binary_search = binary_search
+
     def initialize(self):
         self._relist = []
-        for item in search_list:
+        for item in self._search_list:
             try: 
                 compiled = re.compile(item)
-                self._relist.append({ 'match': search_list[item],
+                self._relist.append({ 'match': self._search_list[item],
                                       're': compiled})
             except:
                 sys.stderr.write("failed to compile regular expression: %s" % (item))
