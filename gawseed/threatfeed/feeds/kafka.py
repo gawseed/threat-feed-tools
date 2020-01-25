@@ -68,6 +68,8 @@ class KafkaThreatFeed(Config):
             if timestamp and int(entry['timestamp']) < timestamp:
                 continue
 
+            if value_column not in entry:
+                continue
             array.append(entry)
             dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
             if max_records and count >= max_records:
