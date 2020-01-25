@@ -1,6 +1,9 @@
 import urllib3
-from gawseed.threatfeed.config import Config
 import json
+import time
+import sys
+
+from gawseed.threatfeed.config import Config
 
 class EnrichmentURL(Config):
     """Pulls enrichment data from a supplied URL.  The URL format line will be passed a 'tag' and 'match_info'."""
@@ -9,6 +12,7 @@ class EnrichmentURL(Config):
         
         self._pool = urllib3.PoolManager()
         self._conf = conf
+        self._cache = {}
 
         self.require(['url'])
 
@@ -25,14 +29,21 @@ class EnrichmentURL(Config):
         self._output_key = self.config('output_key', 'geturl',
                                        help="The output key to store the returned data in.")
 
+        self._cache_time = self.config('cache_time', 3600,
+                                       help="If set, will cache the data for a particular key for this number of seconds")
+
     def geturl(self, url, type='GET', params={}):
+        prior_results = self.check_cache(url)
+        if prior_results:
+            return prior_results
+        
         r = self._pool.request(type, url)
         if r.status != 200:
             print("failed to fetch URL:" + str(r.status))
             return None
 
         # XXX: check against the expected type (self._type)
-        return r.data
+        return self.cache(url, r.data)
 
     def convert(self, result):
         if self._type == 'text/plain' or self._type == 'text':
@@ -44,7 +55,27 @@ class EnrichmentURL(Config):
         return result
         
     def gather(self, count, row, match):
-        fetched = self.geturl(self._url.format(tag=match['tag'], match_info=match[self._match_key],
+        fetched = self.geturl(self._url.format(tag=match['tag'],
+                                               match_info=match[self._match_key],
                                                data_info=row[self._data_key]))
+        if not fetched:
+            sys.stderr.write("Failed to gather enrichment data...\n")
+            return (None, None)
         converted = self.convert(fetched)
         return (self._output_key, converted)
+
+    def cache(self, key, value):
+        if not self._cache_time:
+            return value
+        self._cache[key] = { 'data': value,
+                             'timestamp': time.time() }
+        return value
+        
+    def check_cache(self, key):
+        if not self._cache_time:
+            return None
+
+        if key in self._cache and time.time() < self._cache[key]['timestamp'] + self._cache_time:
+            return self._cache[key]['data']
+
+        return None
