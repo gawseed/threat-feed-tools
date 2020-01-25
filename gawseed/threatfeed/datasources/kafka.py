@@ -11,7 +11,7 @@ class KafkaDataSource(DataSource):
     def __init__(self, conf):
         super().__init__(conf)
 
-        self.require(['bootstrapservers', 'topic'])
+        self.require(['bootstrap_servers', 'topic'])
 
         self._bootstrap_servers = self.config('bootstrap_servers',
                                               help="A list of kafka bootstrap servers to query")

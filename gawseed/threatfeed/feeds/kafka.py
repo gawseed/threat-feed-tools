@@ -10,7 +10,7 @@ class KafkaThreatFeed(Config):
     """Pulls threat data from a GAWSEED project (or other) kafka threat-feed source."""
     def __init__(self, conf):
         super().__init__(conf)
-        self.require(['bootstrapservers', 'topic', 'partition'])
+        self.require(['bootstrap_servers', 'topic', 'partition'])
 
         self._bootstrap_servers = self.config('bootstrap_servers',
                                               help="A list of kafka bootstrap servers to query")
