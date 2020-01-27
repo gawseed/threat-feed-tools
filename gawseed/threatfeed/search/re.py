@@ -25,7 +25,7 @@ class RESearch(Search):
                 self._relist.append({ 'match': self._search_list[item],
                                       're': compiled})
             except:
-                sys.stderr.write("failed to compile regular expression: %s" % (item))
+                sys.stderr.write("failed to compile regular expression: %s\n" % (item))
     
     def search(self, row):
         """If the `source` value matches any stored expression, 
