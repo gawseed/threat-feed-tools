@@ -22,6 +22,10 @@ class KafkaThreatFeed(Config):
                                        help="The time to start searching from; no value will mean end of stream")
         self._timeout = self.config('timeout',
                                                 help="A timeout in milliseconds to wait for server data.")
+        self._max_records = self.config('limit',
+                                        help="Maximum number of records to retrieve")
+        self._exclude_list = self.config('exclude', [],
+                                         help='A list of entries to ignore in the threat feed')
 
     def open(self):
         self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,
@@ -40,6 +44,9 @@ class KafkaThreatFeed(Config):
             offset = offinfo[partition].offset
             self._consumer.seek(partition, offset)
 
+        if type(self._exclude_list) != list:
+            self._exclude_list = [self._exclude_list]
+
     def __iter__(self):
         return self
 
@@ -54,7 +61,7 @@ class KafkaThreatFeed(Config):
         array = []
         dictionary = {}
         if not max_records:
-            max_records = self.config('limit') # XXX move to init
+            max_records = self._max_records
 
         if self._begin_time:
             timestamp = parser.parse(self._begin_time).timestamp()
@@ -70,6 +77,10 @@ class KafkaThreatFeed(Config):
 
             if value_column not in entry:
                 continue
+
+            if entry[value_column] in self._exclude_list:
+                continue
+            
             array.append(entry)
             dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
             if max_records and count >= max_records:
