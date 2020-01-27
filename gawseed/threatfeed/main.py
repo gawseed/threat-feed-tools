@@ -435,5 +435,7 @@ def main():
         if args.max_records and count >= args.max_records:
             break
 
+    verbose("")
+
 if __name__ == "__main__":
     main()
