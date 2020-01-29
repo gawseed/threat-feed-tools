@@ -36,9 +36,9 @@ class Config():
             value = self._config[name]
             
             if datatype and datatype == 'time':
-                return self._parse_time(value)
+                return self.parse_time(value)
             if datatype and datatype == 'offset':
-                return self._parse_offset(value)
+                return self.parse_offset(value)
 
             return value
             
@@ -64,8 +64,7 @@ class Config():
         
 
     def parse_time(self, timestr):
-        if timestr[0] == '+' or timestr[1] == '-':
-
+        if timestr[0] == '+' or timestr[0] == '-':
             # return an offset from now
             now = time.time()
             return now + self.parse_offset(timestr)
