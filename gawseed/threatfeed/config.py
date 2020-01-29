@@ -1,5 +1,6 @@
 import re
 import time
+from dateutil import parser
 
 class Config():
     def __init__(self, config={}):
@@ -59,5 +60,10 @@ class Config():
             # return an offset from now
             now = time.time()
             return now + self.parse_offset(timestr)
-
-        
+        elif re.match("^@?[0-9]+$", timestr): # assume epoch seconds
+            if timestr[0] == '@':
+                timestr = timestr[1:]
+            return float(timestr)
+        else:
+            # hope for the best that this can parse it
+            return parser.parse(timestr).timestamp()

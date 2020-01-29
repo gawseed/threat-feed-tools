@@ -15,3 +15,22 @@ class test_config_times(unittest.TestCase):
         self.assertEqual(c.parse_offset("1y"), 31557600.0, "1y parsed correctly")
         self.assertEqual(c.parse_offset("5m"), 300.0, "5m parsed correctly")
         
+
+    def test_config_dates(self):
+        from gawseed.threatfeed.config import Config
+        c = Config({})
+
+        self.assertEqual(c.parse_time("1989-09-01 00:00:00Z"), 620611200.0,
+                         "Parsed a date from 1989 correctly")
+        # self.assertEqual(c.parse_time("1989/9/1"), 620611200.0, # assumes local timezone
+        #                  "Parsed a date from 1989 correctly")
+        self.assertEqual(c.parse_time("1989/9/1 01:23:45Z"), 620611200.0 + 3600 + 23*60 + 45,
+                         "Parsed a date from 1989 correctly")
+        self.assertEqual(c.parse_time("1989/9/1 01:23:45-02:00"),
+                         620611200.0 + 3600 + 23*60 + 45 + 2*3600,
+                         "Parsed a date from 1989 correctly")
+        self.assertEqual(c.parse_time("12345"), 12345,
+                         "Parsed a epoch correctly")
+        self.assertEqual(c.parse_time("@12345"), 12345,
+                         "Parsed an @epoch correctly")
+        
