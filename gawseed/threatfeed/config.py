@@ -1,3 +1,6 @@
+import re
+import time
+
 class Config():
     def __init__(self, config={}):
         self._config = config
@@ -33,3 +36,28 @@ class Config():
 
     def config_error(self, msg):
         raise ValueError(msg)
+
+    def parse_offset(self, timestr):
+        multipliers = {'m': 60,
+                       'h': 3600,
+                       'd': 3600*24,
+                       'w': 3600*24*7,
+                       'y': 3600*24*365.25}
+
+        multiplier = 1
+        if timestr[-1] in multipliers:
+            multiplier = multipliers[timestr[-1]]
+            timestr = timestr[:-1]
+
+        value = float(timestr) * multiplier
+        return value
+        
+
+    def parse_time(self, timestr):
+        if timestr[0] == '+' or timestr[1] == '-':
+
+            # return an offset from now
+            now = time.time()
+            return now + self.parse_offset(timestr)
+
+        
