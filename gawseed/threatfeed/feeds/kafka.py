@@ -1,4 +1,3 @@
-from dateutil import parser
 import json
 
 from gawseed.threatfeed.config import Config
@@ -18,7 +17,7 @@ class KafkaThreatFeed(Config):
                                   help="The kafka topic to stream from")
         self._partition = self.config('partition',
                                       help="The kafka partition to stream from")
-        self._begin_time = self.config('begin_time',
+        self._begin_time = self.config('begin_time', datatype='time',
                                        help="The time to start searching from; no value will mean end of stream")
         self._timeout = self.config('timeout',
                                                 help="A timeout in milliseconds to wait for server data.")
@@ -37,7 +36,7 @@ class KafkaThreatFeed(Config):
 
         offset = None
         if self._begin_time:
-            timestamp = parser.parse(self._begin_time).timestamp() * 1000
+            timestamp = self._begin_time * 1000
             offinfo = self._consumer.offsets_for_times({partition: timestamp})
             if offinfo == None or offinfo[partition] == None:
                 raise ValueError("There is no data in the threat feed stream the begin date")
@@ -64,7 +63,7 @@ class KafkaThreatFeed(Config):
             max_records = self._max_records
 
         if self._begin_time:
-            timestamp = parser.parse(self._begin_time).timestamp()
+            timestamp = self._begin_time
 
         for (count, entry) in enumerate(self._consumer):
             entry = self.parse_record(entry)

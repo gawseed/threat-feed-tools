@@ -1,5 +1,3 @@
-from dateutil import parser
-
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
 from msgpack import unpackb
@@ -15,7 +13,7 @@ class KafkaDataSource(DataSource):
 
         self._bootstrap_servers = self.config('bootstrap_servers',
                                               help="A list of kafka bootstrap servers to query")
-        self._begin_time = self.config('begin_time',
+        self._begin_time = self.config('begin_time', datatype='time',
                                        help="The time to start searching from; no value will mean end of stream")
         self._topic = self.config('topic',
                                   help="The kafka topic to search")
@@ -32,8 +30,7 @@ class KafkaDataSource(DataSource):
         consumer.assign([partition])
 
         if self._begin_time:
-            timestamp = parser.parse(self._begin_time).timestamp() * 1000
-            offinfo = consumer.offsets_for_times({partition: timestamp})
+            offinfo = consumer.offsets_for_times({partition: self._begin_time})
             if offinfo == None or offinfo[partition] == None:
                 raise ValueError("There is no data in the enterprise stream the begin date")
             offset = offinfo[partition].offset
