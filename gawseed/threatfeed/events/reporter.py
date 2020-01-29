@@ -23,7 +23,7 @@ class EventStreamReporter(EventStream):
 
     def initialize(self):
         self._jinja_template = open(self._template, "r").read()
-        self._template = jinja2.Template(self._jinja_template)
+        self._template = jinja2.Environment(loader=jinja2.FileSystemLoader("./")).from_string(self._jinja_template)
 
 
         if self._jinja_extra_information:
