@@ -1,3 +1,4 @@
+import sys
 import json
 
 from gawseed.threatfeed.config import Config
@@ -66,22 +67,27 @@ class KafkaThreatFeed(Config):
             timestamp = self._begin_time
 
         for (count, entry) in enumerate(self._consumer):
-            entry = self.parse_record(entry)
+            try:
+                entry = self.parse_record(entry)
 
-            # tmp hack to work around kafka hanging on some topics;
-            # thus we start from the beginning and read everything.
-            # this naturally won't scale.
-            if timestamp and int(entry['timestamp']) < timestamp:
-                continue
+                # tmp hack to work around kafka hanging on some topics;
+                # thus we start from the beginning and read everything.
+                # this naturally won't scale.
+                if timestamp and int(float(entry['timestamp'])) < timestamp:
+                    continue
 
-            if value_column not in entry:
-                continue
+                if value_column not in entry:
+                    continue
 
-            if entry[value_column] in self._exclude_list:
-                continue
-            
-            array.append(entry)
-            dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
+                if entry[value_column] in self._exclude_list:
+                    continue
+                
+                array.append(entry)
+                dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
+            except Exception as e:
+                sys.stderr.write("dropping kafka feed entry due to a parse error: " + str(entry) + "\n")
+                sys.stderr.write(str(e) + "\n")
+                
             if max_records and count >= max_records:
                 break
 
