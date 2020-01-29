@@ -16,7 +16,18 @@ class Search(Config):
         for row in self._data_iterator:
             match = self.search(row)
             if match:
+                if self._binary_search:
+                    row = self.convert_row_to_utf8(row)
                 yield (row, match)
+
+    def convert_row_to_utf8(self, row):
+        utf8_row = []
+        for item in row:
+            if type(item) == bytes:
+                utf8_row.append(item.decode())
+            else:
+                utf8_row.append(item)
+        return utf8_row
 
     def convert_to_binary_search_list(self):
         new_list = {}
@@ -26,19 +37,19 @@ class Search(Config):
             new_list[key] = self._search_list[key]
         self._search_list = new_list
 
-    def maybe_convert_to_binary(self, value):
+    def maybe_convert_token_to_binary(self, value):
         if type(value) != str:
             return value
         if self._binary_search:
             return bytes(value, 'utf-8')
         return value
 
-    def maybe_convert_binary_list(self, values):
+    def maybe_convert_list_to_binary(self, values):
         if not self._binary_search:
             return values
 
         new_list = []
         for value in values:
-            new_list.append(self.maybe_convert_to_binary(value))
+            new_list.append(self.maybe_convert_token_to_binary(value))
         return new_list
 

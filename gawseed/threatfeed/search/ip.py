@@ -6,7 +6,7 @@ class IPSearch(Search):
         super().__init__(search_list, data_iterator, binary_search, conf)
         search_keys = self.config('search_keys', ['id_orig_h', 'id_resp_h'],
                                   help="A list of fields to search for IP addresses in the data stream")
-        self._search_keys = self.maybe_convert_binary_list(search_keys)
+        self._search_keys = self.maybe_convert_list_to_binary(search_keys)
     
     def search(self, row):
         for key in self._search_keys:
