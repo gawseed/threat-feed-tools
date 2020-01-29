@@ -32,12 +32,12 @@ class EnrichmentURL(Config):
         self._cache_time = self.config('cache_time', 3600,
                                        help="If set, will cache the data for a particular key for this number of seconds")
 
-    def geturl(self, url, type='GET', params={}):
+    def geturl(self, url, reqtype='GET', params={}):
         prior_results = self.check_cache(url)
         if prior_results:
             return prior_results
         
-        r = self._pool.request(type, url)
+        r = self._pool.request(reqtype, url)
         if r.status != 200:
             print("failed to fetch URL:" + str(r.status))
             return None
