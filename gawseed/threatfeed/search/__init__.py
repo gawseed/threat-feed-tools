@@ -21,12 +21,12 @@ class Search(Config):
                 yield (row, match)
 
     def convert_row_to_utf8(self, row):
-        utf8_row = []
+        utf8_row = {}
         for item in row:
-            if type(item) == bytes:
-                utf8_row.append(item.decode())
+            if type(row[item]) == bytes:
+                utf8_row[item.decode()] = row[item].decode()
             else:
-                utf8_row.append(item)
+                utf8_row[item] = row[item]
         return utf8_row
 
     def convert_to_binary_search_list(self):

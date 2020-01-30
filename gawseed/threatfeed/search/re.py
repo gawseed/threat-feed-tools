@@ -30,7 +30,7 @@ class RESearch(Search):
     def search(self, row):
         """If the `source` value matches any stored expression, 
            the expression will be returned."""
-        return self.search_one(row[self._key])
+        return self.search_one(self.maybe_convert_token_to_binary(row[self._key]))
 
     def search_one(self, source):
         """If the `source` value matches any stored expression, 
