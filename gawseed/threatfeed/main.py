@@ -422,12 +422,23 @@ def main():
 
         # gather enrichment data from the backends
         for ecount, enricher in enumerate(enrichers):
-            (key, result) = enricher.gather(count, finding[0], finding[1])
-            enrichment_data[key] = result
+            try:
+                (key, result) = enricher.gather(count, finding[0], finding[1])
+                enrichment_data[key] = result
+            except Exception as e:
+                sys.stderr.write("An enricher failed: " + str(e))
+                if 'errors' not in enrichment_data:
+                    enrichment_data['errors'] = []
+                enrichment_data['errors'].append({ 'count': count,
+                                                   'module': type(enricher),
+                                                   'msg': 'An enrichment module failed to load data'})
 
-        output.new_output(count)
-        output.write(count, finding[0], finding[1], enrichment_data)
-        output.maybe_close_output()
+        try:
+            output.new_output(count)
+            output.write(count, finding[0], finding[1], enrichment_data)
+            output.maybe_close_output()
+        except Exception as e:
+            sys.stderr.write("The output module failed: " + str(e))
 
         if debug:
             print("reports created: %d" % (count), end="\r")
