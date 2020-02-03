@@ -348,6 +348,22 @@ def get_searcher(args, search_index, data_source, conf=None):
 
     return searcher
 
+def get_output(conf):
+    if conf:
+        obj = conf[YAML_KEY][0][REPORTER_KEY]['class']
+        output = obj(conf[YAML_KEY][0][REPORTER_KEY])
+    elif args.dump_events:
+        output = EventStreamDumper({'stream': args.output_pattern})
+    elif args.jinja_template:
+        output = EventStreamReporter({'stream': args.output_pattern,
+                                      'template': args.jinja_template,
+                                      'extra_information': args.jinja_extra_information})
+    else:
+        output = EventStreamPrinter({'stream': args.output_pattern,
+                                     'extra_fields': ['auth_success']}) # auth for ssh
+    output.initialize()
+    return output
+
 def get_enrichments(conf, search_index, data_source):
     if ENRICHMENT_KEY not in conf[YAML_KEY][0]:
         return []
@@ -371,28 +387,15 @@ def main():
     data_source = get_data_source(args, conf)
     searcher = get_searcher(args, search_index, data_source, conf)
 
-    #output = EventStreamDumper() 
-    if conf:
-        obj = conf[YAML_KEY][0][REPORTER_KEY]['class']
-        output = obj(conf[YAML_KEY][0][REPORTER_KEY])
-    elif args.dump_events:
-        output = EventStreamDumper({'stream': args.output_pattern})
-    elif args.jinja_template:
-        output = EventStreamReporter({'stream': args.output_pattern,
-                                      'template': args.jinja_template,
-                                      'extra_information': args.jinja_extra_information})
-    else:
-        output = EventStreamPrinter({'stream': args.output_pattern,
-                                     'extra_fields': ['auth_success']}) # auth for ssh
-    output.initialize()
-
     enrichers = get_enrichments(conf, search_index, data_source)
 
+    output = get_output(conf)
     verbose("created output: " + str(output))
 
     # loop through all the data for matches
     if debug:
         print("reports created: 0", end="\r")
+
     for count, finding in enumerate(next(searcher)):
         enrichment_data = {}
 
