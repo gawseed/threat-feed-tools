@@ -200,6 +200,8 @@ def verbose(msg):
         print(msg)
 
 def load_module_name(module_name):
+    """Given a module name, split it in parts, load the module and find its child name
+    within and return the final loaded object"""
     try:
         lastdotnum = module_name.rindex('.')
         modulename = module_name[:lastdotnum]   # just the module name
@@ -249,37 +251,11 @@ def dump_config_options(args):
     exit()
     
 def load_yaml_config(args):
-    defaults = {
-        'threatsource': {
-            'module': 'kafka',
-            'timeout': 2000,
-        },
-        'datasource': {
-            'module': 'kafka',
-            'topic': 'ssh', # XXX don't make this a default?
-            'keys': ['id_orig_h']
-        },
-        'searcher': {
-            'module': 'ssh' # XXX same
-        },
-        'reporter': {
-            'module': 'eventReporter',
-        }
-    }
-
     conf = yaml.load(args.config, Loader=yaml.FullLoader)
     
-    # fill in defaults
     threatconfs = conf[YAML_KEY]
-    for threatconf in threatconfs:
-        # insert default values if needed
-        for key in defaults:
-            if key not in threatconf:
-                threatconf[key] = {}
-            for subkey in defaults[key]:
-                if subkey not in threatconf[key]:
-                    threatconf[key][subkey] = defaults[key][subkey]
 
+    # load each section
     for threatconf in threatconfs:
         for section in YAML_SECTIONS:
             if section in threatconf: # some are optional
@@ -290,7 +266,7 @@ def load_yaml_config(args):
                     module = part['module']
                     if module in module_xforms[section]:
                         module = module_xforms[section][module]
-                    part['class_name'] = load_module_name(module)
+                    part['class'] = load_module_name(module)
 
     return conf
         
@@ -301,7 +277,7 @@ def get_threat_feed(args, conf=None):
 
     # read in the threat feed stream as a data source to search for
     if conf:
-        obj = conf[YAML_KEY][0][THREATSOURCE_KEY]['class_name']
+        obj = conf[YAML_KEY][0][THREATSOURCE_KEY]['class']
         threat_source = obj(conf[YAML_KEY][0][THREATSOURCE_KEY])
     elif args.threat_fsdb:
         threat_source = FsdbThreatFeed(args.threat_fsdb)
@@ -329,7 +305,7 @@ def get_threat_feed(args, conf=None):
 def get_data_source(args, conf=None):
     """Get the data source and open it for traversing"""
     if conf:
-        obj = conf[YAML_KEY][0][DATASOURCE_KEY]['class_name']
+        obj = conf[YAML_KEY][0][DATASOURCE_KEY]['class']
         data_source = obj(conf[YAML_KEY][0][DATASOURCE_KEY])
     elif args.fsdb_data:
         data_source = FsdbDataSource({'file': args.fsdb_data})
@@ -357,7 +333,7 @@ def get_searcher(args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
     if conf:
-        obj = conf[YAML_KEY][0][SEARCHER_KEY]['class_name']
+        obj = conf[YAML_KEY][0][SEARCHER_KEY]['class']
         searcher = obj(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf=conf[YAML_KEY][0][SEARCHER_KEY])
     elif args.data_topic == 'ssh':
         searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
@@ -378,7 +354,7 @@ def get_enrichments(conf, search_index, data_source):
     section = conf[YAML_KEY][0][ENRICHMENT_KEY]
     enrichers = []
     for item in section:
-        obj = item['class_name']
+        obj = item['class']
         enricher = obj(item, search_index, data_source, data_source.is_binary())
         enricher.initialize()
         enrichers.append(enricher)
@@ -397,7 +373,7 @@ def main():
 
     #output = EventStreamDumper() 
     if conf:
-        obj = conf[YAML_KEY][0][REPORTER_KEY]['class_name']
+        obj = conf[YAML_KEY][0][REPORTER_KEY]['class']
         output = obj(conf[YAML_KEY][0][REPORTER_KEY])
     elif args.dump_events:
         output = EventStreamDumper({'stream': args.output_pattern})
