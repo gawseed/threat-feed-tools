@@ -23,10 +23,10 @@ class FsdbThreatFeed(Config):
                                 return_type=pyfsdb.RETURN_AS_DICTIONARY)
         self._tfh_index_column = self._tfh.get_column_number(self._value_column)
 
-        if self._start_time or self._end_time:
+        if self._begin_time or self._end_time:
             self._tfh_time_column = self._tfh.get_column_number(self._time_column)
 
-        if self._start_time:
+        if self._begin_time:
             # find the start of the data based on time
             while True:
                 row = next(self)
