@@ -303,7 +303,7 @@ def main():
                 (key, result) = enricher.gather(count, finding[0], finding[1])
                 enrichment_data[key] = result
             except Exception as e:
-                sys.stderr.write("An enricher failed: " + str(e))
+                sys.stderr.write("An enricher failed: " + str(e) + "\n")
                 if 'errors' not in enrichment_data:
                     enrichment_data['errors'] = []
                 enrichment_data['errors'].append({ 'count': count,
@@ -315,7 +315,7 @@ def main():
             output.write(count, finding[0], finding[1], enrichment_data)
             output.maybe_close_output()
         except Exception as e:
-            sys.stderr.write("The output module failed: " + str(e))
+            sys.stderr.write("The output module failed: " + str(e) + "\n")
 
         if debug:
             print("reports created: %d" % (count), end="\r")
