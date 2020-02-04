@@ -15,6 +15,10 @@ class KafkaDataSource(DataSource):
                                               help="A list of kafka bootstrap servers to query")
         self._begin_time = self.config('begin_time', datatype='time',
                                        help="The time to start searching from; no value will mean end of stream")
+        self._end_time = self.config('end_time', datatype='time',
+                                     help="The time to stop a search when reading; no value will mean don't stop streaming")
+        self._time_column = self.config('time_column',
+                                        help="Time column to use when searching through data")
         self._topic = self.config('topic',
                                   help="The kafka topic to search")
         self._consumer_timeout_ms = self.config('timeout',
@@ -45,6 +49,8 @@ class KafkaDataSource(DataSource):
     def __next__(self):
         row = next(self._consumer)
         decoded_row = unpackb(row.value)
+        if self._end_time and decoded_row[self._time_column] >= self._end_time:
+            raise StopIteration()
         return decoded_row
 
     def is_binary(self):

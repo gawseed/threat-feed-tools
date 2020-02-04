@@ -20,6 +20,10 @@ class KafkaThreatFeed(Config):
                                       help="The kafka partition to stream from")
         self._begin_time = self.config('begin_time', datatype='time',
                                        help="The time to start searching from; no value will mean end of stream")
+        self._end_time = self.config('end_time', datatype='time',
+                                     help="The time to stop a search when reading; no value will mean don't stop streaming")
+        self._time_column = self.config('time_column',
+                                        help="Time column to use when searching through data")
         self._timeout = self.config('timeout',
                                                 help="A timeout in milliseconds to wait for server data.")
         self._max_records = self.config('limit',
@@ -55,7 +59,10 @@ class KafkaThreatFeed(Config):
         return entry
 
     def __next__(self):
-        return next(self._consumer)
+        row = next(self._consumer)
+        if self._end_time and row[self._time_column] >= self._end_time:
+            raise StopIteration()
+        return row
 
     def read(self, max_records=None, value_column='value'):
         array = []

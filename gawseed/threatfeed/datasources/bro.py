@@ -11,6 +11,13 @@ class BroDataSource(FsdbDataSource):
         self._file = self.config('file',
                                  help="The file name to read the bro data stream from")
 
+        self._begin_time = self.config('begin_time', datatype='time',
+                                       help="The time to start searching from; no value will mean end of stream")
+        self._end_time = self.config('end_time', datatype='time',
+                                     help="The time to stop a search when reading; no value will mean don't stop streaming")
+        self._time_column = self.config('time_column',
+                                        help="Time column to use when searching through data")
+
     def open(self):
         if self._file and not self._file_handle:
             self._file_handle = open(self._file, "r")
@@ -31,3 +38,7 @@ class BroDataSource(FsdbDataSource):
                         return_type=RETURN_AS_DICTIONARY)
         self._fh.column_names = column_names
         # todo:: XXX: we eat a line here; fix this
+
+        self.maybe_skip_to_time()
+
+        
