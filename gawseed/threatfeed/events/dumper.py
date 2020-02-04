@@ -9,11 +9,11 @@ class EventStreamDumper(EventStream):
 
     def write(self, count, row, match, enrichments):
         self.output("match #" + str(count) + ":\n")
-        self.output(str(row) + "\n")
+        self.output("row: " + str(row) + "\n")
         self.output("--\n")
-        self.output(str(match) + "\n")
+        self.output("match: " + str(match) + "\n")
         self.output("--\n")
-        self.output(str(enrichments) + "\n")
+        self.output("enrichments: " + str(enrichments) + "\n")
         self.output("--------------")
         
 
