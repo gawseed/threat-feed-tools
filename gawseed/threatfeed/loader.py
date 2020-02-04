@@ -55,7 +55,7 @@ module_xforms = {
     },
 }
 
-def dump_config_options(args):
+def dump_config_options(debug=False):
     print("threat-search:")
     first_char="-"
     for part in module_xforms:
