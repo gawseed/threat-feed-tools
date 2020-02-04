@@ -136,14 +136,16 @@ def load_class_config(threatconfs, sections=YAML_SECTIONS):
 
     return threatconf
 
-def create_instance(conf, module_type, args=[]):
+def create_instance(conf, module_type, args=[], initialize=True):
     if 'class' not in conf[YAML_KEY][0][module_type]:
         load_class_config(conf[YAML_KEY], [module_type])
     
     obj = conf[YAML_KEY][0][module_type]['class']
 
     created = obj(conf[YAML_KEY][0][module_type], *args)
-    created.initialize()
+
+    if initialize:
+        created.initialize()
 
     return created
 
