@@ -236,7 +236,7 @@ def get_searcher(args, search_index, data_source, conf=None):
         conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
 
     searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
-                                      [data_iterator, data_source.is_binary()])
+                                      [search_index, data_source, data_source.is_binary()])
     searcher.initialize()
     
     verbose("created searcher: " + str(searcher))

@@ -35,7 +35,7 @@ class Config():
         if name in self._config:
             value = self._config[name]
             
-            if not value:
+            if value is None:
                 return None
 
             if datatype and datatype == 'time':

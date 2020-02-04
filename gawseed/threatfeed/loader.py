@@ -142,5 +142,5 @@ def create_instance(conf, module_type, args=[]):
     
     print(conf)
     obj = conf[YAML_KEY][0][module_type]['class']
-    return obj(conf[YAML_KEY][0][THREATSOURCE_KEY], *args)
+    return obj(conf[YAML_KEY][0][module_type], *args)
 
