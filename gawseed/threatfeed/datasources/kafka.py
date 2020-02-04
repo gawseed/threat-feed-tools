@@ -49,7 +49,7 @@ class KafkaDataSource(DataSource):
     def __next__(self):
         row = next(self._consumer)
         decoded_row = unpackb(row.value)
-        if self._end_time and decoded_row[self._time_column] >= self._end_time:
+        if self._end_time and float(decoded_row[self._time_column]) >= self._end_time:
             raise StopIteration()
         return decoded_row
 
