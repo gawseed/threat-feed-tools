@@ -265,13 +265,18 @@ def get_output(conf):
     return output
 
 def get_enrichments(conf, search_index, data_source):
-    if ENRICHMENT_KEY not in conf[YAML_KEY][0]:
+    if loader.ENRICHMENT_KEY not in conf[loader.YAML_KEY][0]:
         return []
-    section = conf[YAML_KEY][0][ENRICHMENT_KEY]
+    section = conf[loader.YAML_KEY][0][loader.ENRICHMENT_KEY]
     enrichers = []
     for item in section:
+        # XXX: need to fix the loader to handle loading an array
+        # we do this by hand till now
         obj = item['class']
         enricher = obj(item, search_index, data_source, data_source.is_binary())
+
+        # XXX: enricher = loader.create_instance(conf, loader.ENRICHMENT_KEY)
+
         enricher.initialize()
         enrichers.append(enricher)
     return enrichers

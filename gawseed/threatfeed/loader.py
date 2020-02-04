@@ -140,7 +140,6 @@ def create_instance(conf, module_type, args=[]):
     if 'class' not in conf[YAML_KEY][0][module_type]:
         load_class_config(conf[YAML_KEY], [module_type])
     
-    print(conf)
     obj = conf[YAML_KEY][0][module_type]['class']
     return obj(conf[YAML_KEY][0][module_type], *args)
 
