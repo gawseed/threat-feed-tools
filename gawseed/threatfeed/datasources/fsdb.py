@@ -29,14 +29,14 @@ class FsdbDataSource(DataSource):
         self.maybe_skip_to_time()
 
     def maybe_skip_to_time(self):
-        if self._start_time or self._end_time:
+        if self._begin_time or self._end_time:
             self._fh_time_column = self._fh.get_column_number(self._time_column)
 
-        if self._start_time:
+        if self._begin_time:
             # find the start of the data based on time
             while True:
                 row = next(self)
-                if row[self._fh_time_column] >= self._begin_time:
+                if float(row[self._time_column]) >= self._begin_time:
                     break
 
     def __iter__(self):
@@ -44,7 +44,7 @@ class FsdbDataSource(DataSource):
 
     def __next__(self):
         row = next(self._fh)
-        if self._end_time and row[self._fh_time_column] >= self._end_time:
+        if self._end_time and float(row[self._time_column]) >= self._end_time:
             raise StopIteration()
         return row
 
