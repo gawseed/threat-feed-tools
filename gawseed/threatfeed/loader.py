@@ -51,7 +51,8 @@ module_xforms = {
         'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
     },
     ENRICHMENT_KEY: {
-        'url': 'gawseed.threatfeed.enrichments.EnrichmentURL'
+        'url': 'gawseed.threatfeed.enrichments.EnrichmentURL',
+        'datasource': 'gawseed.threatfeed.enrichments.datasource.Datasource',
     },
 }
 
