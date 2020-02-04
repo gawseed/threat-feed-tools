@@ -175,7 +175,6 @@ def get_threat_feed(args, conf=None):
     verbose("created threat feed: " + str(threat_source))
 
     # initialize and read
-    threat_source.initialize()
     threat_source.open()
     (search_data, search_index) = threat_source.read(args.threat_max_records)
 
@@ -209,8 +208,6 @@ def get_data_source(args, conf=None):
 
     data_source = loader.create_instance(conf, loader.DATASOURCE_KEY)
 
-    data_source.initialize()
-
     verbose("created data feed: " + str(data_source))
     data_source.open()
 
@@ -237,8 +234,6 @@ def get_searcher(args, search_index, data_source, conf=None):
 
     searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
                                       [search_index, data_source, data_source.is_binary()])
-    searcher.initialize()
-    
     verbose("created searcher: " + str(searcher))
 
     return searcher
@@ -260,7 +255,6 @@ def get_output(conf):
         conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
         
     output = loader.create_instance(conf, loader.REPORTER_KEY)
-    output.initialize()
 
     return output
 
@@ -277,7 +271,6 @@ def get_enrichments(conf, search_index, data_source):
 
         # XXX: enricher = loader.create_instance(conf, loader.ENRICHMENT_KEY)
 
-        enricher.initialize()
         enrichers.append(enricher)
     return enrichers
 
