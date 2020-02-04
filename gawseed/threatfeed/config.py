@@ -32,20 +32,20 @@ class Config():
             print("      %s: %s" % (name, default))
             return
 
+        value = default
         if name in self._config:
             value = self._config[name]
-            
-            if value is None:
-                return None
 
-            if datatype and datatype == 'time':
-                return self.parse_time(value)
-            if datatype and datatype == 'offset':
-                return self.parse_offset(value)
+        if value is None:
+            return None
 
-            return value
-            
-        return default
+        if datatype and datatype == 'time':
+            return self.parse_time(value)
+        if datatype and datatype == 'offset':
+            print("---------------------------------------------------------------")
+            return self.parse_offset(value)
+        
+        return value
 
     def config_error(self, msg):
         raise ValueError(msg)
@@ -71,7 +71,7 @@ class Config():
             # return an offset from now
             now = time.time()
             return now + self.parse_offset(timestr)
-        elif re.match("^@?[0-9]+$", timestr): # assume epoch seconds
+        elif re.match("^@?[0-9.]+$", timestr): # assume epoch seconds
             if timestr[0] == '@':
                 timestr = timestr[1:]
             return float(timestr)
