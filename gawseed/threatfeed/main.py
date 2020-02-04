@@ -20,56 +20,7 @@ import time
 import argparse
 from msgpack import unpackb
 
-from gawseed.threatfeed.feeds.kafka import KafkaThreatFeed
-from gawseed.threatfeed.feeds.fsdb import FsdbThreatFeed
-
-from gawseed.threatfeed.datasources.kafka import KafkaDataSource
-from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
-from gawseed.threatfeed.datasources.bro import BroDataSource
-
-from gawseed.threatfeed.search.ip import IPSearch
-from gawseed.threatfeed.search.http import HTTPSearch
-from gawseed.threatfeed.search.ssh import SSHSearch
-
-from gawseed.threatfeed.events.printer import EventStreamPrinter
-from gawseed.threatfeed.events.dumper import EventStreamDumper
-from gawseed.threatfeed.events.reporter import EventStreamReporter
-
-YAML_KEY='threat-search'
-THREATSOURCE_KEY='threatsource'
-DATASOURCE_KEY='datasource'
-SEARCHER_KEY='searcher'
-REPORTER_KEY='reporter'
-ENRICHMENT_KEY='enrichments'
-YAML_SECTIONS=[THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY, ENRICHMENT_KEY]
-
-# load modules?
-module_xforms = {
-    THREATSOURCE_KEY: {
-        'kafka': 'gawseed.threatfeed.feeds.kafka.KafkaThreatFeed',
-        'fsdb': 'gawseed.threatfeed.feeds.fsdb.FsdbThreatFeed',
-    },
-    DATASOURCE_KEY: {
-        'fsdb': 'gawseed.threatfeed.datasources.fsdb.FsdbDataSource',
-        'bro': 'gawseed.threatfeed.datasources.bro.BroDataSource',
-        'kafka': 'gawseed.threatfeed.datasources.kafka.KafkaDataSource',
-    },
-    SEARCHER_KEY: {
-        'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
-        'ip': 'gawseed.threatfeed.search.ip.IPSearch',
-        'http': 'gawseed.threatfeed.search.http.HTTPSearch',
-        'dns': 'gawseed.threatfeed.search.dns.DNSSearch',
-        're': 'gawseed.threatfeed.search.re.RESearch',
-    },
-    REPORTER_KEY: {
-        'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',
-        'printer': 'gawseed.threatfeed.events.printer.EventStreamPrinter',
-        'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
-    },
-    ENRICHMENT_KEY: {
-        'url': 'gawseed.threatfeed.enrichments.EnrichmentURL'
-    },
-}
+from gawseed.threatfeed import loader
 
 debug = False
 
@@ -199,99 +150,35 @@ def verbose(msg):
     if debug:
         print(msg)
 
-def load_module_name(module_name):
-    """Given a module name, split it in parts, load the module and find its child name
-    within and return the final loaded object"""
-    try:
-        lastdotnum = module_name.rindex('.')
-        modulename = module_name[:lastdotnum]   # just the module name
-        class_name = module_name[lastdotnum+1:] # just the class init function name
-
-        module = importlib.import_module(modulename)
-    except:
-        raise ValueError("Error parsing/loading module/class name: " + module_name)
-
-    if not hasattr(module, class_name):
-        raise ValueError("Error finding class name '" + class_name + "' in module '" + module + "'")
-
-    return getattr(module, class_name)
-
-def dump_config_options(args):
-    print("threat-search:")
-    first_char="-"
-    for part in module_xforms:
-        print("  %s %s:" % (first_char, part))
-        print("    # ---- %s modules and options" % (part))
-        print("    # (pick one module)")
-        for module in module_xforms[part]:
-            print("      module: %s" % (module))
-
-            try:
-                module = load_module_name(module_xforms[part][module])
-                # this forces a module to just dump out config settings to stdout
-                if module.__doc__:
-                    doc = module.__doc__
-                    doc = re.sub("\n", "\n      # ", doc)
-                    print("      #       " + doc)
-                    
-                if part == SEARCHER_KEY:
-                    x = module(None, None, False, {'dump_config': 1})
-                elif part == ENRICHMENT_KEY:
-                    x = module({'dump_config': 1}, None, None, False)
-                else:
-                    x = module({'dump_config': 1})
-            except Exception as e:
-                print("      # couldn't get config for this")
-                if (debug):
-                    print("      # " + str(e))
-                    
-
-            print("")
-            first_char=" "
-    exit()
-    
-def load_yaml_config(args):
-    conf = yaml.load(args.config, Loader=yaml.FullLoader)
-    
-    threatconfs = conf[YAML_KEY]
-
-    # load each section
-    for threatconf in threatconfs:
-        for section in YAML_SECTIONS:
-            if section in threatconf: # some are optional
-                parts = threatconf[section]
-                if type(parts) != list:
-                    parts = [parts]
-                for part in parts:
-                    module = part['module']
-                    if module in module_xforms[section]:
-                        module = module_xforms[section][module]
-                    part['class'] = load_module_name(module)
-
-    return conf
-        
-
-
 def get_threat_feed(args, conf=None):
     """Read in the threat feed stream as a data source to search for"""
 
     # read in the threat feed stream as a data source to search for
-    if conf:
-        obj = conf[YAML_KEY][0][THREATSOURCE_KEY]['class']
-        threat_source = obj(conf[YAML_KEY][0][THREATSOURCE_KEY])
-    elif args.threat_fsdb:
-        threat_source = FsdbThreatFeed(args.threat_fsdb)
-    else:
-        threat_source = KafkaThreatFeed({'bootstrapservers': args.threat_kafka_servers,
-                                         'begintime': args.threat_begin_time,
-                                         'topic': args.threat_kafka_topic,
-                                         'partition': 0,
-                                         'timeout': args.threat_timeout})
+    if not conf:
+        if args.threat_fsdb:
+            conf_part = { 'module': 'fsdb',
+                          'file': args.threat_fsdb}
+        elif args.threat_kafka_servers:
+            conf_part = { 'module': 'kafka',
+                          'bootstrap_servers': args.threat_kafka_servers,
+                          'begin_time': args.threat_begin_time,
+                          'topic': args.threat_kafka_topic,
+                          'partition': 0,
+                          'timeout': args.threat_timeout}
+        else:
+            raise ValueError("no data source specified")
+
+        conf = { loader.YAML_KEY: [{loader.THREATSOURCE_KEY: conf_part}] }
+
+    threat_source = loader.create_instance(conf, loader.THREATSOURCE_KEY)
+
     verbose("created threat feed: " + str(threat_source))
 
+    # initialize and read
     threat_source.initialize()
     threat_source.open()
     (search_data, search_index) = threat_source.read(args.threat_max_records)
+
     verbose("  read feed with " + str(len(search_data)) + " entries")
 
     if args.dump_threat_feed:
@@ -304,17 +191,23 @@ def get_threat_feed(args, conf=None):
 
 def get_data_source(args, conf=None):
     """Get the data source and open it for traversing"""
-    if conf:
-        obj = conf[YAML_KEY][0][DATASOURCE_KEY]['class']
-        data_source = obj(conf[YAML_KEY][0][DATASOURCE_KEY])
-    elif args.fsdb_data:
-        data_source = FsdbDataSource({'file': args.fsdb_data})
-    elif args.bro_data:
-        data_source = BroDataSource({'file': args.bro_data})
-    else:
-        data_source = KafkaDataSource({'bootstrapservers': args.data_kafka_servers,
-                                       'begin_time': args.begin_time,
-                                       'topic': args.data_topic})
+    if not conf:
+        if args.fsdb_data:
+            conf_part = { 'module': 'fsdb',
+                          'file': args.fsdb_data }
+        elif args.bro_data:
+            conf_part = { 'module': 'bro',
+                          'file': args.bro_data }
+        elif args.data_kafka_servers:
+            conf_part = { 'module': 'kafka',
+                          'bootstrapservers': args.data_kafka_servers,
+                          'begin_time': args.begin_time,
+                          'topic': args.data_topic }
+        else:
+            raise ValueError("no data source specified")
+        conf = { loader.YAML_KEY: [{loader.DATASOURCE_KEY: conf_part}] }
+
+    data_source = loader.create_instance(conf, loader.DATASOURCE_KEY)
 
     data_source.initialize()
 
@@ -332,16 +225,18 @@ def get_data_source(args, conf=None):
 def get_searcher(args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
-    if conf:
-        obj = conf[YAML_KEY][0][SEARCHER_KEY]['class']
-        searcher = obj(search_index, data_iterator = data_source, binary_search = data_source.is_binary(), conf=conf[YAML_KEY][0][SEARCHER_KEY])
-    elif args.data_topic == 'ssh':
-        searcher = SSHSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
-    elif args.data_topic == 'ip' or args.data_topic == 'conn':
-        searcher = IPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
-    elif args.data_topic == 'http':
-        searcher = HTTPSearch(search_index, data_iterator = data_source, binary_search = data_source.is_binary())
-        
+    if not conf:
+        if args.data_topic in ['ssh', 'http']:
+            conf_part = {'module': args.data_topic}
+        elif args.data_topic in ['ip', 'conn']:
+            conf_part = {'module': 'ip'}
+        else:
+            raise ValueError("no searcher specified")
+
+        conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
+
+    searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
+                                      [data_iterator, data_source.is_binary()])
     searcher.initialize()
     
     verbose("created searcher: " + str(searcher))
@@ -349,19 +244,24 @@ def get_searcher(args, search_index, data_source, conf=None):
     return searcher
 
 def get_output(conf):
-    if conf:
-        obj = conf[YAML_KEY][0][REPORTER_KEY]['class']
-        output = obj(conf[YAML_KEY][0][REPORTER_KEY])
-    elif args.dump_events:
-        output = EventStreamDumper({'stream': args.output_pattern})
-    elif args.jinja_template:
-        output = EventStreamReporter({'stream': args.output_pattern,
-                                      'template': args.jinja_template,
-                                      'extra_information': args.jinja_extra_information})
-    else:
-        output = EventStreamPrinter({'stream': args.output_pattern,
-                                     'extra_fields': ['auth_success']}) # auth for ssh
+    """Create the output-er object"""
+    if not conf:
+        if args.dump_events:
+            conf_part = {'module': 'dumper',
+                         'stream': args.output_pattern}
+        elif args.jinja_template:
+            conf_part = {'module': 'reporter',
+                         'stream': args.output_pattern,
+                         'template': args.jinja_template,
+                         'extra_information': args.jinja_extra_information
+            }
+        else:
+            conf_part = {'module': 'reporter' } # default
+        conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
+        
+    output = loader.create_instance(conf, loader.REPORTER_KEY)
     output.initialize()
+
     return output
 
 def get_enrichments(conf, search_index, data_source):
@@ -381,7 +281,7 @@ def main():
 
     conf = None
     if args.config:
-        conf = load_yaml_config(args)
+        conf = loader.load_yaml_config(args.config)
 
     (threat_source, search_data, search_index) = get_threat_feed(args, conf)
     data_source = get_data_source(args, conf)

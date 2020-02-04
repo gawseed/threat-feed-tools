@@ -35,6 +35,9 @@ class Config():
         if name in self._config:
             value = self._config[name]
             
+            if not value:
+                return None
+
             if datatype and datatype == 'time':
                 return self.parse_time(value)
             if datatype and datatype == 'offset':

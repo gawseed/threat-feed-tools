@@ -8,8 +8,8 @@ class RESearch(Search):
 
        `search_items` should be a list regular expressions, and will be built
         into self._relist as {'match': item, 're': compiled_version }"""
-    def __init__(self, search_list, data_iterator, binary_search, conf={}):
-        super().__init__(search_list, data_iterator, binary_search, conf)
+    def __init__(self, conf, search_list, data_iterator, binary_search):
+        super().__init__(conf, search_list, data_iterator, binary_search)
         self.require(['key'])
         self._key = self.config('key', help="The key field to match against in the data stream")
 

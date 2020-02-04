@@ -4,9 +4,9 @@ class SSHSearch(IPSearch):
     """Searches data for threats, but requires the auth_success field to
     be True. IE, only successful logins will be considered a match.
     Use the 'ip' module if you don't want this restriction applied."""
-    def __init__(self, search_list, data_iterator, binary_search, conf={}):
+    def __init__(self, conf, search_list, data_iterator, binary_search):
         
-        super().__init__(search_list, data_iterator, binary_search, conf)
+        super().__init__(conf, search_list, data_iterator, binary_search)
         # Really need a tri-nary option for this
 
         auth_success_key = self.config('auth_success_key', 'auth_success',
