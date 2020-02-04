@@ -139,7 +139,7 @@ def parse_args():
         debug = True
 
     if args.config_templates:
-        dump_config_options(args)
+        loader.dump_config_options(debug)
 
     # if args.merge_grep and not args.merge_key:
     #     raise ValueError("--merge-key/-k is required with --merge-grep")
