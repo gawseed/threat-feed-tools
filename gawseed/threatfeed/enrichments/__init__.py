@@ -1,7 +1,7 @@
-import urllib3
 import json
 import time
 import sys
+import urllib3
 
 from gawseed.threatfeed.config import Config
 
