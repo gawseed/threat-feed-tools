@@ -42,7 +42,8 @@ class Datasource(Config):
 
         ds_config = self._datasource
 
-        timestamp = float(row[self._match_time_column])
+        timeval = row[self._match_time_column]
+        timestamp = self.parse_time(timeval)
         ds_config['begin_time'] = '@' + str(timestamp - self._time_backward)
         ds_config['end_time'] = '@' + str(timestamp + self._time_forward)
 
@@ -51,13 +52,11 @@ class Datasource(Config):
         data_source = loader.create_instance(conf, loader.DATASOURCE_KEY)
         data_source.initialize()
 
-        print("------------------------------***")
         try:
             data_source.open()
         except Exception as e:
             print("end of file? " + str(e))
             return (self._output_key, []) # end of file
-        print("------------------------------***")
 
         # how we should do it eventually:
         # conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: { 'module': 'ip',
