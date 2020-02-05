@@ -1,0 +1,10 @@
+{% if enrichments.errors|length > 0 %}
+
+# Errors generating the enrichments for the report
+
+{% for error in enrichments.errors %}
++ module: {{error['msg']}}
+    + {{error['module']}}
+{% endfor %}
+
+{% endif %}

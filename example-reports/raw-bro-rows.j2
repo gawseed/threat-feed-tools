@@ -1,0 +1,13 @@
+## raw data
+{% if rawbro_data %}
+
+```
+{% for column in rawbro_data[0] %}{{column}} {% endfor %}
+{% for row in rawbro_data %}{% for column in row %}{{row[column]}} {% endfor %}{% endfor %}
+```
+
+{% else %}
+
+**Error:** we were supposed to include rawbrow_data but none was passed
+
+{% endif %}
