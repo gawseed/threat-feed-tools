@@ -1,0 +1,14 @@
+{% set matches = [] -%}
+{% for item in extra.feeds -%}
+{% if item['tag'] == match.tag -%}
+{% if matches.append(item) %}{% endif -%}
+{% set threat_item = item -%}
+{% endif -%}
+{% endfor -%}
+
+{% if matches|length > 0 %}
+{% set threat_item = matches[0] %}
+{% else %}
+{% set threat_item = {} %}
+{% endif %}
+
