@@ -14,6 +14,7 @@ import re
 import datetime
 import yaml
 import importlib
+import traceback
 
 import sys
 import time
@@ -301,9 +302,11 @@ def main():
         for ecount, enricher in enumerate(enrichers):
             try:
                 (key, result) = enricher.gather(count, finding[0], finding[1])
-                enrichment_data[key] = result
+                if key and result:
+                    enrichment_data[key] = result
             except Exception as e:
                 sys.stderr.write("An enricher failed: " + str(e) + "\n")
+                sys.stderr.write("".join(traceback.format_stack()))
                 if 'errors' not in enrichment_data:
                     enrichment_data['errors'] = []
                 enrichment_data['errors'].append({ 'count': count,
@@ -314,8 +317,11 @@ def main():
             output.new_output(count)
             output.write(count, finding[0], finding[1], enrichment_data)
             output.maybe_close_output()
+            
         except Exception as e:
             sys.stderr.write("The output module failed: " + str(e) + "\n")
+            sys.stderr.write("".join(traceback.format_stack()))
+            sys.stderr.write("".join(traceback.format_exc()))
 
         if debug:
             print("reports created: %d" % (count), end="\r")
