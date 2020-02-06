@@ -3,6 +3,7 @@
 
 import yaml
 import importlib
+import re
 
 from gawseed.threatfeed.feeds.kafka import KafkaThreatFeed
 from gawseed.threatfeed.feeds.fsdb import FsdbThreatFeed
