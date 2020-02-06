@@ -15,5 +15,3 @@ class EventStreamDumper(EventStream):
         self.output("--\n")
         self.output("enrichments: " + str(enrichments) + "\n")
         self.output("--------------")
-        
-

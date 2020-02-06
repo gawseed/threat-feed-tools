@@ -59,22 +59,19 @@ class Datasource(Config):
             return (self._output_key, []) # end of file
 
         # how we should do it eventually:
-        # conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: { 'module': 'ip',
-        #                                                    'search_keys': [self._datasource_key]}}] }
-        # searcher = loader._create_instance()
+        conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: { 'module': 'ip',
+                                                           'search_keys': [self._datasource_key]}}] }
 
-        match_value = row[self._match_key]
-        
-        print("------------------------------***")
+        search_index = {row[self._match_key]: row}
+        searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
+                                          [search_index, data_source, data_source.is_binary()])
+
         enrich_rows = []
-        print(match_value)
-        print(self._datasource_key)
         try:
-            for enrich_row in data_source:
-                if enrich_row[self._datasource_key] == match_value:
-                    enrich_rows.append(enrich_row)
+            for finding in next(searcher):
+                enrich_rows.append(finding[0])
         except Exception as e:
-            print("done? " + str(e))
+            print("done searching? exception: " + str(e))
 
         return (self._output_key, enrich_rows)
                 
