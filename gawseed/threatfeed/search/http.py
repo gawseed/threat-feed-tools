@@ -6,7 +6,7 @@ from gawseed.threatfeed.search.re import RESearch
 class HTTPSearch(RESearch):
     """Matches a regexp threat against a host/uri combo data field (aka bro log)"""
     def __init__(self, conf, search_list, data_iterator, binary_search):
-        super().__init__(conf, search_list, list, data_iterator, binary_search)
+        super().__init__(conf, search_list, data_iterator, binary_search)
 
         self._host_key = self.config('host_key', 'host',
                                      help="The column name for the host to construct a URL out of")
