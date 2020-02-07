@@ -60,9 +60,9 @@ class DataSource(Config):
         new_dict = {}
         for key in old_dict:
             # stores both new binary key and the old
-            new_list[self.encode_item(key)] = old_list[key]
-            new_list[key] = old_list[key]
-        return new_list
+            new_dict[self.encode_item(key)] = old_dict[key]
+            new_dict[key] = old_dict[key]
+        return new_dict
 
     def encode_list(self, old_list):
         """Creates a new  list converted to binary if necessary"""
