@@ -36,6 +36,8 @@ class RESearch(Search):
     def search_one(self, source):
         """If the `source` value matches any stored expression, 
            the expression will be returned."""
+        if source == None:
+            return
         for expr in self._relist:
             match = expr['re'].match(source)
             if match:
