@@ -23,7 +23,7 @@ class DataSource(Config):
         utf8_row = {}
         for item in row:
             if type(row[item]) == bytes:
-                utf8_row[item.decode_item()] = row[item].decode()
+                utf8_row[self.decode_item(item)] = row[item].decode()
             else:
                 utf8_row[item] = row[item]
         return utf8_row
