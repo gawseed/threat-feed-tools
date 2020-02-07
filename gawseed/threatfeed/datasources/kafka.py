@@ -54,8 +54,11 @@ class KafkaDataSource(DataSource):
     def __next__(self):
         row = next(self._consumer)
         decoded_row = unpackb(row.value)
-        if self._end_time and self.parse_time(decoded_row[self._time_column]) >= self._end_time:
-            raise StopIteration()
+        if self._end_time:
+            decoded_time = decoded_row[self._time_column]
+            decoded_time = self.decode_item(decoded_time)
+            if self.parse_time(decoded_time) >= self._end_time:
+                raise StopIteration()
         return decoded_row
 
     def default_is_binary(self):
