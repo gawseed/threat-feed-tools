@@ -41,3 +41,5 @@ class BroDataSource(FsdbDataSource):
 
         self.maybe_skip_to_time()
 
+    def initialize(self):
+        super().initialize()

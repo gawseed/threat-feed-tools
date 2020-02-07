@@ -18,6 +18,7 @@ class RESearch(Search):
         self._binary_search = binary_search
 
     def initialize(self):
+        super().initialize()
         self._relist = []
         for item in self._search_list:
             try: 
@@ -30,7 +31,7 @@ class RESearch(Search):
     def search(self, row):
         """If the `source` value matches any stored expression, 
            the expression will be returned."""
-        return self.search_one(self.maybe_convert_token_to_binary(row[self._key]))
+        return self.search_one(self._data_iterator.decode_item(row[self._key]))
 
     def search_one(self, source):
         """If the `source` value matches any stored expression, 

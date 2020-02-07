@@ -14,8 +14,10 @@ class SSHSearch(IPSearch):
         auth_success_value = self.config('auth_success_value', True,
                                          help="The value that should match the authentication field identified by auth_success_key")
 
-        self._auth_success_key = self.maybe_convert_token_to_binary(auth_success_key)
-        self._auth_success_value = self.maybe_convert_token_to_binary(auth_success_value)
+    def initialize(self):
+        super().initialize()
+        self._auth_success_key = self._data_iterator.encode_item(self._auth_success_key)
+        self._auth_success_value = self._data_iterator.encode_item(self._auth_success_value)
     
     def search(self, row):
         if not self._auth_success_key or self._auth_success_key not in row:

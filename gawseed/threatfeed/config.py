@@ -5,11 +5,12 @@ from dateutil import parser
 class Config():
     def __init__(self, config={}):
         self._config = config
+        self._number_re=re.compile("^@?[0-9.]+$")
 
     def initialize(self):
         """Overridable function for doing things beyond config copying in __init__"""
-        self._number_re=re.compile("^@?[0-9.]+$")
-
+        pass
+    
     def set_defaults(self, defaults={}):
         for default in defaults:
             if default not in self_.config:

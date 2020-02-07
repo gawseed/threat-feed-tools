@@ -14,18 +14,20 @@ class HTTPSearch(RESearch):
         self._uri_key = self.config('uri_key', 'uri',
                                      help="The column name for the uri portion of the URL")
 
-        if binary_search:
-            self._host_key = self.maybe_convert_token_to_binary(self._host_key)
-            self._uri_key = self.maybe_convert_token_to_binary(self._uri_key)
+    def initialize(self):
+        super().initialize()
+        self._auth_success_key = self._data_iterator.encode_item(self._host_key)
+        self._auth_success_value = self._data_iterator.encode_item(self._uri_key)
 
     def search(self, row):
         # XXX: currently assumes a split host/uri scheme like bro.  Need to make this generic
         if self._host_key not in row or self._uri_key not in row or row[self._host_key] is None or row[self._uri_key] is None:
             return None
-        if self._binary_search:
-            url = "http://" + row[self._host_key].decode() + "/" + row[self._uri_key].decode()
-        else:
-            url = "http://" + row[self._host_key].decode() + "/" + row[self._uri_key].decode()
+
+        host = self._data_iterator.decode_item(row[self._host_key])
+        uri = self._data_iterator.decode_item(row[self._uri_key])
+
+        url = "http://" + host + "/" + uri
 
         return self.search_one(url)
 

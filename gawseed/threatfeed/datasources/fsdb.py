@@ -18,6 +18,7 @@ class FsdbDataSource(DataSource):
                                         help="Time column to use when searching through data")
 
     def initialize(self):
+        super().initialize()
         if not self._file_handle and not self._file:
             self.config_error("either file_handle or file is required for the %s module" % (type(self)))
 
