@@ -71,7 +71,7 @@ class DataSource(Config):
         if not self._binary:
             return old_list
 
-        new_list = {}
+        new_list = []
         for key in old_list:
             # stores both new binary key and the old
             new_list.append(self.encode_item(key))
