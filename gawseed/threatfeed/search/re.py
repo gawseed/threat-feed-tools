@@ -22,7 +22,7 @@ class RESearch(Search):
         self._relist = []
         for item in self._search_list:
             try: 
-                compiled = re.compile(item)
+                compiled = re.compile(self._data_iterator.decode_item(item))
                 self._relist.append({ 'match': self._search_list[item],
                                       're': compiled})
             except:
