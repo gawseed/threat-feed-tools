@@ -3,7 +3,10 @@
 
 ```
 {% for column in rawbro_data[0] %}{{column}} {% endfor %}
-{% for row in rawbro_data %}{% for column in row %}{{row[column]}} {% endfor %}{% endfor %}
+{% for row in rawbro_data %}
+{{row['id_orig_h']}}/{{row['id_orig_p']}} -> {{row['id_resp_h']}}/{{row['id_resp_p']}}
+{% for column in row %}{{row[column]}} {% endfor %}
+{% endfor %}
 ```
 
 {% else %}

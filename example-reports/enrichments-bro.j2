@@ -1,0 +1,32 @@
+# Supplemental information
+
+During the 4 minute time period surrounding this connection event,
+the following other information was obtained:
+
+{% if enrichments.conn|length > 0 %}
+IP connections: {{enrichments.conn|length}}
+{% endif %}
+{% if enrichments.ssh|length > 0 %}
+SSH connections: {{enrichments.ssh|length}}
+{% endif %}
+{% if enrichments.dns|length > 0 %}
+DNS requests: {{enrichments.dns|length}}
+{% endif %}
+{% if enrichments.http|length > 0 %}
+HTTP requests: {{enrichments.http|length}}
+{% endif %}
+{% if enrichments.ftp|length > 0 %}
+FTP requests: {{enrichments.ftp|length}}
+{% endif %}
+
+
+{% include 'example-reports/enrichments-ssh.j2' %}
+
+{% include 'example-reports/enrichments-dns.j2' %}
+
+{% include 'example-reports/enrichments-conn.j2' %}
+
+{% include 'example-reports/enrichments-http.j2' %}
+
+{% include 'example-reports/enrichments-ftp.j2' %}
+
