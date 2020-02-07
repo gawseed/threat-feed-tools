@@ -26,6 +26,11 @@ class KafkaDataSource(DataSource):
         self._max_records = self.config('max_records',
                                         help="The maximum number of records to return")
 
+    def initialize(self):
+        super().initialize()
+        if self._time_column:
+            self._time_column = self.encode_item(self._time_column)
+
     def open(self):
         consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)
                                  #consumer_timeout_ms=self._consumer_timeout_ms)
