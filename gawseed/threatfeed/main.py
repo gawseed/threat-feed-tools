@@ -306,7 +306,7 @@ def main():
                     enrichment_data[key] = result
             except Exception as e:
                 sys.stderr.write("An enricher failed: " + str(e) + "\n")
-                sys.stderr.write("".join(traceback.format_stack()))
+                sys.stderr.write("".join(traceback.format_exc()))
                 if 'errors' not in enrichment_data:
                     enrichment_data['errors'] = []
                 enrichment_data['errors'].append({ 'count': count,

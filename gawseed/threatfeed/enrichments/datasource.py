@@ -1,6 +1,7 @@
 import json
 import time
 import sys
+import traceback
 
 from gawseed.threatfeed.config import Config
 import gawseed.threatfeed.loader as loader
@@ -71,6 +72,7 @@ class Datasource(Config):
             for finding in next(searcher):
                 enrich_rows.append(finding[0])
         except Exception as e:
+            print(traceback.format_exc())
             print("done searching? exception: " + str(e))
 
         return (self._output_key, enrich_rows)
