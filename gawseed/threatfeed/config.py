@@ -8,7 +8,7 @@ class Config():
 
     def initialize(self):
         """Overridable function for doing things beyond config copying in __init__"""
-        pass
+        self._number_re=re.compile("^@?[0-9.]+$")
 
     def set_defaults(self, defaults={}):
         for default in defaults:
@@ -71,7 +71,7 @@ class Config():
             # return an offset from now
             now = time.time()
             return now + self.parse_offset(timestr)
-        elif re.match("^@?[0-9.]+$", timestr): # assume epoch seconds
+        elif self._number_re.match(timestr): # assume epoch seconds
             if timestr[0] == '@':
                 timestr = timestr[1:]
             return float(timestr)
