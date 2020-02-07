@@ -34,7 +34,7 @@ class KafkaDataSource(DataSource):
         consumer.assign([partition])
 
         if self._begin_time:
-            offinfo = consumer.offsets_for_times({partition: self._begin_time})
+            offinfo = consumer.offsets_for_times({partition: self._begin_time * 1000})
             if offinfo == None or offinfo[partition] == None:
                 raise ValueError("There is no data in the enterprise stream the begin date")
             offset = offinfo[partition].offset
