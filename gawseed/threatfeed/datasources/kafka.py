@@ -53,7 +53,7 @@ class KafkaDataSource(DataSource):
             raise StopIteration()
         return decoded_row
 
-    def is_binary(self):
+    def default_is_binary(self):
         return True
 
 
