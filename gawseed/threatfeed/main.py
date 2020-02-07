@@ -324,7 +324,7 @@ def main():
             sys.stderr.write("".join(traceback.format_exc()))
 
         if debug:
-            print("reports created: %d" % (count), end="\r")
+            print("reports created: %d" % (count+1), end="\r")
 
         if args.max_records and count >= args.max_records:
             break
