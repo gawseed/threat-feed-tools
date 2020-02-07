@@ -320,7 +320,6 @@ def main():
             
         except Exception as e:
             sys.stderr.write("The output module failed: " + str(e) + "\n")
-            sys.stderr.write("".join(traceback.format_stack()))
             sys.stderr.write("".join(traceback.format_exc()))
 
         if debug:
