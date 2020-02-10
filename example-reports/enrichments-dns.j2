@@ -1,0 +1,13 @@
+{% if enrichments.dns|length > 0 %}
+
+# Related DNS logs
+
+The following DNS logs are related to the original query, because the
+because the internal IP address related to this event
+({{row.id_resp_h}}) also made these queries during the 4 minute time
+window.
+
+{% set rawbro_data = enrichments.dns %}
+{% include 'example-reports/raw-bro-rows.j2' %}
+
+{% endif %}
