@@ -1,10 +1,10 @@
 {% if enrichments.http|length > 0 %}
 
-# Related HTTP logs
+## Related HTTP logs
 
 The following bro http log entries are related to the original query,
-because the IP address that made the query ({{row.id_resp_h}}) also
-made these queries during a time window.
+because the internal IP address related to this event
+({{row.id_resp_h}}) also made these queries during a time window.
 
 {% set rawbro_data = enrichments.http %}
 {% include 'example-reports/raw-bro-rows.j2' %}

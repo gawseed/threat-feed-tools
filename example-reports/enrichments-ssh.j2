@@ -1,10 +1,11 @@
 {% if enrichments.ssh|length > 0 %}
 
-# Related SSH logs
+## Related SSH logs: outgoing
 
-The following bro ssh log entries are related to the original query,
-because the IP address that made the query ({{row.id_resp_h}}) also
-made these queries during a time window.
+The following bro ssh log entries are related to the original
+connection, because the IP address that received the connection
+({{row.id_resp_h}}) also received these other connections during a 4
+minute time window.
 
 {% set rawbro_data = enrichments.ssh %}
 {% include 'example-reports/raw-bro-rows.j2' %}

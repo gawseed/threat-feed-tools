@@ -5,6 +5,11 @@
 {% for column in rawbro_data[0] %}{{column}} {% endfor %}
 {% for row in rawbro_data %}
 {{row['id_orig_h']}}/{{row['id_orig_p']}} -> {{row['id_resp_h']}}/{{row['id_resp_p']}}
+{%- if row['auth_success'] %} auth={{row['auth_success']}} {% endif %}
+{%- if row['query'] %} query={{row['query']}} {% endif %}
+{%- if row['conn_state'] %} state={{row['conn_state']}} {% endif %}
+{%- if row['orig_bytes'] %} sent={{row['orig_bytes']}}B {% endif %}
+{%- if row['resp_bytes'] %} recv={{row['resp_bytes']}}B {% endif %}
 {% for column in row %}{{row[column]}} {% endfor %}
 {% endfor %}
 ```

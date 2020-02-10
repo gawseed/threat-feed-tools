@@ -1,7 +1,7 @@
 # Supplemental information
 
 During the 4 minute time period surrounding this connection event,
-the following other information was obtained:
+the following other connection details occurred:
 
 {% if enrichments.conn|length > 0 %}
 IP connections: {{enrichments.conn|length}}
@@ -19,6 +19,7 @@ HTTP requests: {{enrichments.http|length}}
 FTP requests: {{enrichments.ftp|length}}
 {% endif %}
 
+Further details about these are in the sub-sections below.
 
 {% include 'example-reports/enrichments-ssh.j2' %}
 
