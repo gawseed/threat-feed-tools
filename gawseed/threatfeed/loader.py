@@ -1,24 +1,9 @@
 """Utilities for dynamically loading python modules for specific functions,
    parsing yaml config files and loading needed modules"""
 
-import yaml
 import importlib
 import re
-
-from gawseed.threatfeed.feeds.kafka import KafkaThreatFeed
-from gawseed.threatfeed.feeds.fsdb import FsdbThreatFeed
-
-from gawseed.threatfeed.datasources.kafka import KafkaDataSource
-from gawseed.threatfeed.datasources.fsdb import FsdbDataSource
-from gawseed.threatfeed.datasources.bro import BroDataSource
-
-from gawseed.threatfeed.search.ip import IPSearch
-from gawseed.threatfeed.search.http import HTTPSearch
-from gawseed.threatfeed.search.ssh import SSHSearch
-
-from gawseed.threatfeed.events.printer import EventStreamPrinter
-from gawseed.threatfeed.events.dumper import EventStreamDumper
-from gawseed.threatfeed.events.reporter import EventStreamReporter
+import yaml
 
 YAML_KEY = 'threat-search'
 THREATSOURCE_KEY = 'threatsource'
@@ -29,7 +14,7 @@ ENRICHMENT_KEY = 'enrichments'
 YAML_SECTIONS = [THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY, ENRICHMENT_KEY]
 
 # load modules?
-module_xforms = {
+MODULE_XFORMS = {
     THREATSOURCE_KEY: {
         'kafka': 'gawseed.threatfeed.feeds.kafka.KafkaThreatFeed',
         'fsdb': 'gawseed.threatfeed.feeds.fsdb.FsdbThreatFeed',
@@ -62,15 +47,15 @@ named_entries = {}
 def dump_config_options(debug=False):
     print("threat-search:")
     first_char = "-"
-    for part in module_xforms:
+    for part in MODULE_XFORMS:
         print("  %s %s:" % (first_char, part))
         print("    # ---- %s modules and options" % (part))
         print("    # (pick one module)")
-        for module in module_xforms[part]:
+        for module in MODULE_XFORMS[part]:
             print("      module: %s" % (module))
 
             try:
-                module = load_module_name(module_xforms[part][module])
+                module = load_module_name(MODULE_XFORMS[part][module])
                 # this forces a module to just dump out config settings to stdout
                 if module.__doc__:
                     doc = module.__doc__
@@ -78,11 +63,11 @@ def dump_config_options(debug=False):
                     print("      #       " + doc)
                     
                 if part == SEARCHER_KEY:
-                    x = module(None, None, False, {'dump_config': 1})
+                    module({'dump_config': 1}, None, None, False)
                 elif part == ENRICHMENT_KEY:
-                    x = module({'dump_config': 1}, None, None, False)
+                    module({'dump_config': 1}, None, None, False)
                 else:
-                    x = module({'dump_config': 1})
+                    module({'dump_config': 1})
             except Exception as e:
                 print("      # couldn't get config for this")
                 if debug:
@@ -111,10 +96,6 @@ def load_module_name(module_name):
 
     return getattr(module, class_name)
 
-def load_and_create_module(module_name, config_section):
-    """Loads a module/class and then creates an instance and returns it"""
-    obj = conf['class']
-
 def load_yaml_config(config_stream):
     """Loads a yaml config from a specific stream and loads class definitions based on it."""
 
@@ -134,8 +115,8 @@ def load_class_config(threatconfs, sections=YAML_SECTIONS):
                     parts = [parts]
                 for part in parts:
                     module = part['module']
-                    if module in module_xforms[section]:
-                        module = module_xforms[section][module]
+                    if module in MODULE_XFORMS[section]:
+                        module = MODULE_XFORMS[section][module]
                     part['class'] = load_module_name(module)
 
     return threatconf
