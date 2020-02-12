@@ -172,8 +172,8 @@ def create_instance(conf, module_type, args=[], initialize=True):
     maybe_save_entry(conf)
         
     # if they've requested a template
-    if 'template' in conf:
-        conf = copy_entry(conf['template'], conf)
+    if 'use' in conf:
+        conf = copy_entry(conf['use'], conf)
 
     if 'class' not in conf[YAML_KEY][0][module_type]:
         load_class_config(conf[YAML_KEY], [module_type])
