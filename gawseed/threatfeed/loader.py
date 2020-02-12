@@ -20,13 +20,13 @@ from gawseed.threatfeed.events.printer import EventStreamPrinter
 from gawseed.threatfeed.events.dumper import EventStreamDumper
 from gawseed.threatfeed.events.reporter import EventStreamReporter
 
-YAML_KEY='threat-search'
-THREATSOURCE_KEY='threatsource'
-DATASOURCE_KEY='datasource'
-SEARCHER_KEY='searcher'
-REPORTER_KEY='reporter'
-ENRICHMENT_KEY='enrichments'
-YAML_SECTIONS=[THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY, ENRICHMENT_KEY]
+YAML_KEY = 'threat-search'
+THREATSOURCE_KEY = 'threatsource'
+DATASOURCE_KEY = 'datasource'
+SEARCHER_KEY = 'searcher'
+REPORTER_KEY = 'reporter'
+ENRICHMENT_KEY = 'enrichments'
+YAML_SECTIONS = [THREATSOURCE_KEY, DATASOURCE_KEY, SEARCHER_KEY, REPORTER_KEY, ENRICHMENT_KEY]
 
 # load modules?
 module_xforms = {
@@ -61,7 +61,7 @@ named_entries = {}
 
 def dump_config_options(debug=False):
     print("threat-search:")
-    first_char="-"
+    first_char = "-"
     for part in module_xforms:
         print("  %s %s:" % (first_char, part))
         print("    # ---- %s modules and options" % (part))
@@ -85,12 +85,12 @@ def dump_config_options(debug=False):
                     x = module({'dump_config': 1})
             except Exception as e:
                 print("      # couldn't get config for this")
-                if (debug):
+                if debug:
                     print("      # " + str(e))
                     
 
             print("")
-            first_char=" "
+            first_char = " "
     exit()
     
 def load_module_name(module_name):
