@@ -57,6 +57,8 @@ module_xforms = {
     },
 }
 
+named_entries = {}
+
 def dump_config_options(debug=False):
     print("threat-search:")
     first_char="-"
@@ -138,7 +140,41 @@ def load_class_config(threatconfs, sections=YAML_SECTIONS):
 
     return threatconf
 
+def maybe_save_entry(conf):
+    """Remembers a named configuration template for use later"""
+    global named_entries
+
+    if 'name' not in conf:
+        return
+
+    entry_name = conf['name']
+    named_entries[entry_name] = dict(conf)
+    del named_entries[entry_name]['name']
+    
+def copy_entry(entry_name, conf):
+    """Creates a new configuration dictionary based on a named template and override values."""
+    if entry_name not in named_entries:
+        return conf
+
+    # clone the template source
+    newconf = dict(named_entries[entry_name])
+
+    # add/override other variables
+    for item in conf:
+        newconf[item] = conf[item]
+
+    return newconf
+
 def create_instance(conf, module_type, args=[], initialize=True):
+    """Creates an instantiated instance of a threat-feed module"""
+
+    # save this if requested
+    maybe_save_entry(conf)
+        
+    # if they've requested a template
+    if 'template' in conf:
+        conf = copy_entry(conf['template'], conf)
+
     if 'class' not in conf[YAML_KEY][0][module_type]:
         load_class_config(conf[YAML_KEY], [module_type])
     
