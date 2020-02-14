@@ -239,7 +239,7 @@ def get_searcher(args, search_index, data_source, conf=None):
 
     return searcher
 
-def get_output(conf):
+def get_outputs(conf):
     """Create the output-er object"""
     if not conf:
         if args.dump_events:
@@ -253,11 +253,17 @@ def get_output(conf):
             }
         else:
             conf_part = {'module': 'reporter' } # default
-        conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
-        
-    output = loader.create_instance(conf, loader.REPORTER_KEY)
+        conf = [{ loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }]
 
-    return output
+    if type(conf) != list:
+        conf = [conf]
+        
+    outputs = []
+    for part in conf:
+        output = loader.create_instance(part, loader.REPORTER_KEY)
+        outputs.append(output)
+
+    return outputs
 
 def get_enrichments(conf, search_index, data_source):
     if loader.ENRICHMENT_KEY not in conf[loader.YAML_KEY][0]:
@@ -288,8 +294,8 @@ def main():
 
     enrichers = get_enrichments(conf, search_index, data_source)
 
-    output = get_output(conf)
-    verbose("created output: " + str(output))
+    outputs = get_outputs(conf)
+    verbose("created outputs: " + str(outputs))
 
     # loop through all the data for matches
     if debug:
@@ -313,17 +319,18 @@ def main():
                                                    'module': type(enricher),
                                                    'msg': 'An enrichment module failed to load data'})
 
-        try:
-            output.new_output(count)
-            output.write(count, finding[0], finding[1], enrichment_data)
-            output.maybe_close_output()
-            
-        except Exception as e:
-            sys.stderr.write("The output module failed: " + str(e) + "\n")
-            sys.stderr.write("".join(traceback.format_exc()))
+        for output in outputs:
+            try:
+                output.new_output(count)
+                output.write(count, finding[0], finding[1], enrichment_data)
+                output.maybe_close_output()
+                
+            except Exception as e:
+                sys.stderr.write("The output module failed: " + str(e) + "\n")
+                sys.stderr.write("".join(traceback.format_exc()))
 
         if debug:
-            print("reports created: %d" % (count+1), end="\r")
+            print("events found: %d" % (count+1), end="\r")
 
         if args.max_records and count >= args.max_records:
             break
