@@ -39,6 +39,7 @@ MODULE_XFORMS = {
     ENRICHMENT_KEY: {
         'url': 'gawseed.threatfeed.enrichments.EnrichmentURL',
         'datasource': 'gawseed.threatfeed.enrichments.datasource.Datasource',
+        'sorter': 'gawseed.threatfeed.enrichments.sorter.EnrichmentSource',
     },
 }
 
