@@ -17,7 +17,7 @@ class KafkaDataSource(DataSource):
                                        help="The time to start searching from; no value will mean end of stream")
         self._end_time = self.config('end_time', datatype='time',
                                      help="The time to stop a search when reading; no value will mean don't stop streaming")
-        self._over_time = self.config('over_time', default=0, datatype='offset',
+        self._over_time = self.config('over_time', default="0m", datatype='offset',
                                       help="The amount of time to search before and after desired date in case records aren't organized well by kafka timestamps")
         self._time_column = self.config('time_column',
                                         help="Time column to use when searching through data")
