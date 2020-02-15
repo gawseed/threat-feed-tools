@@ -17,6 +17,8 @@ class KafkaDataSource(DataSource):
                                        help="The time to start searching from; no value will mean end of stream")
         self._end_time = self.config('end_time', datatype='time',
                                      help="The time to stop a search when reading; no value will mean don't stop streaming")
+        self._over_time = self.config('over_time', default=0, datatype='offset',
+                                      help="The amount of time to search before and after desired date in case records aren't organized well by kafka timestamps")
         self._time_column = self.config('time_column',
                                         help="Time column to use when searching through data")
         self._topic = self.config('topic',
@@ -30,6 +32,8 @@ class KafkaDataSource(DataSource):
         super().initialize()
         if self._time_column:
             self._time_column = self.encode_item(self._time_column)
+        if self._end_time:
+            self._kafka_end_time = self._end_time + self._over_time
 
     def open(self):
         consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers)
@@ -39,7 +43,7 @@ class KafkaDataSource(DataSource):
         consumer.assign([partition])
 
         if self._begin_time:
-            offinfo = consumer.offsets_for_times({partition: self._begin_time * 1000})
+            offinfo = consumer.offsets_for_times({partition: self._begin_time * 1000 - self._over_time})
             if offinfo == None or offinfo[partition] == None:
                 raise ValueError("There is no data in the enterprise stream the begin date")
             offset = offinfo[partition].offset
@@ -55,10 +59,18 @@ class KafkaDataSource(DataSource):
         row = next(self._consumer)
         decoded_row = unpackb(row.value)
         if self._end_time:
-            decoded_time = decoded_row[self._time_column]
-            decoded_time = self.decode_item(decoded_time)
-            if self.parse_time(decoded_time) >= self._end_time:
-                raise StopIteration()
+            while True:
+                decoded_time = decoded_row[self._time_column]
+                decoded_time = self.decode_item(decoded_time)
+                if self.parse_time(decoded_time) >= self._kafka_end_time:
+                    raise StopIteration()
+
+                # see if it's within the time window
+                if decoded_time >= self._begin_time and decoded_time <= self._end_time:
+                    break
+
+                # else continue searching for a row that does match
+                
         return decoded_row
 
     def default_is_binary(self):
