@@ -62,7 +62,8 @@ class KafkaDataSource(DataSource):
             while True:
                 decoded_time = decoded_row[self._time_column]
                 decoded_time = self.decode_item(decoded_time)
-                if self.parse_time(decoded_time) >= self._kafka_end_time:
+                decoded_time = self.parse_time(decoded_time)
+                if decoded_time >= self._kafka_end_time:
                     raise StopIteration()
 
                 # see if it's within the time window
