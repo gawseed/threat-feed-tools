@@ -39,7 +39,7 @@ class Datasource(Config):
         self._output_key = self.config('output_key', 'datasource',
                                        help="The output key to store the returned data in.")
 
-    def gather(self, count, row, match):
+    def gather(self, count, row, match, enrichment_data = {}):
 
         ds_config = self._datasource
 

@@ -54,7 +54,7 @@ class EnrichmentURL(Config):
         # (probably shouldn't do this)
         return result
         
-    def gather(self, count, row, match):
+    def gather(self, count, row, match, enrichment_data = {}):
         fetched = self.geturl(self._url.format(tag=match['tag'],
                                                match_info=match[self._match_key],
                                                data_info=row[self._data_key]))

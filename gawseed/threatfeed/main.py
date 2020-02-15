@@ -171,7 +171,7 @@ def get_threat_feed(args, conf=None):
 
         conf = { loader.YAML_KEY: [{loader.THREATSOURCE_KEY: conf_part}] }
 
-    threat_source = loader.create_instance(conf, loader.THREATSOURCE_KEY)
+    threat_source = loader.create_instance_for_module(conf, loader.THREATSOURCE_KEY)
 
     verbose("created threat feed: " + str(threat_source))
 
@@ -207,7 +207,7 @@ def get_data_source(args, conf=None):
             raise ValueError("no data source specified")
         conf = { loader.YAML_KEY: [{loader.DATASOURCE_KEY: conf_part}] }
 
-    data_source = loader.create_instance(conf, loader.DATASOURCE_KEY)
+    data_source = loader.create_instance_for_module(conf, loader.DATASOURCE_KEY)
 
     verbose("created data feed: " + str(data_source))
     data_source.open()
@@ -233,8 +233,9 @@ def get_searcher(args, search_index, data_source, conf=None):
 
         conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
 
-    searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
-                                      [search_index, data_source, data_source.is_binary()])
+    searcher = loader.create_instance_for_module(conf, loader.SEARCHER_KEY,
+                                                 [search_index, data_source,
+                                                  data_source.is_binary()])
     verbose("created searcher: " + str(searcher))
 
     return searcher
@@ -259,9 +260,10 @@ def get_outputs(conf):
         conf = [conf]
         
     outputs = []
-    for part in conf:
-        output = loader.create_instance(part, loader.REPORTER_KEY)
-        outputs.append(output)
+    section = conf[0][loader.YAML_KEY][0][loader.REPORTER_KEY]
+    for item in section:
+        obj = loader.create_instance(item, loader.REPORTER_KEY)
+        outputs.append(obj)
 
     return outputs
 
@@ -301,13 +303,14 @@ def main():
     if debug:
         print("reports created: 0", end="\r")
 
-    for count, finding in enumerate(next(searcher)):
+    for count, results in enumerate(next(searcher)):
+        row, match = results
         enrichment_data = {}
 
         # gather enrichment data from the backends
         for ecount, enricher in enumerate(enrichers):
             try:
-                (key, result) = enricher.gather(count, finding[0], finding[1])
+                (key, result) = enricher.gather(count, row, match, enrichment_data)
                 if key and result:
                     enrichment_data[key] = result
             except Exception as e:
@@ -322,7 +325,7 @@ def main():
         for output in outputs:
             try:
                 output.new_output(count)
-                output.write(count, finding[0], finding[1], enrichment_data)
+                output.write(count, row, match, enrichment_data)
                 output.maybe_close_output()
                 
             except Exception as e:

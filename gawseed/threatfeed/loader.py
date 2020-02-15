@@ -100,10 +100,16 @@ def load_yaml_config(config_stream):
     """Loads a yaml config from a specific stream and loads class definitions based on it."""
 
     conf = yaml.load(config_stream, Loader=yaml.FullLoader)
-    load_class_config(conf[YAML_KEY])
+    load_class_configs(conf[YAML_KEY])
     return conf
 
-def load_class_config(threatconfs, sections=YAML_SECTIONS):
+def load_class_config(section, part):
+    module = part['module']
+    if module in MODULE_XFORMS[section]:
+        module = MODULE_XFORMS[section][module]
+    part['class'] = load_module_name(module)
+
+def load_class_configs(threatconfs, sections=YAML_SECTIONS):
     """Loops through config and loads classes for each one into a 'class' key"""
 
     # load each section
@@ -114,10 +120,7 @@ def load_class_config(threatconfs, sections=YAML_SECTIONS):
                 if type(parts) != list:
                     parts = [parts]
                 for part in parts:
-                    module = part['module']
-                    if module in MODULE_XFORMS[section]:
-                        module = MODULE_XFORMS[section][module]
-                    part['class'] = load_module_name(module)
+                    load_class_config(section, part)
 
     return threatconf
 
@@ -146,25 +149,29 @@ def copy_entry(entry_name, conf):
 
     return newconf
 
-def create_instance(conf, module_type, args=[], initialize=True):
+def create_instance(subconf, module_type, args=[], initialize=True):
     """Creates an instantiated instance of a threat-feed module"""
 
     # save this if requested
-    maybe_save_entry(conf)
+    maybe_save_entry(subconf)
         
     # if they've requested a template
-    if 'use' in conf:
-        conf = copy_entry(conf['use'], conf)
+    if 'use' in subconf:
+        subconf = copy_entry(subconf['use'], subconf)
 
-    if 'class' not in conf[YAML_KEY][0][module_type]:
-        load_class_config(conf[YAML_KEY], [module_type])
+    if 'class' not in subconf:
+        load_class_config(module_type, subconf)
     
-    obj = conf[YAML_KEY][0][module_type]['class']
+    obj = subconf['class']
 
-    created = obj(conf[YAML_KEY][0][module_type], *args)
+    created = obj(subconf, *args)
 
     if initialize:
         created.initialize()
 
     return created
 
+
+def create_instance_for_module(conf, module_type, args=[], initialize=True):
+    subconf = conf[YAML_KEY][0][module_type]
+    return create_instance(subconf, module_type, args, initialize)
