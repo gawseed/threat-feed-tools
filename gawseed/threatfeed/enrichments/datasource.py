@@ -50,7 +50,7 @@ class Datasource(Config):
 
         conf = { loader.YAML_KEY: [{loader.DATASOURCE_KEY: ds_config}] }
 
-        data_source = loader.create_instance(conf, loader.DATASOURCE_KEY)
+        data_source = loader.create_instance(ds_config, loader.DATASOURCE_KEY)
         data_source.initialize()
 
         try:
@@ -60,8 +60,8 @@ class Datasource(Config):
             return (self._output_key, []) # end of file
 
         # how we should do it eventually:
-        conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: { 'module': 'ip',
-                                                           'search_keys': [self._datasource_key]}}] }
+        conf = { 'module': 'ip',
+                 'search_keys': [self._datasource_key]}
 
         search_index = {row[self._match_key]: row}
         searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
