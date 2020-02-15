@@ -256,11 +256,13 @@ def get_outputs(conf):
             conf_part = {'module': 'reporter' } # default
         conf = [{ loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }]
 
-    if type(conf) != list:
-        conf = [conf]
-        
     outputs = []
-    section = conf[0][loader.YAML_KEY][0][loader.REPORTER_KEY]
+    section = conf[loader.YAML_KEY][0][loader.REPORTER_KEY]
+
+    if type(section) != list:
+        section = [section]
+
+
     for item in section:
         obj = loader.create_instance(item, loader.REPORTER_KEY)
         outputs.append(obj)
