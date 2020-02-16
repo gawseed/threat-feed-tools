@@ -40,6 +40,7 @@ MODULE_XFORMS = {
         'sorter': 'gawseed.threatfeed.enrichments.sorter.EnrichmentSort',
         'summarizer': 'gawseed.threatfeed.enrichments.summarizer.Summarizer',
         'connectioncounter': 'gawseed.threatfeed.enrichments.connectionCounter.ConnectionCounter',
+        'connectiongrapher': 'gawseed.threatfeed.enrichments.connectionGrapher.ConnectionGrapher',
     },
 }
 
