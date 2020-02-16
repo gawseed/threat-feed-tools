@@ -1,7 +1,5 @@
 from gawseed.threatfeed.config import Config
 
-from collections import Counter
-
 class ConnectionCounter(Config):
     """Summarizes connection information in BRO or similar data"""
     def __init__(self, conf, search_index, dataset, is_binary, loader=None):
