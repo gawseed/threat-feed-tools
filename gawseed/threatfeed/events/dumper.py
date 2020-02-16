@@ -7,11 +7,21 @@ class EventStreamDumper(EventStream):
     def __init__(self, conf):
         super().__init__(conf)
 
+        self._pretty_print = self.config("pretty", default=False,
+                                         help="Pretty print the results")
+
+    def initialize(self):
+        if self._pretty_print:
+            import pprint
+            self._printer = pprint.pformat
+        else:
+            self._printer = str
+
     def write(self, count, row, match, enrichments):
-        self.output("match #" + str(count) + ":\n")
-        self.output("row: " + str(row) + "\n")
+        self.output("match #" + self._printer(count) + ":\n")
+        self.output("row: " + self._printer(row) + "\n")
         self.output("--\n")
-        self.output("match: " + str(match) + "\n")
+        self.output("match: " + self._printer(match) + "\n")
         self.output("--\n")
-        self.output("enrichments: " + str(enrichments) + "\n")
+        self.output("enrichments: " + self._printer(enrichments) + "\n")
         self.output("--------------")
