@@ -5,16 +5,18 @@ The following summarizes the connections to and from
 {% if conn_src %}{{conn_src}}{ %else %}{{row['id_orig_h']}}{% endif %}
 and other hosts during the captured time window.
 
+{% include 'example-reports/conn-graph.j2' %}
+
+## Connections breakdown
+
 {% for orig in enrichments.conn_summary %}
 + {{orig}}
-{% for dest in enrichments.conn_summary[orig] %}
+{%- for dest in enrichments.conn_summary[orig] %}
     + {{dest}}
-{% for port in enrichments.conn_summary[orig][dest] %}
-        + to port {{port}}: {{enrichments.conn_summary[orig][dest]}}
-{% endfor %}
-{% endfor %}
-{% endfor %}
-
-{% include 'example-reports/conn-graph.j2' %}
+{%- for port in enrichments.conn_summary[orig][dest] %}
+        + to port {{port}}: {{enrichments.conn_summary[orig][dest][port]}}
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
 
 {% endif %}
