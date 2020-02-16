@@ -22,6 +22,10 @@ class Config():
         if 'dump_config' in self._config:
             print("      # required: " + str(requirements))
             return
+
+        if 'use' in self._config:
+            return # assume they'll pull it from something named
+
         for requirement in requirements:
             if requirement not in self._config:
                 self.config_error("'%s' is a requirement argument for %s" % (requirement, type(self)))

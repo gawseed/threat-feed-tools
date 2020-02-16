@@ -4,7 +4,6 @@ import sys
 import traceback
 
 from gawseed.threatfeed.config import Config
-import gawseed.threatfeed.loader as loader
 
 class Datasource(Config):
     """Pulls enrichment data from another datasource based on a key
@@ -15,7 +14,7 @@ class Datasource(Config):
     backward_time and forward_time values.  The set of rows matched
     will be returned as an array.
     """
-    def __init__(self, conf, search_index, data, is_binary):
+    def __init__(self, conf, search_index, data, is_binary, loader=None):
         super().__init__(conf)
 
         self.require(['datasource'])
@@ -39,6 +38,8 @@ class Datasource(Config):
         self._output_key = self.config('output_key', 'datasource',
                                        help="The output key to store the returned data in.")
 
+        self._loader = loader
+
     def gather(self, count, row, match, enrichment_data = {}):
 
         ds_config = self._datasource
@@ -48,9 +49,9 @@ class Datasource(Config):
         ds_config['begin_time'] = '@' + str(timestamp - self._time_backward)
         ds_config['end_time'] = '@' + str(timestamp + self._time_forward)
 
-        conf = { loader.YAML_KEY: [{loader.DATASOURCE_KEY: ds_config}] }
+        conf = { self._loader.YAML_KEY: [{self._loader.DATASOURCE_KEY: ds_config}] }
 
-        data_source = loader.create_instance(ds_config, loader.DATASOURCE_KEY)
+        data_source = self._loader.create_instance(ds_config, self._loader.DATASOURCE_KEY)
         data_source.initialize()
 
         try:
@@ -64,8 +65,9 @@ class Datasource(Config):
                  'search_keys': [self._datasource_key]}
 
         search_index = {row[self._match_key]: row}
-        searcher = loader.create_instance(conf, loader.SEARCHER_KEY,
-                                          [search_index, data_source, data_source.is_binary()])
+        searcher = self._loader.create_instance(conf, self._loader.SEARCHER_KEY,
+                                                [search_index, data_source,
+                                                 data_source.is_binary()])
 
         enrich_rows = []
         try:

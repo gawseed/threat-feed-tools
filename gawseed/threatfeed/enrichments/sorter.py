@@ -2,7 +2,7 @@ from gawseed.threatfeed.config import Config
 
 class EnrichmentSort(Config):
     """Sorts an existing enrichment dataset and puts it back"""
-    def __init__(self, conf, search_index, dataset, is_binary):
+    def __init__(self, conf, search_index, dataset, is_binary, loader=None):
         super().__init__(conf)
 
         self.require(['enrichment_key'])

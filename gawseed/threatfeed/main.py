@@ -21,9 +21,11 @@ import time
 import argparse
 from msgpack import unpackb
 
-from gawseed.threatfeed import loader
+from gawseed.threatfeed.loader import Loader
 
 debug = False
+
+loader = None
 
 def parse_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="This uses data from threat feeds (in kafka topics or files) to search through network data (from kafka or files) and reports any matches as 'events'.")
@@ -274,18 +276,19 @@ def get_enrichments(conf, search_index, data_source):
         return []
     section = conf[loader.YAML_KEY][0][loader.ENRICHMENT_KEY]
     enrichers = []
+
     for item in section:
-        # XXX: need to fix the loader to handle loading an array
-        # we do this by hand till now
-        obj = item['class']
-        enricher = obj(item, search_index, data_source, data_source.is_binary())
-
-        # XXX: enricher = loader.create_instance(conf, loader.ENRICHMENT_KEY)
-
+        enricher = loader.create_instance(item, loader.ENRICHMENT_KEY,
+                                          [search_index, data_source,
+                                           data_source.is_binary(), loader])
         enrichers.append(enricher)
     return enrichers
 
 def main():
+    # create our loading class
+    global loader
+    loader = Loader()
+
     args = parse_args()
 
     conf = None
