@@ -27,7 +27,6 @@ class ConnectionCounter(Config):
             return
 
         conns = {}
-        import pdb ; pdb.set_trace()
         for row in enrichment_data[self._enrichment_key]:
             orig = row[self._orig_key]
             resp = row[self._resp_key]
