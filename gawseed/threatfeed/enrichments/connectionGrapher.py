@@ -19,6 +19,9 @@ class ConnectionGrapher(Config):
         self._output_type = self.config('output_type', 'png',
                                         help="The output format of the generated file.")
 
+        self._limit = self.config('limit', 100,
+                                  help="Don't plot more than LIMIT edges")
+
     def gather(self, count, row, match, enrichment_data):
         """Re-sort all the enrichment data based on the specified column"""
         # extract the current data
@@ -28,13 +31,23 @@ class ConnectionGrapher(Config):
         dot = graphviz.Digraph()
 
         # build the graph via graphviz
-        for orig in enrichment_data[self._enrichment_key]:
-            dot.node(orig)
-            for dest in enrichment_data[self._enrichment_key][orig]:
-                dot.node(dest)
-                for port in enrichment_data[self._enrichment_key][orig][dest]:
-                    dot.edge(orig, dest, label=("%s:%d" % (port, enrichment_data[self._enrichment_key][orig][dest][port])))
+        num = 0
+        try:
+            for orig in enrichment_data[self._enrichment_key]:
+                dot.node(orig)
+                for dest in enrichment_data[self._enrichment_key][orig]:
+                    dot.node(dest)
+                    for port in enrichment_data[self._enrichment_key][orig][dest]:
+                        dot.edge(orig, dest, label=("%s:%d" % (port, enrichment_data[self._enrichment_key][orig][dest][port])))
 
+                        num += 1
+                        if num > self._limit:
+                            raise ValueError("too many edges")
+
+        except Exception as e:
+            print(e)
+
+                        
                     
         # create a temporary file to store results in
         (fh, name) = tempfile.mkstemp(dir=self._output_dir,
