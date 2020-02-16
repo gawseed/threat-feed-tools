@@ -39,6 +39,7 @@ MODULE_XFORMS = {
         'datasource': 'gawseed.threatfeed.enrichments.datasource.Datasource',
         'sorter': 'gawseed.threatfeed.enrichments.sorter.EnrichmentSort',
         'summarizer': 'gawseed.threatfeed.enrichments.summarizer.Summarizer',
+        'connectioncounter': 'gawseed.threatfeed.enrichments.connectionCounter.ConnectionCounter',
     },
 }
 
