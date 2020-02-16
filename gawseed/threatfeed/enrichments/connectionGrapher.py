@@ -1,5 +1,7 @@
-from gawseed.threatfeed.config import Config
+import tempfile
 import graphviz
+import re
+from gawseed.threatfeed.config import Config
 
 class ConnectionGrapher(Config):
     """Summarizes connection information in BRO or similar data"""
@@ -24,7 +26,8 @@ class ConnectionGrapher(Config):
             return
 
         dot = graphviz.Digraph()
-        
+
+        # build the graph via graphviz
         for orig in enrichment_data[self._enrichment_key]:
             dot.node(orig)
             for dest in enrichment_data[self._enrichment_key][orig]:
@@ -32,5 +35,13 @@ class ConnectionGrapher(Config):
                 for port in enrichment_data[self._enrichment_key][orig][dest]:
                     dot.edge(orig, dest, label=("%s:%d" % (port, enrichment_data[self._enrichment_key][orig][dest][port])))
 
-        dot.render("foo.png", self._output_dir, format=self._output_type)
-        return (self._output_key, str(dot))
+                    
+        # create a temporary file to store results in
+        (fh, name) = tempfile.mkstemp(dir=self._output_dir,
+                                      suffix="." + self._output_type)
+
+        # graphviz force-adds a suffix, so we remove ours before passing 
+        prefixname = re.sub("." + self._output_type + "$", "", name)
+        dot.render(prefixname, self._output_dir, format=self._output_type)
+
+        return (self._output_key, name)
