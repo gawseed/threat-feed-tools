@@ -19,6 +19,8 @@ class ConnectionGrapher(Config):
         self._output_type = self.config('output_type', 'png',
                                         help="The output format of the generated file.")
 
+        self._renderer = self.config('renderer', 'fdp',
+                                     help='The graphviz renderer to use')
         self._limit = self.config('limit', 100,
                                   help="Don't plot more than LIMIT edges")
 
@@ -28,7 +30,7 @@ class ConnectionGrapher(Config):
         if self._enrichment_key not in enrichment_data:
             return
 
-        dot = graphviz.Digraph()
+        dot = graphviz.Digraph(engine=self._renderer)
 
         # build the graph via graphviz
         num = 0
@@ -55,6 +57,7 @@ class ConnectionGrapher(Config):
 
         # graphviz force-adds a suffix, so we remove ours before passing 
         prefixname = re.sub("." + self._output_type + "$", "", name)
-        dot.render(prefixname, self._output_dir, format=self._output_type)
+        dot.render(prefixname, self._output_dir,
+                   format=self._output_type)
 
         return (self._output_key, name)
