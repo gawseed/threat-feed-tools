@@ -1,4 +1,7 @@
-{% if enrichments.conn_summary %}
+{% if not conn_summary_key %}
+{% set conn_summary_key = 'conn_orig_connections' %}
+{% endif %}
+{% if enrichments[conn_summary_key] %}
 # Connections Summary
 
 The following summarizes the connections to and from
@@ -9,12 +12,12 @@ and other hosts during the captured time window.
 
 ## Connections breakdown
 
-{% for orig in enrichments.conn_summary %}
+{% for orig in enrichments[conn_summary_key] %}
 + {{orig}}
-{%- for dest in enrichments.conn_summary[orig] %}
+{%- for dest in enrichments[conn_summary_key][orig] %}
     + {{dest}}
-{%- for port in enrichments.conn_summary[orig][dest] %}
-        + to port {{port}}: {{enrichments.conn_summary[orig][dest][port]}}
+{%- for port in enrichments[conn_summary_key][orig][dest] %}
+        + to port {{port}}: {{enrichments[conn_summary_key][orig][dest][port]}}
 {%- endfor %}
 {%- endfor %}
 {%- endfor %}
