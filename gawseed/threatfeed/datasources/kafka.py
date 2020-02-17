@@ -71,6 +71,7 @@ class KafkaDataSource(DataSource):
                     break
 
                 # else continue searching for a row that does match
+                row = next(self._consumer)
                 
         return decoded_row
 
