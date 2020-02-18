@@ -64,7 +64,7 @@ class KafkaThreatFeed(Config):
             raise StopIteration()
         return row
 
-    def read(self, max_records=None, value_column='value'):
+    def read(self, max_records=None, value_column='value', remove_duplicates=True):
         array = []
         dictionary = {}
         if not max_records:
@@ -87,6 +87,9 @@ class KafkaThreatFeed(Config):
                     continue
 
                 if entry[value_column] in self._exclude_list:
+                    continue
+
+                if remove_duplicates and entry[value_column] in dictionary:
                     continue
                 
                 array.append(entry)
