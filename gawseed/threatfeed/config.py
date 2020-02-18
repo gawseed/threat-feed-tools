@@ -47,7 +47,6 @@ class Config():
         if datatype and datatype == 'time':
             return self.parse_time(value)
         if datatype and datatype == 'offset':
-            print("---------------------------------------------------------------")
             return self.parse_offset(value)
         
         return value
