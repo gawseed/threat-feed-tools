@@ -51,6 +51,9 @@ class Config():
         
         return value
 
+    def get_config(self):
+        return self._config
+
     def config_error(self, msg):
         raise ValueError(msg)
 
