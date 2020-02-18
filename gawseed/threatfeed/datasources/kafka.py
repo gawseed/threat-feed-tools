@@ -72,6 +72,7 @@ class KafkaDataSource(DataSource):
 
                 # else continue searching for a row that does match
                 row = next(self._consumer)
+                decoded_row = unpackb(row.value)
                 
         return decoded_row
 
