@@ -91,4 +91,4 @@ class Config():
 
     def verbose(self, message):
         if self._verbose:
-            print(message + "\n")
+            sys.stderr.write(message + "\n")
