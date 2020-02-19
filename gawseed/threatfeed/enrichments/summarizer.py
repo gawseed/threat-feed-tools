@@ -22,6 +22,7 @@ class Summarizer(Config):
         # extract the current data
         if self._enrichment_key not in enrichment_data:
             self.verbose("summarizer data wasn't present")
+            self.verbose("  keys present:" + str(enrichment_data.keys()))
             self.verbose(self.get_config())
             return (None, None)
 
