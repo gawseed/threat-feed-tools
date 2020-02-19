@@ -55,19 +55,19 @@ lateral movement.
 
 {% set bro_name = 'dns' %}
 {% set raw_bro_data = enrichments.resp_dns %}
-{% include 'example-reports/enrichments-dns.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'http' %}
 {% set raw_bro_data = enrichments.resp_http %}
-{% include 'example-reports/enrichments-http.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'ftp' %}
 {% set raw_bro_data = enrichments.resp_ftp %}
-{% include 'example-reports/enrichments-ftp.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'conn' %}
 {% set raw_bro_data = enrichments.resp_conn %}
-{% include 'example-reports/enrichments-conn.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 ## Related incoming connections from the originating host
 
@@ -83,17 +83,17 @@ potential hosts to investigate.
 
 {% set bro_name = 'dns' %}
 {% set raw_bro_data = enrichments.orig_dns %}
-{% include 'example-reports/enrichments-dns.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'http' %}
 {% set raw_bro_data = enrichments.orig_http %}
-{% include 'example-reports/enrichments-http.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'ftp' %}
 {% set raw_bro_data = enrichments.orig_ftp %}
-{% include 'example-reports/enrichments-ftp.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'conn' %}
 {% set raw_bro_data = enrichments.orig_conn %}
-{% include 'example-reports/enrichments-conn.j2' %}
+{% include 'example-reports/enrichments-generic.j2' %}
 
