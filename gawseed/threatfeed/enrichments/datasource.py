@@ -80,6 +80,6 @@ class Datasource(Config):
             print(traceback.format_exc())
             print("done searching? exception: " + str(e))
 
-        self.verbose("  found " + len(enrich_rows) + " rows for key=" + self._output_key)
+        self.verbose("  found " + str(len(enrich_rows)) + " rows for key=" + self._output_key)
         return (self._output_key, enrich_rows)
                 
