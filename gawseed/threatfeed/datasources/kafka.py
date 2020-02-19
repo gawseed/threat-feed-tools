@@ -59,19 +59,22 @@ class KafkaDataSource(DataSource):
     def __next__(self):
         row = next(self._consumer)
         decoded_row = unpackb(row.value)
-        self.verbose(decoded_row)
         if self._end_time:
+            self.verbose("searching forward from:")
+            self.verbose(decoded_row)
+            count += 0
             while True:
+                count += 1
                 decoded_time = decoded_row[self._time_column]
                 decoded_time = self.decode_item(decoded_time)
                 decoded_time = self.parse_time(decoded_time)
                 if decoded_time >= self._kafka_end_time:
-                    self.verbose("kafka end time reached")
+                    self.verbose("kafka end time reached: " + str(count)+ " rows")
                     raise StopIteration()
 
                 # see if it's within the time window
                 if decoded_time >= self._begin_time and decoded_time <= self._end_time:
-                    self.verbose("row found")
+                    self.verbose("row found after" + str(count)+ " rows")
                     return decoded_row
 
                 # else continue searching for a row that does match
