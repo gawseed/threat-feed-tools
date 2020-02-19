@@ -62,7 +62,7 @@ class KafkaDataSource(DataSource):
         if self._end_time:
             self.verbose("searching forward from:")
             self.verbose(decoded_row)
-            count += 0
+            count = 0
             while True:
                 count += 1
                 decoded_time = decoded_row[self._time_column]
