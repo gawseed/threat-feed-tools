@@ -60,12 +60,11 @@ class Datasource(Config):
             print("end of file? " + str(e))
             return (self._output_key, []) # end of file
 
-        # how we should do it eventually:
-        conf = { 'module': 'ip',
-                 'search_keys': [self._datasource_key]}
-
+        # create (fake) the search_index
         search_index = {row[self._match_key]: row}
-        searcher = self._loader.create_instance(conf, self._loader.SEARCHER_KEY,
+
+        # create the object
+        searcher = self._loader.create_instance(ds_config, self._loader.SEARCHER_KEY,
                                                 [search_index, data_source,
                                                  data_source.is_binary()])
 
