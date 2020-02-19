@@ -23,12 +23,12 @@ class Summarizer(Config):
         if self._enrichment_key not in enrichment_data:
             self.verbose("summarizer data wasn't present")
             self.verbose(self.get_config())
-            return
+            return (None, None)
 
         if type(enrichment_data[self._enrichment_key]) != list:
             self.verbose("summarizer data wasn't in a list: " + type(enrichment_data[self._enrichment_key]))
             self.verbose(self.get_config())
-            return
+            return (None, None)
 
         counter = Counter()
         for row in enrichment_data[self._enrichment_key]:
