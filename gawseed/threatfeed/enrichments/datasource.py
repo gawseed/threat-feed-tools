@@ -70,7 +70,7 @@ class Datasource(Config):
                                                  data_source.is_binary()])
 
         self.verbose("enrichment/datasource searcher created")
-        self.verbose("  searching from " + ds_config['begin_tiem'] + " to " + ds_config['end_time'])
+        self.verbose("  searching from " + str(ds_config['begin_time']) + " to " + str(ds_config['end_time']))
         self.verbose("  " + str(self.get_config()))
         enrich_rows = []
         try:
