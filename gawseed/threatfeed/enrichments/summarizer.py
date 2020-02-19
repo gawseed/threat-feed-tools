@@ -21,10 +21,18 @@ class Summarizer(Config):
         """Re-sort all the enrichment data based on the specified column"""
         # extract the current data
         if self._enrichment_key not in enrichment_data:
+            self.verbose("summarizer data wasn't present")
+            self.verbose(self.get_config())
+            return
+
+        if type(enrichment_data[self._enrichment_key]) != list:
+            self.verbose("summarizer data wasn't in a list: " + type(enrichment_data[self._enrichment_key]))
+            self.verbose(self.get_config())
             return
 
         counter = Counter()
         for row in enrichment_data[self._enrichment_key]:
-            counter[row[self._data_key]] += 1
+            if self._data_key in row:
+                counter[row[self._data_key]] += 1
 
         return (self._output_key, dict(counter))
