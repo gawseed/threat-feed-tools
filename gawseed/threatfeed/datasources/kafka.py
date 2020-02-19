@@ -50,6 +50,7 @@ class KafkaDataSource(DataSource):
             consumer.seek(partition, offset)
 
         self._consumer = consumer
+        self.verbose("opened kafka datasource: " + str(self.config()))
         return self
 
     def __iter__(self):

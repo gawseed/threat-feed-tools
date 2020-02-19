@@ -69,6 +69,7 @@ class Datasource(Config):
                                                 [search_index, data_source,
                                                  data_source.is_binary()])
 
+        self.verbose("enrichment/datasource searcher created")
         enrich_rows = []
         try:
             for finding in next(searcher):
