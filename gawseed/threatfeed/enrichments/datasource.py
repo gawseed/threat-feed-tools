@@ -70,6 +70,8 @@ class Datasource(Config):
                                                  data_source.is_binary()])
 
         self.verbose("enrichment/datasource searcher created")
+        self.verbose("  searching from " + ds_config['begin_tiem'] + " to " + ds_config['end_time'])
+        self.verbose("  " + str(self.get_config()))
         enrich_rows = []
         try:
             for finding in next(searcher):
@@ -78,5 +80,6 @@ class Datasource(Config):
             print(traceback.format_exc())
             print("done searching? exception: " + str(e))
 
+        self.verbose("  found " + len(enrich_rows) + " rows for key=" + self._output_key)
         return (self._output_key, enrich_rows)
                 
