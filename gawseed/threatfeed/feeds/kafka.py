@@ -89,12 +89,11 @@ class KafkaThreatFeed(Config):
                 if entry[value_column] in self._exclude_list:
                     continue
 
-                dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
-
                 # don't duplicate signatures if requested not to
                 if remove_duplicates and entry[value_column] in dictionary:
                     continue
                 
+                dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
                 array.append(entry)
             except Exception as e:
                 sys.stderr.write("dropping kafka feed entry due to a parse error: " + str(entry) + "\n")
