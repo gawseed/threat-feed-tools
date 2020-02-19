@@ -1,33 +1,99 @@
 # Supplemental information
 
 During the 4 minute time period surrounding this connection event,
-the following other connection details occurred:
+the following other connection details occurred
 
-{% if enrichments.conn|length > 0 %}
-IP connections: {{enrichments.conn|length}}
+## for the {{row.id_orig_h}} client:
+
+{%- if enrichments.orig_conn|length > 0 %}
+IP connections: {{enrichments.orig_conn|length}}
 {% endif %}
-{% if enrichments.ssh|length > 0 %}
-SSH connections: {{enrichments.ssh|length}}
+{%- if enrichments.orig_ssh|length > 0 %}
+SSH connections: {{enrichments.orig_ssh|length}}
 {% endif %}
-{% if enrichments.dns|length > 0 %}
-DNS requests: {{enrichments.dns|length}}
+{%- if enrichments.orig_dns|length > 0 %}
+DNS requests: {{enrichments.orig_dns|length}}
 {% endif %}
-{% if enrichments.http|length > 0 %}
-HTTP requests: {{enrichments.http|length}}
+{%- if enrichments.orig_http|length > 0 %}
+HTTP requests: {{enrichments.orig_http|length}}
 {% endif %}
-{% if enrichments.ftp|length > 0 %}
-FTP requests: {{enrichments.ftp|length}}
+{%- if enrichments.orig_ftp|length > 0 %}
+FTP requests: {{enrichments.orig_ftp|length}}
+{% endif %}
+
+## for the {{row.id_resp_h}} server:
+
+{%- if enrichments.resp_conn|length > 0 %}
+IP connections: {{enrichments.resp_conn|length}}
+{% endif %}
+{%- if enrichments.resp_ssh|length > 0 %}
+SSH connections: {{enrichments.resp_ssh|length}}
+{% endif %}
+{%- if enrichments.resp_dns|length > 0 %}
+DNS requests: {{enrichments.resp_dns|length}}
+{% endif %}
+{%- if enrichments.resp_http|length > 0 %}
+HTTP requests: {{enrichments.resp_http|length}}
+{% endif %}
+{%- if enrichments.resp_ftp|length > 0 %}
+FTP requests: {{enrichments.resp_ftp|length}}
 {% endif %}
 
 Further details about these are in the sub-sections below.
 
-{% include 'example-reports/enrichments-ssh.j2' %}
+## Related outgoing connections from the server
 
+The following bro log entries are related to the original connection,
+because the IP address that received the incoming connection
+({{row.id_resp_h}}) also originated these other connections during a 4
+minute time window.  These may be relevant when searching for signs of
+lateral movement.
+
+{% set bro_name = 'ssh' %}
+{% set raw_bro_data = enrichments.resp_ssh %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'dns' %}
+{% set raw_bro_data = enrichments.resp_dns %}
 {% include 'example-reports/enrichments-dns.j2' %}
 
-{% include 'example-reports/enrichments-conn.j2' %}
-
+{% set bro_name = 'http' %}
+{% set raw_bro_data = enrichments.resp_http %}
 {% include 'example-reports/enrichments-http.j2' %}
 
+{% set bro_name = 'ftp' %}
+{% set raw_bro_data = enrichments.resp_ftp %}
 {% include 'example-reports/enrichments-ftp.j2' %}
+
+{% set bro_name = 'conn' %}
+{% set raw_bro_data = enrichments.resp_conn %}
+{% include 'example-reports/enrichments-conn.j2' %}
+
+## Related incoming connections from the originating host
+
+The following bro log entries are related to the original connection,
+because the IP address that made suspcious connection
+({{row.id_orig_h}}) also originated these other connections during a 4
+minute time window.  These may be relevant when searching for other
+potential hosts to investigate.
+
+{% set bro_name = 'ssh' %}
+{% set raw_bro_data = enrichments.orig_ssh %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'dns' %}
+{% set raw_bro_data = enrichments.orig_dns %}
+{% include 'example-reports/enrichments-dns.j2' %}
+
+{% set bro_name = 'http' %}
+{% set raw_bro_data = enrichments.orig_http %}
+{% include 'example-reports/enrichments-http.j2' %}
+
+{% set bro_name = 'ftp' %}
+{% set raw_bro_data = enrichments.orig_ftp %}
+{% include 'example-reports/enrichments-ftp.j2' %}
+
+{% set bro_name = 'conn' %}
+{% set raw_bro_data = enrichments.orig_conn %}
+{% include 'example-reports/enrichments-conn.j2' %}
 

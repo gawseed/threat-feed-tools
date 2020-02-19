@@ -7,6 +7,7 @@ connection, because the IP address that received the connection
 ({{row.id_resp_h}}) also received these other connections during a 4
 minute time window.
 
+{% if not enrichments.ssh %}
 {% set rawbro_data = enrichments.ssh %}
 {% include 'example-reports/raw-bro-rows.j2' %}
 
