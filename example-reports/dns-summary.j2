@@ -2,7 +2,7 @@
 # DNS Requests Summary
 
 The following summarizes the dns requests made by
-{% if conn_src %}x:{{conn_src}}{% else %}y:{{row['id_orig_h']}}{% endif %}
+{% if conn_src %}{{conn_src}}{% else %}{{row['id_orig_h']}}{% endif %}
 captured during the time window.
 
 {% for request in enrichments.dns_summary %}

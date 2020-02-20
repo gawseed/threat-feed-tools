@@ -295,6 +295,17 @@ def main():
     if args.config:
         conf = loader.load_yaml_config(args.config)
 
+    # pass in verbosity level
+    if args.verbose:
+        for subsection in conf[loader.YAML_KEY][0]:
+            item = conf[loader.YAML_KEY][0][subsection]
+            if type(item) == list:
+                for i in item:
+                    i['verbose'] = True
+            else:
+                item['verbose'] = True
+                
+
     (threat_source, search_data, search_index) = get_threat_feed(args, conf)
     data_source = get_data_source(args, conf)
     searcher = get_searcher(args, search_index, data_source, conf)
@@ -321,6 +332,7 @@ def main():
             except Exception as e:
                 sys.stderr.write("An enricher failed: " + str(e) + "\n")
                 sys.stderr.write("".join(traceback.format_exc()))
+                sys.stderr.write(str(enricher.get_config()) + "\n")
                 if 'errors' not in enrichment_data:
                     enrichment_data['errors'] = []
                 enrichment_data['errors'].append({ 'count': count,

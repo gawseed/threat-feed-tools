@@ -1,0 +1,7 @@
+{% if raw_bro_data|length > 0 %}
+
+### Related {{bro_name}} logs
+
+{% include 'example-reports/raw-bro-rows.j2' %}
+
+{% endif %}

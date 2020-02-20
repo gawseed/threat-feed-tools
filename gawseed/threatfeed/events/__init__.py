@@ -42,4 +42,4 @@ class EventStream(Config):
     def write(self, count, row, match, enrichments):
         row = self.maybe_convert(row)
         self.write_row(count, row, match, enrichments)
-
+        self.verbose("created output for event %d" % (count,))

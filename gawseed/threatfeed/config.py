@@ -1,11 +1,15 @@
 import re
 import time
+import sys
 from dateutil import parser
 
 class Config():
     def __init__(self, config={}):
         self._config = config
         self._number_re=re.compile("^@?[0-9.]+$")
+        self._verbose = False
+        if 'verbose' in config:
+            self._verbose = True
 
     def initialize(self):
         """Overridable function for doing things beyond config copying in __init__"""
@@ -47,10 +51,12 @@ class Config():
         if datatype and datatype == 'time':
             return self.parse_time(value)
         if datatype and datatype == 'offset':
-            print("---------------------------------------------------------------")
             return self.parse_offset(value)
         
         return value
+
+    def get_config(self):
+        return self._config
 
     def config_error(self, msg):
         raise ValueError(msg)
@@ -83,3 +89,7 @@ class Config():
         else:
             # hope for the best that this can parse it
             return parser.parse(timestr).timestamp()
+
+    def verbose(self, message):
+        if self._verbose:
+            sys.stderr.write(str(message) + "\n")
