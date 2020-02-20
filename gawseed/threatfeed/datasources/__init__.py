@@ -98,3 +98,11 @@ class DataSource(Config):
             new_list.append(self.maybe_convert_token_to_binary(value))
         return new_list
     
+    def set_hints(self, hint_dict):
+        """Sets a set of hints for things to look for; datasources that can
+        more easily sub-select can use these hints to refine their
+        data retrieval.  Datasources that can not will simply ignore
+        the hints, and thus searchers should double check the
+        results.
+        """
+        pass

@@ -9,6 +9,7 @@ class Search(Config):
 
     def initialize(self):
         self._search_list = self._data_iterator.encode_dict(self._search_list)
+        self._data_iterator.set_hints(self._search_list)
     
     def __iter__(self):
         return self

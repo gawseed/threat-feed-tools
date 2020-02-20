@@ -29,6 +29,13 @@ class DruidDataSource(DataSource):
         formatted_time = "'%04d-%02d-%02d %02d:%02d:%02d'" % (tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec)
         return formatted_time
 
+    def set_hints(self, hints):
+        if not self._where:
+            clauses = []
+            for key in hints:
+                clauses.append("%s = '%s'" % (key, hints[key])) # XXX: quote escaping
+            self._where = " and ".join(hints)
+
     def open(self):
         self._conn = connect(host=self._host, port=self._port,
                              path=self._path, scheme=self._scheme)
