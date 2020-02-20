@@ -8,7 +8,9 @@ class IPSearch(Search):
                                         help="A list of fields to search for IP addresses in the data stream")
 
     def initialize(self):
+        super().initialize()
         self._search_keys = self._data_iterator.encode_list(self._search_keys)
+        self._data_iterator.set_hints(self._search_keys, self._search_list)
     
     def search(self, row):
         for key in self._search_keys:
