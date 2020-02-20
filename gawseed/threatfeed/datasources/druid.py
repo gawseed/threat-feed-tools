@@ -7,7 +7,7 @@ class DruidDataSource(DataSource):
     def __init__(self, conf):
         super().__init__(conf)
 
-        self.require(['host', 'table_name'])
+        self.require(['host', 'table'])
 
         self._host = self.config('host')
         self._port = self.config('port', '8888')
