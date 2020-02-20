@@ -54,12 +54,6 @@ class Datasource(Config):
         data_source = self._loader.create_instance(ds_config, self._loader.DATASOURCE_KEY)
         data_source.initialize()
 
-        try:
-            data_source.open()
-        except Exception as e:
-            print("end of file? " + str(e))
-            return (self._output_key, []) # end of file
-
         # how we should do it eventually:
         conf = { 'module': 'ip',
                  'search_keys': [self._datasource_key]}
@@ -68,6 +62,12 @@ class Datasource(Config):
         searcher = self._loader.create_instance(conf, self._loader.SEARCHER_KEY,
                                                 [search_index, data_source,
                                                  data_source.is_binary()])
+
+        try:
+            data_source.open()
+        except Exception as e:
+            print("end of file? " + str(e))
+            return (self._output_key, []) # end of file
 
         self.verbose("enrichment/datasource searcher created")
         self.verbose("  searching from " + str(ds_config['begin_time']) + " to " + str(ds_config['end_time']))
