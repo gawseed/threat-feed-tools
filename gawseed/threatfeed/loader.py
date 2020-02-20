@@ -21,6 +21,7 @@ MODULE_XFORMS = {
         'fsdb': 'gawseed.threatfeed.datasources.fsdb.FsdbDataSource',
         'bro': 'gawseed.threatfeed.datasources.bro.BroDataSource',
         'kafka': 'gawseed.threatfeed.datasources.kafka.KafkaDataSource',
+        'druid': 'gawseed.threatfeed.datasources.druid.DruidDataSource',
     },
     SEARCHER_KEY: {
         'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
