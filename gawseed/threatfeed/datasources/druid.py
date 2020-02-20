@@ -34,8 +34,8 @@ class DruidDataSource(DataSource):
             clauses = []
             for keyname in keynames:
                 for key in hints:
-                    clauses.append("%s = '%s'" % (keyname, hints[key])) # XXX: quote escaping/filtering
-            self._where = " and ".join(hints)
+                    clauses.append("%s = '%s'" % (keyname, key)) # XXX: quote escaping/filtering
+            self._where = " and ".join(clauses)
 
     def open(self):
         self._conn = connect(host=self._host, port=self._port,
