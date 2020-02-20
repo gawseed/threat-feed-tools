@@ -26,7 +26,7 @@ class DruidDataSource(DataSource):
     def format_unix_epoch(self, etime):
         (tm_year, tm_mon, tm_mday, tm_hour, tm_min,
          tm_sec, tm_wday, tm_yday, tm_isdst) = time.gmtime(etime)
-        formatted_time = "'%04d-%02d-%02d %02d:%02d:%02d'" % (tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec)
+        formatted_time = "%04d-%02d-%02d %02d:%02d:%02d" % (tm_year, tm_mon, tm_mday, tm_hour, tm_min, tm_sec)
         return formatted_time
 
     def set_hints(self, keynames, hints):
