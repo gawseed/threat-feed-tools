@@ -16,6 +16,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'threat-search.py = gawseed.threatfeed.main:main',
+            'pkl-to-report.py = gawseed.threatfeed.pkl2report:main',
         ]
     },
     classifiers=[
