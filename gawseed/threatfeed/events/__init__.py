@@ -15,10 +15,12 @@ class EventStream(Config):
             else:
                 self._stream = stream
 
+        self._output_type = "w"
+
     def new_output(self, count):
         if self._stream_pattern:
             filename = self._stream_pattern % (count)
-            self._stream = open(filename, "w")
+            self._stream = open(filename, self._output_type)
 
     def maybe_close_output(self):
         if self._stream_pattern:
