@@ -1,0 +1,25 @@
+--------------------------
+row
+{% for item in row %}
++ {{item}}: {{row[item]}}
+{%- endfor %}
+--------------------------
+matches
+{% for item in match %}
++ {{item}}: {{match[item]}}
+{%- endfor %}
+--------------------------
+enrichments
+{% for enrichment in enrichments %}
+
+# {{enrichment}}
+
+{% for record in enrichments[enrichment] %}
+
+{% for item in record %}
++ {{item}}: {{record[item]}}
+{%- endfor %}
+{%- endfor %}
+
+{%- endfor %}
+
