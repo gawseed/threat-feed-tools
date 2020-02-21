@@ -256,7 +256,7 @@ def get_outputs(conf):
             }
         else:
             conf_part = {'module': 'reporter' } # default
-        conf = [{ loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }]
+        conf = [{ loader.YAML_KEY: [{loader.REPORTER_KEY: conf_part}] }]
 
     outputs = []
     section = conf[loader.YAML_KEY][0][loader.REPORTER_KEY]
