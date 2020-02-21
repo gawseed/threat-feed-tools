@@ -15,10 +15,12 @@ enrichments
 # {{enrichment}}
 
 {% for record in enrichments[enrichment] %}
-
+{% if record is mapping %}
 {% for item in record %}
 + {{item}}: {{record[item]}}
 {%- endfor %}
+{% else %}
+{{record}}
 {%- endfor %}
 
 {%- endfor %}
