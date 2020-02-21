@@ -13,14 +13,20 @@ enrichments
 {% for enrichment in enrichments %}
 
 # {{enrichment}}
-
 {% for record in enrichments[enrichment] %}
 {% if record is mapping %}
+Mapping:
 {% for item in record %}
 + {{item}}: {{record[item]}}
 {%- endfor %}
+{% elif record is sequence %}
+Sequence:
+{% for item in record %}
++ {{item}}
+{%- endfor %}
 {% else %}
-{{record}}
+Unknown:
+{{enrichments[record]}}
 {% endif %}
 {%- endfor %}
 
