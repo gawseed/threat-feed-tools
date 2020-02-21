@@ -16,8 +16,10 @@ class EnrichmentSort(Config):
         """Re-sort all the enrichment data based on the specified column"""
         # extract the current data
         if self._enrichment_key not in enrichment_data:
-            return
+            return (None, None)
 
         data = enrichment_data[self._enrichment_key]
         data = sorted(data, key=lambda x: x[self._sort_key])
         enrichment_data[self._enrichment_key] = data
+
+        return (self._output_key, data)

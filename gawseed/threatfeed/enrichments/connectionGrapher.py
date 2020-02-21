@@ -28,7 +28,7 @@ class ConnectionGrapher(Config):
         """Re-sort all the enrichment data based on the specified column"""
         # extract the current data
         if self._enrichment_key not in enrichment_data:
-            return
+            return (None, None)
 
         dot = graphviz.Digraph(engine=self._renderer)
 
