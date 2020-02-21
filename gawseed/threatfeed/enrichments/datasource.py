@@ -24,7 +24,7 @@ class Datasource(Config):
         self._match_key = self.config('match_key', 'id_orig_h',
                                       help="The key to use when extracting search data from the matched row.")
 
-        self._match_time_column = self.config('datasource_time_column', 'timestamp',
+        self._datasource_time_column = self.config('datasource_time_column', 'timestamp',
                                           help="The time column to use when extracting a match timestamp to search forward and backward from")
         
         self._datasource_key = self.config('datasource_key', 'id_orig_h',
@@ -44,7 +44,7 @@ class Datasource(Config):
 
         ds_config = self._datasource
 
-        timeval = row[self._match_time_column]
+        timeval = row[self._datasource_time_column]
         timestamp = self.parse_time(timeval)
         ds_config['begin_time'] = '@' + str(timestamp - self._time_backward)
         ds_config['end_time'] = '@' + str(timestamp + self._time_forward)
