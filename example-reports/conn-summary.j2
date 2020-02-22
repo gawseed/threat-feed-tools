@@ -24,7 +24,7 @@ along with the destination port numbers used.
 {%- for dest in enrichments[conn_summary_key]['connections'][orig] %}
     + {{dest}}
 {%- for port in enrichments[conn_summary_key]['connections'][orig][dest] %}
-        + to port {{port}}: {{enrichments[conn_summary_key][orig][dest][port]}}
+        + to port {{port}}: {{enrichments[conn_summary_key]['connections'][orig][dest][port]}}
 {%- endfor %}
 {%- endfor %}
 {%- endfor %}

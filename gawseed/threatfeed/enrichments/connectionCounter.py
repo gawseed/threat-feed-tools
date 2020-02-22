@@ -51,4 +51,4 @@ class ConnectionCounter(Config):
                 
         results = {'connections': conns,
                    'ports': ports}
-        return (self._output_key, conns)
+        return (self._output_key, results)
