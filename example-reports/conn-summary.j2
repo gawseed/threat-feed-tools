@@ -11,10 +11,10 @@ along with the destination port numbers used.
 
 {% include 'example-reports/conn-graph.j2' %}
 
-## Port breakdown
+## Destination port breakdown
 
 {% for port in enrichments[conn_summary_key]['ports'] %}
-+ {{port}}: enrichments[conn_summary_key]['ports'][port]
++ {{port}}: {{enrichments[conn_summary_key]['ports'][port]}}
 {% endfor %}
 
 ## Connections breakdown
