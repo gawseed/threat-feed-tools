@@ -25,6 +25,7 @@ class ConnectionCounter(Config):
             return (None, None)
 
         conns = {}
+        ports = {}
         for row in enrichment_data[self._enrichment_key]:
             orig = row[self._orig_key]
             resp = row[self._resp_key]
@@ -42,5 +43,12 @@ class ConnectionCounter(Config):
                 conns[orig][resp][port] = 1
             else:
                 conns[orig][resp][port] += 1
-            
+
+            if port not in ports:
+                ports[port] = 1
+            else:
+                ports[port] += 1
+                
+        results = {'connections': conns,
+                   'ports': ports}
         return (self._output_key, conns)

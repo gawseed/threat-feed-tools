@@ -32,16 +32,17 @@ class ConnectionGrapher(Config):
 
         dot = graphviz.Digraph(engine=self._renderer)
 
+        data = enrichment_data[self._enrichment_key]['connections']
         # build the graph via graphviz
         num = 0
         try:
-            for orig in enrichment_data[self._enrichment_key]:
+            for orig in data:
                 dot.node(orig)
-                for dest in enrichment_data[self._enrichment_key][orig]:
+                for dest in data[orig]:
                     dot.node(dest)
-                    for port in enrichment_data[self._enrichment_key][orig][dest]:
-                        dot.edge(orig, dest, label=("%s:%d" % (port, enrichment_data[self._enrichment_key][orig][dest][port])))
-
+                    for port in data[orig][dest]:
+                        dot.edge(orig, dest,
+                                 label=("%s:%d" % (port, data[orig][dest][port])))
                         num += 1
                         if num > self._limit:
                             raise ValueError("too many edges")

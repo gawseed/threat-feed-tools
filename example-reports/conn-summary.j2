@@ -6,17 +6,24 @@
 
 The following summarizes the connections to and from
 {% if conn_src %}{{conn_src}}{% else %}{{row['id_orig_h']}}{% endif %}
-and other hosts during the captured time window.
+and other hosts during the captured time window,
+along with the destination port numbers used.
 
 {% include 'example-reports/conn-graph.j2' %}
 
+## Port breakdown
+
+{% for port in enrichments[conn_summary_key]['ports'] %}
++ {{port}}: enrichments[conn_summary_key]['ports'][port]
+{% endfor %}
+
 ## Connections breakdown
 
-{% for orig in enrichments[conn_summary_key] %}
+{% for orig in enrichments[conn_summary_key]['connections'] %}
 + {{orig}}
-{%- for dest in enrichments[conn_summary_key][orig] %}
+{%- for dest in enrichments[conn_summary_key]['connections'][orig] %}
     + {{dest}}
-{%- for port in enrichments[conn_summary_key][orig][dest] %}
+{%- for port in enrichments[conn_summary_key]['connections'][orig][dest] %}
         + to port {{port}}: {{enrichments[conn_summary_key][orig][dest][port]}}
 {%- endfor %}
 {%- endfor %}
