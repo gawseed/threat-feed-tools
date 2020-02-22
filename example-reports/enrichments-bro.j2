@@ -5,7 +5,7 @@ the following other connection details occurred
 
 ## for the {{row.id_orig_h}} client:
 
-{%- if enrichments.orig_conn|length > 0 %}
+{% if enrichments.orig_conn|length > 0 %}
 IP connections: {{enrichments.orig_conn|length}}
 {% endif %}
 {%- if enrichments.orig_ssh|length > 0 %}
