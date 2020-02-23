@@ -23,6 +23,8 @@ class ConnectionGrapher(Config):
                                      help='The graphviz renderer to use')
         self._limit = self.config('limit', 100,
                                   help="Don't plot more than LIMIT edges")
+        self._minbytes = self.config('minbytes', 0,
+                                     help="don't show connections with less than this number of rx or tx bytes")
 
     def gather(self, count, row, match, enrichment_data):
         """Re-sort all the enrichment data based on the specified column"""
@@ -37,18 +39,29 @@ class ConnectionGrapher(Config):
         num = 0
         try:
             for orig in data:
-                dot.node(orig)
+                orig_created = False
                 for dest in data[orig]:
-                    dot.node(dest)
+                    dest_created = False
                     for port in data[orig][dest]:
-                        dot.edge(orig, dest,
-                                 label=("%s:%s\nrx=%s\ntx=%s" % (port,
-                                                                 str(data[orig][dest][port]['count']),
-                                                                 str(data[orig][dest][port]['rxbytes']),
-                                                                 str(data[orig][dest][port]['txbytes']))))
-                        num += 1
-                        if num > self._limit:
-                            raise ValueError("too many edges")
+                        if data[orig][dest][port]['rxbytes'] > self._minbytes or \
+                           data[orig][dest][port]['txbytes'] > self._minbytes:
+
+                            if not orig_created:
+                                dot.node(orig)
+                                orig_created = True
+
+                            if not dest_created:
+                                dot.node(dest)
+                                dest_created = True
+
+                            dot.edge(orig, dest,
+                                     label=("%s:%s\nrx=%s\ntx=%s" % (port,
+                                                                     str(data[orig][dest][port]['count']),
+                                                                     str(data[orig][dest][port]['rxbytes']),
+                                                                     str(data[orig][dest][port]['txbytes']))))
+                            num += 1
+                            if num > self._limit:
+                                raise ValueError("too many edges")
 
         except Exception as e:
             print(e)
