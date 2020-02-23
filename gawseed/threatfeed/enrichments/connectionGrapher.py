@@ -8,10 +8,11 @@ class ConnectionGrapher(Config):
     def __init__(self, conf, search_index, dataset, is_binary, loader=None):
         super().__init__(conf)
 
-        self.require(['enrichment_key', 'output_key'])
+        self.require(['enrichment_keys', 'output_key'])
 
-        self._enrichment_key = self.config("enrichment_key",
-                                           help="The enrichment key for the data to be graphed")
+        self._enrichment_keys = self.config("enrichment_keys",
+                                            datatype=list,
+                                            help="The enrichment keys for the data to be graphed")
         self._output_dir = self.config('output_dir', '/tmp',
                                        help="The name of the output directory to store the generated png in")
         self._output_key = self.config('output_key', 'datasource',
@@ -45,44 +46,50 @@ class ConnectionGrapher(Config):
     def gather(self, count, row, match, enrichment_data):
         """Re-sort all the enrichment data based on the specified column"""
         # extract the current data
-        if self._enrichment_key not in enrichment_data:
-            return (None, None)
 
+        num = 0
         dot = graphviz.Digraph(engine=self._renderer)
 
+        # pull out the highlight values to check
         self._highlight_values = []
         for h in self._highlight:
             self._highlight_values.append(row[h])
 
-        data = enrichment_data[self._enrichment_key]['connections']
-        # build the graph via graphviz
-        num = 0
-        try:
-            for orig in data:
-                for dest in data[orig]:
-                    dest_created = False
-                    for port in data[orig][dest]:
-                        if data[orig][dest][port]['rxbytes'] > self._minbytes or \
-                           data[orig][dest][port]['txbytes'] > self._minbytes:
+
+        for enrichment_key in self._enrichment_keys:
+            if enrichment_key not in enrichment_data:
+                self.verbose("key '" + enrichment_key +
+                             "' is not in the enrichment data")
+                continue
+
+            data = enrichment_data[enrichment_key]['connections']
+            # build the graph via graphviz
+            try:
+                for orig in data:
+                    for dest in data[orig]:
+                        dest_created = False
+                        for port in data[orig][dest]:
+                            if data[orig][dest][port]['rxbytes'] > self._minbytes or \
+                               data[orig][dest][port]['txbytes'] > self._minbytes:
 
 
-                            self.add_node(dot, row, orig)
-                            self.add_node(dot, row, dest)
+                                self.add_node(dot, row, orig)
+                                self.add_node(dot, row, dest)
 
-                            label = ("%s:%s\nrx=%s\ntx=%s" % \
-                                     (port,
-                                      str(data[orig][dest][port]['count']),
-                                      str(data[orig][dest][port]['rxbytes']),
-                                      str(data[orig][dest][port]['txbytes'])))
-                            dot.edge(orig, dest,
-                                     label=label)
-                            num += 1
-                            if num > self._limit:
-                                raise ValueError("too many edges")
+                                label = ("%s:%s\nrx=%s\ntx=%s" % \
+                                         (port,
+                                          str(data[orig][dest][port]['count']),
+                                          str(data[orig][dest][port]['rxbytes']),
+                                          str(data[orig][dest][port]['txbytes'])))
+                                dot.edge(orig, dest,
+                                         label=label)
+                                num += 1
+                                if num > self._limit:
+                                    raise ValueError("too many edges")
 
-        except Exception as e:
-            print(e)
-
+            except Exception as e:
+                print(e)
+                # XXX: we'll continue; think about right thing here
                         
                     
         # create a temporary file to store results in
