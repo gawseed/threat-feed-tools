@@ -6,68 +6,58 @@ the following other connection details occurred
 ## for the {{row.id_orig_h}} client:
 
 {% if enrichments.orig_conn|length > 0 %}
-IP connections: {{enrichments.orig_conn|length}}
++ IP connections: {{enrichments.orig_conn|length}}
 {% endif %}
 {%- if enrichments.orig_ssh|length > 0 %}
-SSH connections: {{enrichments.orig_ssh|length}}
++ SSH connections: {{enrichments.orig_ssh|length}}
 {% endif %}
 {%- if enrichments.orig_dns|length > 0 %}
-DNS requests: {{enrichments.orig_dns|length}}
++ DNS requests: {{enrichments.orig_dns|length}}
 {% endif %}
 {%- if enrichments.orig_http|length > 0 %}
-HTTP requests: {{enrichments.orig_http|length}}
++ HTTP connections: {{enrichments.orig_http|length}}
 {% endif %}
 {%- if enrichments.orig_ftp|length > 0 %}
-FTP requests: {{enrichments.orig_ftp|length}}
++ FTP connections: {{enrichments.orig_ftp|length}}
+{% endif %}
+{%- if enrichments.orig_smb|length > 0 %}
++ SMB connections: {{enrichments.orig_smb|length}}
+{% endif %}
+{%- if enrichments.orig_tunnel|length > 0 %}
++ TUNNEL connections: {{enrichments.orig_tunnel|length}}
+{% endif %}
+{%- if enrichments.orig_sip|length > 0 %}
++ SIP connections: {{enrichments.orig_sip|length}}
 {% endif %}
 
 ## for the {{row.id_resp_h}} server:
 
 {% if enrichments.resp_conn|length > 0 %}
-IP connections: {{enrichments.resp_conn|length}}
++ IP connections: {{enrichments.resp_conn|length}}
 {% endif %}
 {%- if enrichments.resp_ssh|length > 0 %}
-SSH connections: {{enrichments.resp_ssh|length}}
++ SSH connections: {{enrichments.resp_ssh|length}}
 {% endif %}
 {%- if enrichments.resp_dns|length > 0 %}
-DNS requests: {{enrichments.resp_dns|length}}
++ DNS requests: {{enrichments.resp_dns|length}}
 {% endif %}
 {%- if enrichments.resp_http|length > 0 %}
-HTTP requests: {{enrichments.resp_http|length}}
++ HTTP connections: {{enrichments.resp_http|length}}
 {% endif %}
 {%- if enrichments.resp_ftp|length > 0 %}
-FTP requests: {{enrichments.resp_ftp|length}}
++ FTP connections: {{enrichments.resp_ftp|length}}
+{% endif %}
+{%- if enrichments.resp_smb|length > 0 %}
++ SMB connections: {{enrichments.resp_smb|length}}
+{% endif %}
+{%- if enrichments.resp_tunnel|length > 0 %}
++ TUNNEL connections: {{enrichments.resp_tunnel|length}}
+{% endif %}
+{%- if enrichments.resp_sip|length > 0 %}
++ SIP connections: {{enrichments.resp_sip|length}}
 {% endif %}
 
 Further details about these are in the sub-sections below.
-
-## Related connections to the server
-
-The following bro log entries are related to the original connection,
-because the IP address that received the incoming connection
-({{row.id_resp_h}}) was also part of these other connections during a 4
-minute time window.  These may be relevant when searching for signs of
-lateral movement.
-
-{% set bro_name = 'ssh' %}
-{% set raw_bro_data = enrichments.resp_ssh %}
-{% include 'example-reports/enrichments-generic.j2' %}
-
-{% set bro_name = 'dns' %}
-{% set raw_bro_data = enrichments.resp_dns %}
-{% include 'example-reports/enrichments-generic.j2' %}
-
-{% set bro_name = 'http' %}
-{% set raw_bro_data = enrichments.resp_http %}
-{% include 'example-reports/enrichments-generic.j2' %}
-
-{% set bro_name = 'ftp' %}
-{% set raw_bro_data = enrichments.resp_ftp %}
-{% include 'example-reports/enrichments-generic.j2' %}
-
-{% set bro_name = 'conn' %}
-{% set raw_bro_data = enrichments.resp_conn %}
-{% include 'example-reports/enrichments-generic.j2' %}
 
 ## Related incoming connections from the originating host
 
@@ -95,5 +85,58 @@ potential hosts to investigate.
 
 {% set bro_name = 'conn' %}
 {% set raw_bro_data = enrichments.orig_conn %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'smb' %}
+{% set raw_bro_data = enrichments.orig_smb %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'radius' %}
+{% set raw_bro_data = enrichments.orig_radius %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'sip' %}
+{% set raw_bro_data = enrichments.orig_sip %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+## Related connections to the server
+
+The following bro log entries are related to the original connection,
+because the IP address that received the incoming connection
+({{row.id_resp_h}}) was also part of these other connections during a 4
+minute time window.  These may be relevant when searching for signs of
+lateral movement.
+
+{% set bro_name = 'ssh' %}
+{% set raw_bro_data = enrichments.resp_ssh %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'dns' %}
+{% set raw_bro_data = enrichments.resp_dns %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'http' %}
+{% set raw_bro_data = enrichments.resp_http %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'ftp' %}
+{% set raw_bro_data = enrichments.resp_ftp %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'smb' %}
+{% set raw_bro_data = enrichments.resp_smb %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'radius' %}
+{% set raw_bro_data = enrichments.resp_radius %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'sip' %}
+{% set raw_bro_data = enrichments.resp_sip %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+
+{% set bro_name = 'conn' %}
+{% set raw_bro_data = enrichments.resp_conn %}
 {% include 'example-reports/enrichments-generic.j2' %}
 
