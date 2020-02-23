@@ -5,11 +5,21 @@
 {% for column in raw_bro_data[0] %}{{column}} {% endfor %}
 {% for row in raw_bro_data %}
 {{row['id_orig_h']}}/{{row['id_orig_p']}} -> {{row['id_resp_h']}}/{{row['id_resp_p']}}
+{%- if row['client'] %} client={{row['client']}} {% endif %}
+{%- if row['client_subject'] %} {{row['client_subject']}} {% endif %}
 {%- if row['auth_success'] %} auth={{row['auth_success']}} {% endif %}
 {%- if row['query'] %} query={{row['query']}} {% endif %}
+{%- if row['message'] %} {{row['message']}} {% endif %}
 {%- if row['conn_state'] %} state={{row['conn_state']}} {% endif %}
 {%- if row['orig_bytes'] %} sent={{row['orig_bytes']}}B {% endif %}
 {%- if row['resp_bytes'] %} recv={{row['resp_bytes']}}B {% endif %}
+{%- if row['from'] %} {{row['from']}} {% endif %}
+{%- if row['to'] %} {{row['to']}} {% endif %}
+{%- if row['command'] %} {{row['command']}} {% endif %}
+{%- if row['action'] %} {{row['action']}} {% endif %}
+{%- if row['user_agent'] %} {{row['user_agent']}} {% endif %}
+{%- if row['request_from'] %} {{row['request_from']}} {% endif %}
+{%- if row['request_to'] %} {{row['request_to']}} {% endif %}
 {% for column in row %}{{row[column]}} {% endfor %}
 {% endfor %}
 ```
