@@ -13,6 +13,7 @@
 {%- if row['conn_state'] %} state={{row['conn_state']}} {% endif %}
 {%- if row['orig_bytes'] %} sent={{row['orig_bytes']}}B {% endif %}
 {%- if row['resp_bytes'] %} recv={{row['resp_bytes']}}B {% endif %}
+{%- if row['duration'] %} dur={{row['duration']}} {% endif %}
 {%- if row['from'] %} {{row['from']}} {% endif %}
 {%- if row['to'] %} {{row['to']}} {% endif %}
 {%- if row['command'] %} {{row['command']}} {% endif %}
