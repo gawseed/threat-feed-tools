@@ -24,6 +24,9 @@ the following other connection details occurred
 + SMB connections: {{enrichments.orig_smb|length}}
 {% endif %}
 {%- if enrichments.orig_tunnel|length > 0 %}
++ KERBEROS trasactions: {{enrichments.orig_kerberos|length}}
+{% endif %}
+{%- if enrichments.orig_tunnel|length > 0 %}
 + TUNNEL connections: {{enrichments.orig_tunnel|length}}
 {% endif %}
 {%- if enrichments.orig_sip|length > 0 %}
@@ -49,6 +52,9 @@ the following other connection details occurred
 {% endif %}
 {%- if enrichments.resp_smb|length > 0 %}
 + SMB connections: {{enrichments.resp_smb|length}}
+{% endif %}
+{%- if enrichments.resp_tunnel|length > 0 %}
++ KERBEROS trasactions: {{enrichments.resp_kerberos|length}}
 {% endif %}
 {%- if enrichments.resp_tunnel|length > 0 %}
 + TUNNEL connections: {{enrichments.resp_tunnel|length}}
@@ -91,6 +97,10 @@ potential hosts to investigate.
 {% set raw_bro_data = enrichments.orig_smb %}
 {% include 'example-reports/enrichments-generic.j2' %}
 
+{% set bro_name = 'kerberos' %}
+{% set raw_bro_data = enrichments.orig_kerberos %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
 {% set bro_name = 'radius' %}
 {% set raw_bro_data = enrichments.orig_radius %}
 {% include 'example-reports/enrichments-generic.j2' %}
@@ -125,6 +135,10 @@ lateral movement.
 
 {% set bro_name = 'smb' %}
 {% set raw_bro_data = enrichments.resp_smb %}
+{% include 'example-reports/enrichments-generic.j2' %}
+
+{% set bro_name = 'kerberos' %}
+{% set raw_bro_data = enrichments.resp_kerberos %}
 {% include 'example-reports/enrichments-generic.j2' %}
 
 {% set bro_name = 'radius' %}

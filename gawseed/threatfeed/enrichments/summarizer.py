@@ -17,18 +17,25 @@ class Summarizer(Config):
         self._output_key = self.config('output_key', 'datasource',
                                        help="The output key to store the returned data in.")
 
-    def gather(self, count, row, match, enrichment_data):
-        """Re-sort all the enrichment data based on the specified column"""
-        # extract the current data
+    def check_enrichment_data(self, enrichment_data):
         if self._enrichment_key not in enrichment_data:
             self.verbose("summarizer data wasn't present")
             self.verbose("  keys present:" + str(enrichment_data.keys()))
             self.verbose(self.get_config())
-            return (None, None)
+            return False
 
         if type(enrichment_data[self._enrichment_key]) != list:
             self.verbose("summarizer data wasn't in a list: " + type(enrichment_data[self._enrichment_key]))
             self.verbose(self.get_config())
+            return False
+
+        return True
+
+
+    def gather(self, count, row, match, enrichment_data):
+        """Re-sort all the enrichment data based on the specified column"""
+
+        if not self.check_enrichment_data(enrichment_data):
             return (None, None)
 
         counter = Counter()

@@ -5,7 +5,22 @@ The following summarizes the dns requests made by
 {% if conn_src %}{{conn_src}}{% else %}{{row['id_orig_h']}}{% endif %}
 captured during the time window.
 
-{% for request in enrichments.dns_summary %}
-+ {{request}}: {{enrichments.dns_summary[request]}}
-{% endfor %}
+{{enrichments.dns_summary}}
+
+## Queries by DNS registration point
+
+The following list enumates the number of DNS requests for a
+particular DNS domain within its registration point in the DNS
+hierarchy.
+
+{% for domain in enrichments.dns_summary.domains %}
++ {{domain}}: {{enrichments.dns_summary.domains[domain]}}
+{%- endfor %}
+
+## Detailed Queries
+
+{% for request in enrichments.dns_summary.queries %}
++ {{request}}: {{enrichments.dns_summary.queries[request]}}
+{%- endfor %}
+
 {% endif %}

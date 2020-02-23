@@ -41,6 +41,7 @@ MODULE_XFORMS = {
         'datasource': 'gawseed.threatfeed.enrichments.datasource.Datasource',
         'sorter': 'gawseed.threatfeed.enrichments.sorter.EnrichmentSort',
         'summarizer': 'gawseed.threatfeed.enrichments.summarizer.Summarizer',
+        'dnssummarizer': 'gawseed.threatfeed.enrichments.dnssummarizer.DNSSummarizer',
         'connectioncounter': 'gawseed.threatfeed.enrichments.connectionCounter.ConnectionCounter',
         'connectiongrapher': 'gawseed.threatfeed.enrichments.connectionGrapher.ConnectionGrapher',
     },
@@ -108,7 +109,7 @@ class Loader():
             raise ValueError("Error parsing/loading module/class name: " + module_name)
 
         if not hasattr(module, class_name):
-            raise ValueError("Error finding class name '" + class_name + "' in module '" + module + "'")
+            raise ValueError("Error finding class name '" + str(class_name) + "' in module '" + str(module) + "'")
 
         return getattr(module, class_name)
 
