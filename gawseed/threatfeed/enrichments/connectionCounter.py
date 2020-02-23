@@ -40,8 +40,12 @@ class ConnectionCounter(Config):
 
             if rxbytes == "-":
                 rxbytes = 0
+            else:
+                rxbytes = int(rxbytes)
             if txbytes == "-":
                 txbytes = 0
+            else:
+                txbytes = int(txbytes)
 
             base_info = { 'count': 1,
                           'rxbytes': rxbytes,
