@@ -25,6 +25,22 @@ class ConnectionGrapher(Config):
                                   help="Don't plot more than LIMIT edges")
         self._minbytes = self.config('minbytes', 0,
                                      help="don't show connections with less than this number of rx or tx bytes")
+        self._highlight = self.config('highlight', ['id_orig_h', 'id_resp_h'],
+                                      help="Key names from the matched data to highlight")
+
+        self._seen = {}
+
+    def add_node(self, dot, row, label):
+        if label in self._seen:
+            return self._seen[label]
+        
+        if label in self._highlight_values:
+            self._seen[label] = dot.node(label, color="blue",
+                                         fillcolor="lightblue",
+                                         style='filled',
+                                         shape="box")
+        else:
+            self._seen[label] = dot.node(label)
 
     def gather(self, count, row, match, enrichment_data):
         """Re-sort all the enrichment data based on the specified column"""
@@ -34,31 +50,32 @@ class ConnectionGrapher(Config):
 
         dot = graphviz.Digraph(engine=self._renderer)
 
+        self._highlight_values = []
+        for h in self._highlight:
+            self._highlight_values.append(row[h])
+
         data = enrichment_data[self._enrichment_key]['connections']
         # build the graph via graphviz
         num = 0
         try:
             for orig in data:
-                orig_created = False
                 for dest in data[orig]:
                     dest_created = False
                     for port in data[orig][dest]:
                         if data[orig][dest][port]['rxbytes'] > self._minbytes or \
                            data[orig][dest][port]['txbytes'] > self._minbytes:
 
-                            if not orig_created:
-                                dot.node(orig)
-                                orig_created = True
 
-                            if not dest_created:
-                                dot.node(dest)
-                                dest_created = True
+                            self.add_node(dot, row, orig)
+                            self.add_node(dot, row, dest)
 
+                            label = ("%s:%s\nrx=%s\ntx=%s" % \
+                                     (port,
+                                      str(data[orig][dest][port]['count']),
+                                      str(data[orig][dest][port]['rxbytes']),
+                                      str(data[orig][dest][port]['txbytes'])))
                             dot.edge(orig, dest,
-                                     label=("%s:%s\nrx=%s\ntx=%s" % (port,
-                                                                     str(data[orig][dest][port]['count']),
-                                                                     str(data[orig][dest][port]['rxbytes']),
-                                                                     str(data[orig][dest][port]['txbytes']))))
+                                     label=label)
                             num += 1
                             if num > self._limit:
                                 raise ValueError("too many edges")
