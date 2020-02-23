@@ -77,4 +77,4 @@ class DruidDataSource(DataSource):
         return self
 
     def __next__(self):
-        return next(self._curs)
+        return next(self._curs)._asdict()
