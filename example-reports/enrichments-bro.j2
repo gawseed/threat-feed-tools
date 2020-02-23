@@ -23,7 +23,7 @@ FTP requests: {{enrichments.orig_ftp|length}}
 
 ## for the {{row.id_resp_h}} server:
 
-{%- if enrichments.resp_conn|length > 0 %}
+{% if enrichments.resp_conn|length > 0 %}
 IP connections: {{enrichments.resp_conn|length}}
 {% endif %}
 {%- if enrichments.resp_ssh|length > 0 %}
