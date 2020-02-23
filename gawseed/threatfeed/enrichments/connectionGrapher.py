@@ -42,7 +42,10 @@ class ConnectionGrapher(Config):
                     dot.node(dest)
                     for port in data[orig][dest]:
                         dot.edge(orig, dest,
-                                 label=("%s:%d" % (port, data[orig][dest][port])))
+                                 label=("%s:%s\nrx=%s\ntx=%s" % (port,
+                                                                 str(data[orig][dest][port]['count']),
+                                                                 str(data[orig][dest][port]['rxbytes']),
+                                                                 str(data[orig][dest][port]['txbytes']))))
                         num += 1
                         if num > self._limit:
                             raise ValueError("too many edges")
