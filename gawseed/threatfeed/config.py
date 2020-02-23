@@ -52,6 +52,9 @@ class Config():
             return self.parse_time(value)
         if datatype and datatype == 'offset':
             return self.parse_offset(value)
+        if datatype and (datatype == 'list' or datatype == list):
+            if type(value) != list:
+                value = [value]
         
         return value
 
