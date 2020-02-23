@@ -13,13 +13,18 @@ class ConnectionCounter(Config):
                                      help="The destination key")
         self._port_key = self.config('destination_port', 'id_resp_p',
                                      help="The destination port to group by")
+        self._orig_bytes_key = self.config('origin_bytes_key', 'orig_bytes',
+                                           help="The key for the bytes sent by the origin ")
+        self._resp_bytes_key = self.config('destination_bytes_key',
+                                           'resp_bytes',
+                                           help="The key for the bytes sent by the server ")
         self._enrichment_key = self.config("enrichment_key",
                                            help="The enrichment key for the data to be analyzed")
         self._output_key = self.config('output_key', 'datasource',
                                        help="The output key to store the analysis data in")
 
     def gather(self, count, row, match, enrichment_data):
-        """Re-sort all the enrichment data based on the specified column"""
+        """Collect and tally results of all the connections"""
         # extract the current data
         if self._enrichment_key not in enrichment_data:
             return (None, None)
@@ -30,19 +35,31 @@ class ConnectionCounter(Config):
             orig = row[self._orig_key]
             resp = row[self._resp_key]
             port = row[self._port_key]
+            rxbytes = row[self._orig_bytes_key]
+            txbytes = row[self._resp_bytes_key]
 
+            if rxbytes == "-":
+                rxbytes = 0
+            if txbytes == "-":
+                txbytes = 0
+
+            base_info = { 'count': 1,
+                          'rxbytes': rxbytes,
+                          'txbytes': txbytes }
             if orig not in conns:
-                conns[orig] = {resp: {port: 1}}
+                conns[orig] = {resp: {port: base_info}}
                 continue
 
             if resp not in conns[orig]:
-                conns[orig][resp] = {port: 1}
+                conns[orig][resp] = {port: base_info}
                 continue
 
             if port not in conns[orig]:
-                conns[orig][resp][port] = 1
+                conns[orig][resp][port] = base_info
             else:
-                conns[orig][resp][port] += 1
+                conns[orig][resp][port]['count'] += 1
+                conns[orig][resp][port]['rxbytes'] += rxbytes
+                conns[orig][resp][port]['txbytes'] += txbytes
 
             if port not in ports:
                 ports[port] = 1

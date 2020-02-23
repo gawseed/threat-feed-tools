@@ -15,18 +15,25 @@ along with the destination port numbers used.
 
 {% for port in enrichments[conn_summary_key]['ports'] %}
 + {{port}}: {{enrichments[conn_summary_key]['ports'][port]}}
-{% endfor %}
+{%- endfor %}
 
 ## Connections breakdown
 
 {% for orig in enrichments[conn_summary_key]['connections'] %}
+{% if enrichments[conn_summary_key]['connections'][orig].keys()|length == 1 and enrichments[conn_summary_key]['connections'][orig].keys()[0]|length == 1 %}
+{%- for dest in enrichments[conn_summary_key]['connections'][orig] %}
+{%- for port in enrichments[conn_summary_key]['connections'][orig][dest] %}
+    + {{orig}} => {{dest}} / port={{port}}: {{enrichments[conn_summary_key]['connections'][orig][dest][port]}}
+{%- endfor %}
+{%- endfor %}
+{%- else %}
 + {{orig}}
 {%- for dest in enrichments[conn_summary_key]['connections'][orig] %}
-    + {{dest}}
 {%- for port in enrichments[conn_summary_key]['connections'][orig][dest] %}
-        + to port {{port}}: {{enrichments[conn_summary_key]['connections'][orig][dest][port]}}
+    + {{dest}} / port = {{port}}: {{enrichments[conn_summary_key]['connections'][orig][dest][port]['count']}}, rx = {{enrichments[conn_summary_key]['connections'][orig][dest][port]['rxbytes']}} B, tx = {{enrichments[conn_summary_key]['connections'][orig][dest][port]['txbytes']}} B
 {%- endfor %}
 {%- endfor %}
+{%- endif %}
 {%- endfor %}
 
 {% endif %}
