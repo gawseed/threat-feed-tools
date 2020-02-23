@@ -6,8 +6,10 @@ from gawseed.threatfeed.config import Config
 from .summarizer import Summarizer
 
 class DNSSummarizer(Summarizer):
-    """Summarizes/counts data from another enricher's data;
-    Produces a dictionary with data_key/count pairs"""
+    """Summarizes/counts data from dns requests from another enrichment
+    module, counting the results by full query (into 'queries') and by
+    domains and regpoints (in 'domains' and 'regpoints') respectively.
+    """
     def __init__(self, conf, search_index, dataset, is_binary, loader=None):
         super().__init__(conf, search_index, dataset, is_binary, loader)
 
