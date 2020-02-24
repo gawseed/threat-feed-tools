@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gawseed-threat-feed-tools",
-    version="0.9.91",
+    version="0.9.92",
     author="Wes Hardaker and USC/ISI",
     author_email="opensource@hardakers.net",
     description="Tools to search network data logs for threat feed data",
@@ -30,6 +30,7 @@ setuptools.setup(
                       'pyyaml>5',
                       'msgpack',
                       'lz4',
+                      'dnssplitter',
                       'urllib3'],
     python_requires = '>=3.0',
     test_suite='nose.collector',
