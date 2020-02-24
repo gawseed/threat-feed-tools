@@ -38,6 +38,7 @@ class EnrichmentURL(Config):
         if prior_results:
             return prior_results
         
+        self.verbose("Fetched URL: " + url)
         r = self._pool.request(reqtype, url)
         if r.status != 200:
             print("failed to fetch URL:" + str(r.status))
