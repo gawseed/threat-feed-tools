@@ -7,6 +7,7 @@
 {{row['id_orig_h']}}/{{row['id_orig_p']}} -> {{row['id_resp_h']}}/{{row['id_resp_p']}}
 {%- if row['client'] %} client={{row['client']}} {% endif %}
 {%- if row['client_subject'] %} {{row['client_subject']}} {% endif %}
+{%- if row['server_name'] %} client={{row['server_name']}} {% endif %}
 {%- if row['auth_success'] %} auth={{row['auth_success']}} {% endif %}
 {%- if row['query'] %} query={{row['query']}} {% endif %}
 {%- if row['message'] %} {{row['message']}} {% endif %}
