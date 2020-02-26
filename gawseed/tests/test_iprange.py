@@ -16,8 +16,10 @@ class testiprange(unittest.TestCase):
         # fake some data
         data_source = [{'id_orig_h': '1.2.3.4',
                         'id_resp_h': '1.2.3.5'},
-                       {'id_orig_h': '3.3.3.4',
-                        'id_resp_h': '3.3.3.5'},
+                       {'id_orig_h': '3.3.3.4', # ip_orig matches the first item
+                        'id_resp_h': '3.3.9.9'},
+                       {'id_orig_h': '2.2.2.2', # ip_resp matches the second
+                        'id_resp_h': '3.3.3.9'},
                        {'id_orig_h': '4.4.4.4',
                         'id_resp_h': '4.4.4.5'},
         ]
@@ -42,7 +44,9 @@ class testiprange(unittest.TestCase):
             result = searcher.search(item)
             if result:
                 count += 1
-                self.assertEqual(result, search_list[0])
+                self.assertTrue(result == search_list[0] or
+                                result == search_list[1],
+                                "search list match was correct")
             
         self.assertEqual(count, 2,
                          "Should have two results")

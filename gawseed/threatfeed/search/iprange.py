@@ -1,3 +1,4 @@
+import re
 import ipaddress
 from bisect import bisect
 
@@ -19,6 +20,7 @@ class IPRangeSearch(IPSearch):
         self._left_keys = []
 
         # modify the lists to be ranges
+        reblock = re.compile("([^/]+)/(\d+)$") # no netmasks currently
         for search_item in self._search_list:
             if type(search_item) == list:
                 ip_lft = int(ipaddress.IPv4Address(search_item[0]))
@@ -29,6 +31,19 @@ class IPRangeSearch(IPSearch):
                                          'match': search_item})
 
             else:
+                results = reblock.search(search_item)
+                if results:
+                    ip = int(ipaddress.IPv4Address(results.group(1)))
+                    mask = 32-int(results.group(2))
+
+                    ip_lft = ip - ip % (2**mask)
+                    ip_rht = ip_lft + 2**mask
+                    self._left_keys.append(ip_lft)
+                    self._range_list.append({"left": ip_lft,
+                                             'right': ip_rht,
+                                             'match': search_item})
+                else:
+                    raise ValueError("entry %s is an unparsable range" % search_item)
                 # XXX: deal with /masking
                 pass
 
