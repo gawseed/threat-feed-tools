@@ -21,8 +21,8 @@ class IPRangeSearch(IPSearch):
         # modify the lists to be ranges
         for search_item in self._search_list:
             if type(search_item) == list:
-                ip_lft = ipaddress.IPv4Address(search_item[0])
-                ip_rht = ipaddress.IPv4Address(search_item[1])
+                ip_lft = int(ipaddress.IPv4Address(search_item[0]))
+                ip_rht = int(ipaddress.IPv4Address(search_item[1]))
                 self._left_keys.append(ip_lft)
                 self._range_list.append({"left": ip_lft,
                                          'right': ip_rht,
@@ -40,11 +40,11 @@ class IPRangeSearch(IPSearch):
         # for each key we want to search for
         for key in self._search_keys:
             # extract the ip address for the key
-            ip = ipaddress.IPv4Address(row[key])
+            ip = int(ipaddress.IPv4Address(row[key]))
             # see if that address is somewhere within our list of addresses
             point = bisect(self._left_keys, ip)
-            if point != self._length:
-                range_info = self._range_list[point]
+            if point != 0:
+                range_info = self._range_list[point-1]
                 if ip >= range_info['left'] and ip <= range_info['right']:
                     # found a match, return the match info
                     return range_info['match']

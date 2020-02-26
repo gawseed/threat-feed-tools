@@ -21,7 +21,12 @@ class testiprange(unittest.TestCase):
                        {'id_orig_h': '4.4.4.4',
                         'id_resp_h': '4.4.4.5'},
         ]
-        search_list = [['3.1.0.0', '3.3.3.6']]
+        search_list = [['3.1.0.0', '3.3.3.6'],
+                       '3.3.3.0/24',
+                       ['1.2.3.1', '1.2.3.3'],
+                       '4.4.5.0/24',
+                       ['9.9.9.9', '9.9.9.10']
+        ]
 
         searcher = gawseed.threatfeed.search.iprange.IPRangeSearch({}, search_list,
                                                                   data_source,
@@ -32,8 +37,16 @@ class testiprange(unittest.TestCase):
         searcher.initialize_ranges()
         self.assertTrue(True, 'initialized ok')
 
+        count = 0
         for item in data_source:
             result = searcher.search(item)
             if result:
+                count += 1
                 self.assertEqual(result, search_list[0])
             
+        self.assertEqual(count, 2,
+                         "Should have two results")
+
+if __name__ == "__main__":
+    unittest.main()
+    
