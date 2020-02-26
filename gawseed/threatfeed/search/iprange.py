@@ -13,7 +13,7 @@ class IPRangeSearch(IPSearch):
 
     def initialize(self):
         super().initialize()
-        self._initialize_ranges()
+        self.initialize_ranges()
 
     def initialize_ranges(self):
         self._range_list = []
@@ -22,6 +22,7 @@ class IPRangeSearch(IPSearch):
         # modify the lists to be ranges
         reblock = re.compile("([^/]+)/([0-9]+)$") # no netmasks currently
         for search_item in self._search_list:
+            # is it a 2-column range?
             if type(search_item) == list:
                 ip_lft = int(ipaddress.IPv4Address(search_item[0]))
                 ip_rht = int(ipaddress.IPv4Address(search_item[1]))
@@ -30,23 +31,29 @@ class IPRangeSearch(IPSearch):
                                          'right': ip_rht,
                                          'match': search_item})
 
+            # or it should be a address/netmask format
             else:
                 results = reblock.search(search_item)
                 if results:
+                    # get the mask and 32-mask_value for v4
                     ip = int(ipaddress.IPv4Address(results.group(1)))
                     mask = 32-int(results.group(2))
 
+                    # get the integer start/end of the range
                     ip_lft = ip - ip % (2**mask)
-                    ip_rht = ip_lft + 2**mask
+                    ip_rht = ip_lft + 2**mask-1
+
+                    # save them
                     self._left_keys.append(ip_lft)
                     self._range_list.append({"left": ip_lft,
                                              'right': ip_rht,
                                              'match': search_item})
                 else:
-                    raise ValueError("entry %s is an unparsable range" % search_item)
-                # XXX: deal with /masking
+                    import pdb ; pdb.set_trace()
+                    raise ValueError("entry %s is an unparsable range" % (search_item))
                 pass
 
+        # need to sort them into roughly the right order (overlaps dealt with later)
         self._left_keys = sorted(self._left_keys)
         self._range_list = sorted(self._range_list, key=lambda x: x['left'])
         self._length = len(self._left_keys)
