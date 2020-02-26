@@ -40,6 +40,12 @@ class testiprange(unittest.TestCase):
                        {'id_orig_h': '3.3.2.255', # should match the first
                         'id_resp_h': '99.99.99.99',
                         'match': 0},
+                       {'id_orig_h': '::127',
+                        'id_resp_h': '2001::1',
+                        'match': 6},
+                       {'id_orig_h': '::127',
+                        'id_resp_h': '2002::16',
+                        'match': 7},
         ]
 
         search_list = [['3.1.0.0', '3.3.3.6'],
@@ -47,6 +53,9 @@ class testiprange(unittest.TestCase):
                        '3.3.3.128/31',
                        ['1.2.3.1', '1.2.3.3'],
                        '4.4.5.0/24',
+                       '2001::0/16',
+                       '2001::0/18',
+                       ['2002::1', '2002::128'],
                        ['9.9.9.9', '9.9.9.10'],
         ]
 
@@ -69,7 +78,7 @@ class testiprange(unittest.TestCase):
                 self.assertTrue(result['match'] == search_list[item['match']],
                                 "\nitem\n    '{item}\n  matched\n    {result}\n  did not match item #{match}\n    ({shouldhave})\n".format(match=item['match'], result=result, item=item, shouldhave=search_list[item['match']]))
             
-        self.assertEqual(count, 4,
+        self.assertEqual(count, 6,
                          "Should have two results")
 
 if __name__ == "__main__":

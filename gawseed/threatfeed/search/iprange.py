@@ -15,6 +15,13 @@ class IPRangeSearch(IPSearch):
         super().initialize()
         self.initialize_ranges()
 
+    def ip_to_int(self, ip):
+        if ip.find(":") != -1:
+            # ipv6
+            return (int(ipaddress.IPv6Address(ip)), 128)
+        else:
+            return (int(ipaddress.IPv4Address(ip)), 32)
+
     def initialize_ranges(self):
         self._range_list = []
         self._left_keys = []
@@ -24,8 +31,8 @@ class IPRangeSearch(IPSearch):
         for search_item in self._search_list:
             # is it a 2-column range?
             if type(search_item) == list:
-                ip_lft = int(ipaddress.IPv4Address(search_item[0]))
-                ip_rht = int(ipaddress.IPv4Address(search_item[1]))
+                (ip_lft, mask) = self.ip_to_int(search_item[0])
+                (ip_rht, mask) = self.ip_to_int(search_item[1])
                 self._left_keys.append(ip_lft)
                 self._range_list.append({"left": ip_lft,
                                          'right': ip_rht,
@@ -35,9 +42,9 @@ class IPRangeSearch(IPSearch):
             else:
                 results = reblock.search(search_item)
                 if results:
-                    # get the mask and 32-mask_value for v4
-                    ip = int(ipaddress.IPv4Address(results.group(1)))
-                    mask = 32-int(results.group(2))
+                    # get the mask and mask size_value for v4/v6
+                    (ip, masksize) = self.ip_to_int(results.group(1))
+                    mask = masksize-int(results.group(2))
 
                     # get the integer start/end of the range
                     ip_lft = ip - ip % (2**mask)
@@ -49,7 +56,6 @@ class IPRangeSearch(IPSearch):
                                              'right': ip_rht,
                                              'match': search_item})
                 else:
-                    import pdb ; pdb.set_trace()
                     raise ValueError("entry %s is an unparsable range" % (search_item))
                 pass
 
@@ -62,7 +68,7 @@ class IPRangeSearch(IPSearch):
         # for each key we want to search for
         for key in self._search_keys:
             # extract the ip address for the key
-            ip = int(ipaddress.IPv4Address(row[key]))
+            (ip, mask) = self.ip_to_int(row[key])
             # see if that address is somewhere within our list of addresses
             point = bisect(self._left_keys, ip)
             if point != 0:
