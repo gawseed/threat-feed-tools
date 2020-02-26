@@ -5,7 +5,7 @@ class test_base_search(unittest.TestCase):
         import gawseed.threatfeed.search.http
         self.assertTrue(True, "imported gawseed.threatfeed.search.http")
 
-        created = gawseed.threatfeed.search.http.HTTPSearch([], None, False, {'key': 'key'})
+        created = gawseed.threatfeed.search.http.HTTPSearch({'key': 'key'}, [], None, False)
         self.assertEqual(type(created),
                          gawseed.threatfeed.search.http.HTTPSearch,
                          "created a gawseed.threatfeed.search.http.HTTPSearch")
