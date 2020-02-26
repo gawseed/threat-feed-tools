@@ -20,7 +20,7 @@ class IPRangeSearch(IPSearch):
         self._left_keys = []
 
         # modify the lists to be ranges
-        reblock = re.compile("([^/]+)/(\d+)$") # no netmasks currently
+        reblock = re.compile("([^/]+)/([0-9]+)$") # no netmasks currently
         for search_item in self._search_list:
             if type(search_item) == list:
                 ip_lft = int(ipaddress.IPv4Address(search_item[0]))
@@ -60,9 +60,52 @@ class IPRangeSearch(IPSearch):
             point = bisect(self._left_keys, ip)
             if point != 0:
                 range_info = self._range_list[point-1]
-                if ip >= range_info['left'] and ip <= range_info['right']:
-                    # found a match, return the match info
-                    return range_info['match']
+                if ip < range_info['left'] or ip > range_info['right']:
+                    # no match at all; we fell between ranges
+                    return None
+
+                # found a match, but see if we have a better match
+                # left or right
+                range_answer = range_info
+
+                # see if we have a more exact answer
+                left_point = point - 1
+                if left_point < 0:
+                    return range_answer
+                
+                range_info = self._range_list[left_point]
+                while left_point >= 0 and \
+                      ip >= range_info['left'] and \
+                      ip <= range_info['right']:
+
+                    # see if the new range is more narrow than current
+                    if range_info['right']-range_info['left'] < \
+                       range_answer['right']-range_answer['left']:
+                        range_answer = range_info
+
+                    left_point -= 1
+                    range_info = self._range_list[left_point]
+
+                # see if we have a more exact answer
+                right_point = point + 1
+                if right_point >= self._length:
+                    return range_answer
+                
+                range_info = self._range_list[right_point]
+                while right_point < self._length and \
+                      ip >= range_info['left'] and \
+                      ip <= range_info['right']:
+
+                    # see if the new range is more narrow than current
+                    if range_info['right']-range_info['left'] < \
+                       range_answer['right']-range_answer['left']:
+                        range_answer = range_info
+
+                    right_point += 1
+                    range_info = self._range_list[right_point]
+
+
+                return range_answer
 
         return None
 
