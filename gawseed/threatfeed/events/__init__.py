@@ -7,13 +7,18 @@ class EventStream(Config):
         super().__init__(conf)
         stream = self.config('stream')
         if type(stream) == str:
-            self._stream_pattern = stream
+            if stream == "stdout":
+                self._stream = sys.stdout
+            elif stream == "stderr":
+                self._stream = sys.stderr
+            else:
+                self._stream_pattern = stream
         else:
             self._stream_pattern = None
             if stream == None:
                 self._stream = sys.stdout
             else:
-                self._stream = stream
+                self._stream = stream # assume an opened filehandle
 
         self._output_type = "w"
 
