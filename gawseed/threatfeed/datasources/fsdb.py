@@ -6,7 +6,7 @@ class FsdbDataSource(DataSource):
     def __init__(self, conf):
         super().__init__(conf)
         
-        self._file_handle = self.config('file_handle',
+        self._file_handle = self.config('file_handle', datatype='file_handle',
                                         help="A python3 opened file handle for the BRO data to be streamed")
         self._file = self.config('file',
                                  help="The file name to read the bro data stream from")
