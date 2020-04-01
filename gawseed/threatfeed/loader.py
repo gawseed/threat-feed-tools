@@ -20,6 +20,7 @@ MODULE_XFORMS = {
     DATASOURCE_KEY: {
         'fsdb': 'gawseed.threatfeed.datasources.fsdb.FsdbDataSource',
         'bro': 'gawseed.threatfeed.datasources.bro.BroDataSource',
+        'json': 'gawseed.threatfeed.datasources.json.JsonDataSource',
         'kafka': 'gawseed.threatfeed.datasources.kafka.KafkaDataSource',
         'druid': 'gawseed.threatfeed.datasources.druid.DruidDataSource',
     },
