@@ -50,11 +50,16 @@ class Config():
 
         if datatype and datatype == 'time':
             return self.parse_time(value)
+
         if datatype and datatype == 'offset':
             return self.parse_offset(value)
+
         if datatype and (datatype == 'list' or datatype == list):
             if type(value) != list:
                 value = [value]
+
+        if datatype == 'file_handle' and value = 'stdin':
+            value = sys.stdin
         
         return value
 
