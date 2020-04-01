@@ -38,11 +38,11 @@ class ConnectionCounter(Config):
             rxbytes = row[self._orig_bytes_key]
             txbytes = row[self._resp_bytes_key]
 
-            if rxbytes == "-":
+            if rxbytes is None or rxbytes == "-":
                 rxbytes = 0
             else:
                 rxbytes = int(rxbytes)
-            if txbytes == "-":
+            if txbytes is None or txbytes == "-":
                 txbytes = 0
             else:
                 txbytes = int(txbytes)
