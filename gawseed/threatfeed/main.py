@@ -184,8 +184,9 @@ def get_threat_feed(args, conf=None):
     verbose("  read feed with " + str(len(search_data)) + " entries")
 
     if args.dump_threat_feed:
-        print(search_data)
-        print(search_index)
+        import json
+        print(json.dumps(search_data))
+        print(json.dumps(search_index))
         exit(0)
 
     return (threat_source, search_data, search_index)
