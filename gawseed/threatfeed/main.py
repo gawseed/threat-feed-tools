@@ -216,8 +216,9 @@ def get_data_source(args, conf=None):
 
     # just print it?
     if args.dump_data:
+        import json
         for finding in data_source:
-            print(finding)
+            print(json.dumps(finding))
         exit(0)
 
     return data_source
