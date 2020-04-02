@@ -58,7 +58,7 @@ class Config():
             if type(value) != list:
                 value = [value]
 
-        if datatype == 'file_handle' and value = 'stdin':
+        if datatype == 'file_handle' and value == 'stdin':
             value = sys.stdin
         
         return value
