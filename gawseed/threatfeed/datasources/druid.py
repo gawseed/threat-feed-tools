@@ -63,7 +63,7 @@ class DruidDataSource(DataSource):
                     (self.format_unix_epoch(self._end_time))
 
             if self._where:
-                self._sql += self._where + " and "
+                self._sql += " (" + self._where + ") and "
 
             if self._sql[-4:] == "and ": # strip off the trailing and
                 self._sql = self._sql[:-4]
