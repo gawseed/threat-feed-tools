@@ -219,7 +219,7 @@ def get_data_source(args, conf=None):
     if args.dump_data:
         import json
         for finding in data_source:
-            print(json.dumps(finding))
+            print(json.dumps(data_source.convert_row_to_utf8(finding)))
         exit(0)
 
     return data_source
