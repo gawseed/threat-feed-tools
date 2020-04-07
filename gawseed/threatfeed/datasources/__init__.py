@@ -45,6 +45,10 @@ class DataSource(Config):
 
         if type(item) == bytes:
             return item.decode()
+
+        if type(item) == list:
+            return self.decode_list(item) 
+
         return item
 
     def encode_dict(self, old_dict):
@@ -72,6 +76,13 @@ class DataSource(Config):
         for key in old_list:
             # stores both new binary key and the old
             new_list.append(self.encode_item(key))
+        return new_list
+
+    def decode_list(self, old_list):
+        new_list = []
+        for key in old_list:
+            # stores both new binary key and the old
+            new_list.append(self.decode_item(key))
         return new_list
 
     def maybe_convert_token_to_binary(self, value):
