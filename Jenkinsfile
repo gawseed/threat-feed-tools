@@ -21,6 +21,7 @@ pipeline {
       steps {
         withEnv(["HOME=${env.WORKSPACE}"]) {
           sh 'python3 setup.py test'
+	  sh 'functionality-test.sh'
 	}
       }
     }
