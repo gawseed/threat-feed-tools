@@ -14,7 +14,6 @@ import time
 import argparse
 
 import datetime
-import yaml
 import importlib
 import traceback
 
@@ -122,6 +121,8 @@ def parse_args():
     group = parser.add_argument_group("Global configuration")
     group.add_argument("-y", "--config", type=argparse.FileType("r"),
                        help="A YAML configuration file specifying all modules to be loaded")
+    group.add_argument("-Y", "--config-parameters", type=str, nargs="*", default=[],
+                       help="A list of parameters to pass to the YAML config as jinja template variables.  The parameters should be in the form of name=value pairings")
 
     # DEBUGGING
     group = parser.add_argument_group("Debugging arguments")
@@ -342,7 +343,7 @@ def main():
 
     conf = None
     if args.config:
-        conf = loader.load_yaml_config(args.config)
+        conf = loader.load_yaml_config(args.config, args.config_parameters)
 
     # pass in verbosity level
     if args.verbose:

@@ -2,6 +2,7 @@ import importlib
 import re
 import yaml
 import traceback
+import jinja2
 
 YAML_KEY = 'threat-search'
 THREATSOURCE_KEY = 'threatsource'
@@ -115,10 +116,23 @@ class Loader():
 
         return getattr(module, class_name)
 
-    def load_yaml_config(self, config_stream):
+    def load_yaml_config(self, config_stream, config_parameters):
         """Loads a yaml config from a specific stream and loads class definitions based on it."""
 
-        conf = yaml.load(config_stream, Loader=yaml.FullLoader)
+        config_vars = {}
+        for item in config_parameters:
+            try:
+                (name, value) = item.split("=")
+                config_vars[name] = value
+            except:
+                raise ValueError("illegal parameter/syntax passed: {param}".format(item))
+
+        conf_data = config_stream.read()
+        template = jinja2.Environment(loader=jinja2.FileSystemLoader("./")).from_string(conf_data)
+
+        conf_data = template.render(config_vars)
+        conf = yaml.load(conf_data, Loader=yaml.FullLoader)
+        
         self.load_class_configs(conf[YAML_KEY])
         return conf
 
