@@ -204,5 +204,5 @@ class Loader():
 
 
     def create_instance_for_module(self, conf, module_type, args=[], initialize=True):
-        subconf = conf[YAML_KEY][0][module_type]
+        subconf = conf[module_type]
         return self.create_instance(subconf, module_type, args, initialize)

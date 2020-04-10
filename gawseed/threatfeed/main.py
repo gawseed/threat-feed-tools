@@ -161,23 +161,6 @@ def verbose(msg):
 def get_threat_feed(args, conf=None):
     """Read in the threat feed stream as a data source to search for"""
 
-    # read in the threat feed stream as a data source to search for
-    if not conf:
-        if args.threat_fsdb:
-            conf_part = { 'module': 'fsdb',
-                          'file': args.threat_fsdb}
-        elif args.threat_kafka_servers:
-            conf_part = { 'module': 'kafka',
-                          'bootstrap_servers': args.threat_kafka_servers,
-                          'begin_time': args.threat_begin_time,
-                          'topic': args.threat_kafka_topic,
-                          'partition': 0,
-                          'timeout': args.threat_timeout}
-        else:
-            raise ValueError("no data source specified")
-
-        conf = { loader.YAML_KEY: [{loader.THREATSOURCE_KEY: conf_part}] }
-
     threat_source = loader.create_instance_for_module(conf, loader.THREATSOURCE_KEY)
 
     verbose("created threat feed: " + str(threat_source))
@@ -199,21 +182,6 @@ def get_threat_feed(args, conf=None):
 
 def get_data_source(args, conf=None):
     """Get the data source and open it for traversing"""
-    if not conf:
-        if args.fsdb_data:
-            conf_part = { 'module': 'fsdb',
-                          'file': args.fsdb_data }
-        elif args.bro_data:
-            conf_part = { 'module': 'bro',
-                          'file': args.bro_data }
-        elif args.data_kafka_servers:
-            conf_part = { 'module': 'kafka',
-                          'bootstrapservers': args.data_kafka_servers,
-                          'begin_time': args.begin_time,
-                          'topic': args.data_topic }
-        else:
-            raise ValueError("no data source specified")
-        conf = { loader.YAML_KEY: [{loader.DATASOURCE_KEY: conf_part}] }
 
     data_source = loader.create_instance_for_module(conf, loader.DATASOURCE_KEY)
 
@@ -232,16 +200,6 @@ def get_data_source(args, conf=None):
 def get_searcher(args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
-    if not conf:
-        if args.data_topic in ['ssh', 'http']:
-            conf_part = {'module': args.data_topic}
-        elif args.data_topic in ['ip', 'conn']:
-            conf_part = {'module': 'ip'}
-        else:
-            raise ValueError("no searcher specified")
-
-        conf = { loader.YAML_KEY: [{loader.SEARCHER_KEY: conf_part}] }
-
     searcher = loader.create_instance_for_module(conf, loader.SEARCHER_KEY,
                                                  [search_index, data_source,
                                                   data_source.is_binary()])
@@ -251,26 +209,12 @@ def get_searcher(args, search_index, data_source, conf=None):
 
 def get_outputs(conf):
     """Create the output-er object"""
-    if not conf:
-        if args.dump_events:
-            conf_part = {'module': 'dumper',
-                         'stream': args.output_pattern}
-        elif args.jinja_template:
-            conf_part = {'module': 'reporter',
-                         'stream': args.output_pattern,
-                         'template': args.jinja_template,
-                         'extra_information': args.jinja_extra_information
-            }
-        else:
-            conf_part = {'module': 'reporter' } # default
-        conf = [{ loader.YAML_KEY: [{loader.REPORTER_KEY: conf_part}] }]
 
     outputs = []
-    section = conf[loader.YAML_KEY][0][loader.REPORTER_KEY]
+    section = conf[loader.REPORTER_KEY]
 
-    if type(section) != list:
+    if type(section) is not list:
         section = [section]
-
 
     for item in section:
         obj = loader.create_instance(item, loader.REPORTER_KEY)
@@ -279,9 +223,9 @@ def get_outputs(conf):
     return outputs
 
 def get_enrichments(conf, search_index, data_source):
-    if loader.ENRICHMENT_KEY not in conf[loader.YAML_KEY][0]:
+    if loader.ENRICHMENT_KEY not in conf:
         return []
-    section = conf[loader.YAML_KEY][0][loader.ENRICHMENT_KEY]
+    section = conf[loader.ENRICHMENT_KEY]
     enrichers = []
 
     for item in section:
@@ -332,7 +276,74 @@ def found_event(found_queue, enrichers, outputs):
 
         # signal this entry is done
         found_queue.task_done()
-    
+
+def convert_args_to_config(args):
+    subconf = {}
+
+    # ----- threat feed
+    # read in the threat feed stream as a data source to search for
+    conf_part = {}
+    if args.threat_fsdb:
+        conf_part = { 'module': 'fsdb',
+                      'file': args.threat_fsdb}
+    elif args.threat_kafka_servers:
+        conf_part = { 'module': 'kafka',
+                      'bootstrap_servers': args.threat_kafka_servers,
+                      'begin_time': args.threat_begin_time,
+                      'topic': args.threat_kafka_topic,
+                      'partition': 0,
+                      'timeout': args.threat_timeout}
+    else:
+        raise ValueError("no data source specified")
+
+    subconf[loader.THREATSOURCE_KEY] = conf_part
+
+    # ----- data source
+    conf_part = {}
+    if args.fsdb_data:
+        conf_part = { 'module': 'fsdb',
+                      'file': args.fsdb_data }
+    elif args.bro_data:
+        conf_part = { 'module': 'bro',
+                      'file': args.bro_data }
+    elif args.data_kafka_servers:
+        conf_part = { 'module': 'kafka',
+                      'bootstrapservers': args.data_kafka_servers,
+                      'begin_time': args.begin_time,
+                      'topic': args.data_topic }
+    else:
+        raise ValueError("no data source specified")
+    subconf[loader.DATASOURCE_KEY] = conf_part
+
+    # ----- searcher
+    conf_part = {}
+    if args.data_topic in ['ssh', 'http']:
+        conf_part = {'module': args.data_topic}
+    elif args.data_topic in ['ip', 'conn']:
+        conf_part = {'module': 'ip'}
+    else:
+        raise ValueError("no searcher specified")
+
+    subconf[loader.SEARCHER_KEY] = conf_part
+
+    # ----- outputs
+    conf_part = {}
+    if args.dump_events:
+        conf_part = {'module': 'dumper',
+                     'stream': args.output_pattern}
+    elif args.jinja_template:
+        conf_part = {'module': 'reporter',
+                     'stream': args.output_pattern,
+                     'template': args.jinja_template,
+                     'extra_information': args.jinja_extra_information
+        }
+    else:
+        conf_part = {'module': 'reporter' } # default
+    subconf = [loader.REPORTER_KEY] = conf_part
+
+
+    conf = {loader.YAML_KEY: [subconf]}
+    return conf
 
 def main():
     # create our loading class
@@ -341,66 +352,71 @@ def main():
 
     args = parse_args()
 
-    conf = None
     if args.config:
         conf = loader.load_yaml_config(args.config, args.config_parameters)
+    else:
+        conf = convert_args_to_config
 
-    # pass in verbosity level
-    if args.verbose:
-        for subsection in conf[loader.YAML_KEY][0]:
-            item = conf[loader.YAML_KEY][0][subsection]
-            if type(item) == list:
-                for i in item:
-                    i['verbose'] = True
-            else:
-                item['verbose'] = True
-                
+    threat_conf = conf[loader.YAML_KEY]
 
-    (threat_source, search_data, search_index) = get_threat_feed(args, conf)
-    data_source = get_data_source(args, conf)
-    searcher = get_searcher(args, search_index, data_source, conf)
+    for combination in threat_conf:
+        # pass in verbosity level
+        if args.verbose:
+            for subsection in combination:
+                item = combination[subsection]
+                if type(item) == list:
+                    for i in item:
+                        i['verbose'] = True
+                else:
+                    item['verbose'] = True
+                    
 
-    enrichers = get_enrichments(conf, search_index, data_source)
+        (threat_source, search_data, search_index) = \
+            get_threat_feed(args, combination)
+        data_source = get_data_source(args, combination)
+        searcher = get_searcher(args, search_index, data_source, combination)
 
-    outputs = get_outputs(conf)
-    verbose("created outputs: " + str(outputs))
+        enrichers = get_enrichments(combination, search_index, data_source)
 
-    # loop through all the data for matches
-    if debug:
-        print("reports created: 0", end="\r")
+        outputs = get_outputs(combination)
+        verbose("created outputs: " + str(outputs))
 
-    # create threads to handle the results
-    event_queue = queue.Queue()
-    output_threads = []
-    for i in range(args.threads):
-        thread = threading.Thread(target=found_event,
-                                  args=(event_queue, enrichers, outputs))
-        thread.start()
-        output_threads.append(thread)
-
-    # 
-    for count, results in enumerate(next(searcher)):
-        row, match = results
-
-        event_queue.put(
-            { 'row': dict(row),
-              'match': dict(match),
-              'count': count,
-            })
-
+        # loop through all the data for matches
         if debug:
-            print("events found: %d" % (count+1), end="\r")
+            print("reports created: 0", end="\r")
 
-        if args.max_records and count >= args.max_records:
-            break
+        # create threads to handle the results
+        event_queue = queue.Queue()
+        output_threads = []
+        for i in range(args.threads):
+            thread = threading.Thread(target=found_event,
+                                      args=(event_queue, enrichers, outputs))
+            thread.start()
+            output_threads.append(thread)
 
-    # tell the threads to quit
-    for n in range(args.threads):
-        event_queue.put(None)
+        # 
+        for count, results in enumerate(next(searcher)):
+            row, match = results
 
-    # wait for threads to clear
-    for t in output_threads:
-        t.join()
+            event_queue.put(
+                { 'row': dict(row),
+                  'match': dict(match),
+                  'count': count,
+                })
+
+            if debug:
+                print("events found: %d" % (count+1), end="\r")
+
+            if args.max_records and count >= args.max_records:
+                break
+
+        # tell the threads to quit
+        for n in range(args.threads):
+            event_queue.put(None)
+
+        # wait for threads to clear
+        for t in output_threads:
+            t.join()
 
     verbose("")
 
