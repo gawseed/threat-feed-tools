@@ -17,6 +17,7 @@ import datetime
 import importlib
 import traceback
 
+import multiprocessing
 import threading
 import queue
 
@@ -158,7 +159,7 @@ def verbose(msg):
     if debug:
         print(msg)
 
-def get_threat_feed(args, conf=None):
+def get_threat_feed(args, conf=None, max_records=None, dump=False):
     """Read in the threat feed stream as a data source to search for"""
 
     threat_source = loader.create_instance_for_module(conf, loader.THREATSOURCE_KEY)
@@ -167,11 +168,11 @@ def get_threat_feed(args, conf=None):
 
     # initialize and read
     threat_source.open()
-    (search_data, search_index) = threat_source.read(args.threat_max_records)
+    (search_data, search_index) = threat_source.read(max_records)
 
     verbose("  read feed with " + str(len(search_data)) + " entries")
 
-    if args.dump_threat_feed:
+    if dump:
         import json
         print(json.dumps(search_data))
         print(json.dumps(search_index))
@@ -345,6 +346,68 @@ def convert_args_to_config(args):
     conf = {loader.YAML_KEY: [subconf]}
     return conf
 
+def launch_process(combination, args):
+    # pass in verbosity level
+    if args.verbose:
+        for subsection in combination:
+            item = combination[subsection]
+            if type(item) == list:
+                for i in item:
+                    i['verbose'] = True
+            else:
+                item['verbose'] = True
+                
+
+    (threat_source, search_data, search_index) = \
+        get_threat_feed(args, combination,
+                        args.threat_max_records, args.dump_threat_feed)
+
+    data_source = get_data_source(args, combination)
+    searcher = get_searcher(args, search_index, data_source, combination)
+
+    enrichers = get_enrichments(combination, search_index, data_source)
+
+    outputs = get_outputs(combination)
+    verbose("created outputs: " + str(outputs))
+
+    # loop through all the data for matches
+    if debug:
+        print("reports created: 0", end="\r")
+
+    # create threads to handle the results
+    event_queue = queue.Queue()
+    output_threads = []
+    for i in range(args.threads):
+        thread = threading.Thread(target=found_event,
+                                  args=(event_queue, enrichers, outputs))
+        thread.start()
+        output_threads.append(thread)
+
+    # 
+    for count, results in enumerate(next(searcher)):
+        row, match = results
+
+        event_queue.put(
+            { 'row': dict(row),
+              'match': dict(match),
+              'count': count,
+            })
+
+        if debug:
+            print("events found: %d" % (count+1), end="\r")
+
+        if args.max_records and count >= args.max_records:
+            break
+
+    # tell the threads to quit
+    for n in range(args.threads):
+        event_queue.put(None)
+
+    # wait for threads to clear
+    for t in output_threads:
+        t.join()
+
+
 def main():
     # create our loading class
     global loader
@@ -359,65 +422,15 @@ def main():
 
     threat_conf = conf[loader.YAML_KEY]
 
+    processes = []
     for combination in threat_conf:
-        # pass in verbosity level
-        if args.verbose:
-            for subsection in combination:
-                item = combination[subsection]
-                if type(item) == list:
-                    for i in item:
-                        i['verbose'] = True
-                else:
-                    item['verbose'] = True
-                    
+        subprocess = multiprocessing.Process(target=launch_process,
+                                             args=(combination, args))
+        subprocess.start()
+        processes.append(subprocess)
 
-        (threat_source, search_data, search_index) = \
-            get_threat_feed(args, combination)
-        data_source = get_data_source(args, combination)
-        searcher = get_searcher(args, search_index, data_source, combination)
-
-        enrichers = get_enrichments(combination, search_index, data_source)
-
-        outputs = get_outputs(combination)
-        verbose("created outputs: " + str(outputs))
-
-        # loop through all the data for matches
-        if debug:
-            print("reports created: 0", end="\r")
-
-        # create threads to handle the results
-        event_queue = queue.Queue()
-        output_threads = []
-        for i in range(args.threads):
-            thread = threading.Thread(target=found_event,
-                                      args=(event_queue, enrichers, outputs))
-            thread.start()
-            output_threads.append(thread)
-
-        # 
-        for count, results in enumerate(next(searcher)):
-            row, match = results
-
-            event_queue.put(
-                { 'row': dict(row),
-                  'match': dict(match),
-                  'count': count,
-                })
-
-            if debug:
-                print("events found: %d" % (count+1), end="\r")
-
-            if args.max_records and count >= args.max_records:
-                break
-
-        # tell the threads to quit
-        for n in range(args.threads):
-            event_queue.put(None)
-
-        # wait for threads to clear
-        for t in output_threads:
-            t.join()
-
+    for process in processes:
+        process.join()
     verbose("")
 
 if __name__ == "__main__":
