@@ -301,7 +301,6 @@ def found_event(found_queue, enrichers, outputs):
         match = event['match']
         count = event['count']
 
-        print("got one " + str(event))
         # gather enrichment data from the backends
         for ecount, enricher in enumerate(enrichers):
             try:
