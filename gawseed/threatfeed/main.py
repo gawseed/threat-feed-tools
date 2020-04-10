@@ -10,15 +10,17 @@ generation.
 
 import sys, os
 import re
+import time
+import argparse
 
 import datetime
 import yaml
 import importlib
 import traceback
 
-import sys
-import time
-import argparse
+import threading
+import queue
+
 from msgpack import unpackb
 
 from gawseed.threatfeed.loader import Loader
@@ -113,6 +115,8 @@ def parse_args():
 
     group.add_argument("-J", "--jinja-extra-information", default=None, type=str,
                         help="Extra information in YAML format to include with report generation in 'extra' an field")
+    parser.add_argument("--threads", default=2, type=int,
+                        help="Number of output stream threads to create.")
 
     # Configuration
     group = parser.add_argument_group("Global configuration")
@@ -286,6 +290,50 @@ def get_enrichments(conf, search_index, data_source):
         enrichers.append(enricher)
     return enrichers
 
+def found_event(found_queue, enrichers, outputs):
+    while True:
+        event = found_queue.get()
+        enrichment_data = {}
+        if event is None:
+            break # None in queue signals an exit
+
+        row = event['row']
+        match = event['match']
+        count = event['count']
+
+        print("got one " + str(event))
+        # gather enrichment data from the backends
+        for ecount, enricher in enumerate(enrichers):
+            try:
+                (key, result) = enricher.gather(count, row, match, enrichment_data)
+                if key and result:
+                    enrichment_data[key] = result
+            except Exception as e:
+                sys.stderr.write("An enricher failed: " + str(e) + "\n")
+                sys.stderr.write("".join(traceback.format_exc()))
+                sys.stderr.write(str(enricher.get_config()) + "\n")
+                if 'errors' not in enrichment_data:
+                    enrichment_data['errors'] = []
+                enrichment_data['errors'].append({ 'count': count,
+                                                   'module': type(enricher),
+                                                   'msg': 'An enrichment module failed to load data'})
+
+        # loop through the outputs to create stuff
+        for output in outputs:
+            try:
+                output.new_output(count)
+                output.write(count, row, match, enrichment_data)
+                output.maybe_close_output()
+                
+            except Exception as e:
+                sys.stderr.write("The output module failed: " + str(e) + "\n")
+                sys.stderr.write("".join(traceback.format_exc()))
+        
+
+        # signal this entry is done
+        found_queue.task_done()
+    
+
 def main():
     # create our loading class
     global loader
@@ -321,41 +369,38 @@ def main():
     if debug:
         print("reports created: 0", end="\r")
 
+    # create threads to handle the results
+    event_queue = queue.Queue()
+    output_threads = []
+    for i in range(args.threads):
+        thread = threading.Thread(target=found_event,
+                                  args=(event_queue, enrichers, outputs))
+        thread.start()
+        output_threads.append(thread)
+
+    # 
     for count, results in enumerate(next(searcher)):
         row, match = results
-        enrichment_data = {}
 
-        # gather enrichment data from the backends
-        for ecount, enricher in enumerate(enrichers):
-            try:
-                (key, result) = enricher.gather(count, row, match, enrichment_data)
-                if key and result:
-                    enrichment_data[key] = result
-            except Exception as e:
-                sys.stderr.write("An enricher failed: " + str(e) + "\n")
-                sys.stderr.write("".join(traceback.format_exc()))
-                sys.stderr.write(str(enricher.get_config()) + "\n")
-                if 'errors' not in enrichment_data:
-                    enrichment_data['errors'] = []
-                enrichment_data['errors'].append({ 'count': count,
-                                                   'module': type(enricher),
-                                                   'msg': 'An enrichment module failed to load data'})
-
-        for output in outputs:
-            try:
-                output.new_output(count)
-                output.write(count, row, match, enrichment_data)
-                output.maybe_close_output()
-                
-            except Exception as e:
-                sys.stderr.write("The output module failed: " + str(e) + "\n")
-                sys.stderr.write("".join(traceback.format_exc()))
+        event_queue.put(
+            { 'row': dict(row),
+              'match': dict(match),
+              'count': count,
+            })
 
         if debug:
             print("events found: %d" % (count+1), end="\r")
 
         if args.max_records and count >= args.max_records:
             break
+
+    # tell the threads to quit
+    for n in range(args.threads):
+        event_queue.put(None)
+
+    # wait for threads to clear
+    for t in output_threads:
+        t.join()
 
     verbose("")
 
