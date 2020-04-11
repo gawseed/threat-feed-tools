@@ -155,22 +155,28 @@ def parse_args():
 
     return args
 
-def verbose(msg):
+def verbose(number, msg=None):
+    if not msg:
+        msg = number
+        number = ""
+    else:
+        msg = "ps " + str(number) + ": " + msg
+
     if debug:
         print(msg)
 
-def get_threat_feed(args, conf=None, max_records=None, dump=False):
+def get_threat_feed(number, args, conf=None, max_records=None, dump=False):
     """Read in the threat feed stream as a data source to search for"""
 
     threat_source = loader.create_instance_for_module(conf, loader.THREATSOURCE_KEY)
 
-    verbose("created threat feed: " + str(threat_source))
+    verbose(number, "created threat feed: " + str(threat_source))
 
     # initialize and read
     threat_source.open()
     (search_data, search_index) = threat_source.read(max_records)
 
-    verbose("  read feed with " + str(len(search_data)) + " entries")
+    verbose(number, "  read feed with " + str(len(search_data)) + " entries")
 
     if dump:
         import json
@@ -181,12 +187,12 @@ def get_threat_feed(args, conf=None, max_records=None, dump=False):
     return (threat_source, search_data, search_index)
 
 
-def get_data_source(args, conf=None):
+def get_data_source(number, args, conf=None):
     """Get the data source and open it for traversing"""
 
     data_source = loader.create_instance_for_module(conf, loader.DATASOURCE_KEY)
 
-    verbose("created data feed: " + str(data_source))
+    verbose(number, "created data feed: " + str(data_source))
     data_source.open()
 
     # just print it?
@@ -198,17 +204,17 @@ def get_data_source(args, conf=None):
 
     return data_source
 
-def get_searcher(args, search_index, data_source, conf=None):
+def get_searcher(number, args, search_index, data_source, conf=None):
     """Create a searcher object"""
     # create the searching interface
     searcher = loader.create_instance_for_module(conf, loader.SEARCHER_KEY,
                                                  [search_index, data_source,
                                                   data_source.is_binary()])
-    verbose("created searcher: " + str(searcher))
+    verbose(number, "created searcher: " + str(searcher))
 
     return searcher
 
-def get_outputs(conf):
+def get_outputs(number, conf):
     """Create the output-er object"""
 
     outputs = []
@@ -223,7 +229,7 @@ def get_outputs(conf):
 
     return outputs
 
-def get_enrichments(conf, search_index, data_source):
+def get_enrichments(number, conf, search_index, data_source):
     if loader.ENRICHMENT_KEY not in conf:
         return []
     section = conf[loader.ENRICHMENT_KEY]
@@ -346,7 +352,7 @@ def convert_args_to_config(args):
     conf = {loader.YAML_KEY: [subconf]}
     return conf
 
-def launch_process(combination, args):
+def launch_process(combination, args, number):
     # pass in verbosity level
     if args.verbose:
         for subsection in combination:
@@ -359,16 +365,16 @@ def launch_process(combination, args):
                 
 
     (threat_source, search_data, search_index) = \
-        get_threat_feed(args, combination,
+        get_threat_feed(number, args, combination,
                         args.threat_max_records, args.dump_threat_feed)
 
-    data_source = get_data_source(args, combination)
-    searcher = get_searcher(args, search_index, data_source, combination)
+    data_source = get_data_source(number, args, combination)
+    searcher = get_searcher(number, args, search_index, data_source, combination)
 
-    enrichers = get_enrichments(combination, search_index, data_source)
+    enrichers = get_enrichments(number, combination, search_index, data_source)
 
-    outputs = get_outputs(combination)
-    verbose("created outputs: " + str(outputs))
+    outputs = get_outputs(number, combination)
+    verbose(number, "created outputs: " + str(outputs))
 
     # loop through all the data for matches
     if debug:
@@ -423,9 +429,9 @@ def main():
     threat_conf = conf[loader.YAML_KEY]
 
     processes = []
-    for combination in threat_conf:
+    for number, combination in enumerate(threat_conf):
         subprocess = multiprocessing.Process(target=launch_process,
-                                             args=(combination, args))
+                                             args=(combination, args, number))
         subprocess.start()
         processes.append(subprocess)
 
