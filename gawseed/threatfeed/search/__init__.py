@@ -18,7 +18,6 @@ class Search(Config):
             match = self.search(row)
             if match:
                 row = self._data_iterator.convert_row_to_utf8(row)
-                self.verbose("search hit: " + str(row))
                 yield (row, match)
 
 
