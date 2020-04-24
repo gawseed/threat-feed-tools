@@ -430,6 +430,11 @@ def main():
     threat_conf = conf[loader.YAML_KEY]
 
     processes = []
+
+    if len(threat_conf) == 1:
+        # don't bother with all that subprocessing
+        launch_process(threat_conf[0], args, 1)
+
     for number, combination in enumerate(threat_conf):
         subprocess = multiprocessing.Process(target=launch_process,
                                              args=(combination, args, number))
