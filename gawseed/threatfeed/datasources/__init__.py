@@ -114,3 +114,6 @@ class DataSource(Config):
         results.
         """
         pass
+
+    def close(self):
+        pass

@@ -49,3 +49,7 @@ class FsdbDataSource(DataSource):
             raise StopIteration()
         return row
 
+    def close(self):
+        self._fh.fileh.close()
+        self._fh.close()
+        
