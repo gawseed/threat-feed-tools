@@ -49,12 +49,12 @@ class Datasource(Config):
         ds_config['begin_time'] = '@' + str(timestamp - self._time_backward)
         ds_config['end_time'] = '@' + str(timestamp + self._time_forward)
 
-        conf = { self._loader.YAML_KEY: [{self._loader.DATASOURCE_KEY: ds_config}] }
-
-        data_source = self._loader.create_instance(ds_config, self._loader.DATASOURCE_KEY)
+        # have the loader create the data_source from the config
+        data_source = self._loader.create_instance(ds_config,
+                                                   self._loader.DATASOURCE_KEY)
         data_source.initialize()
 
-        # how we should do it eventually:
+        # Have the loader create a searcher to search the data source
         conf = { 'module': 'ip',
                  'search_keys': [self._datasource_key]}
 
@@ -63,15 +63,18 @@ class Datasource(Config):
                                                 [search_index, data_source,
                                                  data_source.is_binary()])
 
+        # tell the datasource to start up
         try:
             data_source.open()
         except Exception as e:
-            print("end of file? " + str(e))
+            print("no data at start -- end of file? " + str(e))
             return (self._output_key, []) # end of file
 
         self.verbose("enrichment/datasource searcher created")
         self.verbose("  searching from " + str(ds_config['begin_time']) + " to " + str(ds_config['end_time']))
         self.verbose("  " + str(self.get_config()))
+
+        # collect everything from the datasource into a row 
         enrich_rows = []
         try:
             for finding in next(searcher):
@@ -81,5 +84,7 @@ class Datasource(Config):
             print("done searching? exception: " + str(e))
 
         self.verbose("  found " + str(len(enrich_rows)) + " rows for key=" + self._output_key)
+
+        # return the key, and the found rows
         return (self._output_key, enrich_rows)
                 
