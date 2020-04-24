@@ -193,7 +193,6 @@ def get_data_source(number, args, conf=None):
     data_source = loader.create_instance_for_module(conf, loader.DATASOURCE_KEY)
 
     verbose(number, "created data feed: " + str(data_source))
-    data_source.open()
 
     # just print it?
     if args.dump_data:
@@ -370,6 +369,8 @@ def launch_process(combination, args, number):
 
     data_source = get_data_source(number, args, combination)
     searcher = get_searcher(number, args, search_index, data_source, combination)
+
+    data_source.open()
 
     enrichers = get_enrichments(number, combination, search_index, data_source)
 
