@@ -32,6 +32,7 @@ MODULE_XFORMS = {
         'http': 'gawseed.threatfeed.search.http.HTTPSearch',
         'dns': 'gawseed.threatfeed.search.dns.DNSSearch',
         're': 'gawseed.threatfeed.search.re.RESearch',
+        'parallel': 'gawseed.threatfeed.search.parallel.Parallel',
     },
     REPORTER_KEY: {
         'dumper': 'gawseed.threatfeed.events.dumper.EventStreamDumper',
