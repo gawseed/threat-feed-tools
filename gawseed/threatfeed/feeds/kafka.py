@@ -1,12 +1,12 @@
 import sys
 import json
 
-from gawseed.threatfeed.config import Config
+from gawseed.threatfeed import ThreatFeed
 
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
 
-class KafkaThreatFeed(Config):
+class KafkaThreatFeed(ThreatFeed):
     """Pulls threat data from a GAWSEED project (or other) kafka threat-feed source."""
     def __init__(self, conf):
         super().__init__(conf)
@@ -18,20 +18,14 @@ class KafkaThreatFeed(Config):
                                   help="The kafka topic to stream from")
         self._partition = self.config('partition',
                                       help="The kafka partition to stream from")
-        self._begin_time = self.config('begin_time', datatype='time',
-                                       help="The time to start searching from; no value will mean end of stream")
-        self._end_time = self.config('end_time', datatype='time',
-                                     help="The time to stop a search when reading; no value will mean don't stop streaming")
-        self._time_column = self.config('time_column',
-                                        help="Time column to use when searching through data")
         self._timeout = self.config('timeout',
                                                 help="A timeout in milliseconds to wait for server data.")
         self._max_records = self.config('limit',
                                         help="Maximum number of records to retrieve")
-        self._exclude_list = self.config('exclude', [],
-                                         help='A list of entries to ignore in the threat feed')
 
     def open(self):
+        super().initialize()
+        
         self._consumer = KafkaConsumer(bootstrap_servers=self._bootstrap_servers,
                                        consumer_timeout_ms=self._timeout)
 
@@ -48,21 +42,12 @@ class KafkaThreatFeed(Config):
             offset = offinfo[partition].offset
             self._consumer.seek(partition, offset)
 
-        if type(self._exclude_list) != list:
-            self._exclude_list = [self._exclude_list]
-
-    def __iter__(self):
-        return self
-
     def parse_record(self, record):
         entry = json.loads(record.value)
         return entry
 
-    def __next__(self):
-        row = next(self._consumer)
-        if self._end_time and row[self._time_column] >= self._end_time:
-            raise StopIteration()
-        return row
+    def next_row(self):
+        return next(self._consumer)
 
     def read(self, max_records=None, value_column='value', remove_duplicates=True):
         array = []

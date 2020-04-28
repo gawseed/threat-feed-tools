@@ -1,7 +1,7 @@
 import pyfsdb
-from gawseed.threatfeed.config import Config
+from gawseed.threatfeed import ThreatFeed
 
-class FsdbThreatFeed(Config):
+class FsdbThreatFeed(ThreatFeed):
     """Loads a threat data list from a 'key' column in a FSDB formatted file (see pyfsdb)1"""
     def __init__(self, config):
         super().__init__(config)
@@ -10,13 +10,6 @@ class FsdbThreatFeed(Config):
                                       help="The file name to read the bro data stream from")
         self._value_column = self.config('key',
                                          help="The column name to use for pulling threat data")
-
-        self._time_column = self.config('time_column',
-                                        help="Time column to use when searching through data")
-        self._begin_time = self.config('begin_time', datatype='time',
-                                       help="The time to start searching from; no value will mean end of stream")
-        self._end_time = self.config('end_time', datatype='time',
-                                     help="The time to stop a search when reading; no value will mean don't stop streaming")
 
     def open(self):
         self._tfh = pyfsdb.Fsdb(self._fsdb_file,
@@ -36,11 +29,8 @@ class FsdbThreatFeed(Config):
     def __iter__(self):
         return self
 
-    def __next__(self):
-        row = next(self._tfh)
-        if self._end_time and row[self._tfh_time_column] >= self._end_time:
-            raise StopIteration()
-        return row
+    def next_row(self):
+        return next(self._tfh)
 
     def column_names(self):
         return self._tfh.column_names
