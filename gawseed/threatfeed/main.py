@@ -12,6 +12,7 @@ import sys, os
 import re
 import time
 import argparse
+from copy import deepcopy
 
 import datetime
 import importlib
@@ -244,13 +245,14 @@ def get_enrichments(number, conf, search_index, data_source):
 def found_event(found_queue, enrichers, outputs):
     while True:
         event = found_queue.get()
-        enrichment_data = {}
         if event is None:
             break # None in queue signals an exit
 
         row = event['row']
         match = event['match']
         count = event['count']
+
+        enrichment_data = {}
 
         # gather enrichment data from the backends
         for ecount, enricher in enumerate(enrichers):
@@ -352,6 +354,7 @@ def convert_args_to_config(args):
     return conf
 
 def launch_process(combination, args, number):
+    """Creates a process to handle a given threat-search configuration entry"""
     # pass in verbosity level
     if args.verbose:
         for subsection in combination:
@@ -395,13 +398,13 @@ def launch_process(combination, args, number):
         row, match = results
 
         event_queue.put(
-            { 'row': dict(row),
-              'match': dict(match),
+            { 'row': deepcopy(row),
+              'match': deepcopy(match),
               'count': count,
             })
 
         if debug:
-            print("events found: %d" % (count+1), end="\r")
+            print("%d: events found: %d" % (number, count+1), end="\r")
 
         if args.max_records and count >= args.max_records:
             break
