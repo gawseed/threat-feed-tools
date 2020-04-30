@@ -95,10 +95,12 @@ class ConnectionGrapher(Config):
         # create a temporary file to store results in
         (fh, name) = tempfile.mkstemp(dir=self._output_dir,
                                       suffix="." + self._output_type)
+        fh.close()
 
         # graphviz force-adds a suffix, so we remove ours before passing 
         prefixname = re.sub("." + self._output_type + "$", "", name)
         dot.render(prefixname, self._output_dir,
                    format=self._output_type)
+
 
         return (self._output_key, name)
