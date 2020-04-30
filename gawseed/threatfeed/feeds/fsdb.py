@@ -1,5 +1,5 @@
 import pyfsdb
-from gawseed.threatfeed import ThreatFeed
+from gawseed.threatfeed.feeds import ThreatFeed
 
 class FsdbThreatFeed(ThreatFeed):
     """Loads a threat data list from a 'key' column in a FSDB formatted file (see pyfsdb)1"""
@@ -8,8 +8,6 @@ class FsdbThreatFeed(ThreatFeed):
         self.require(['file', 'key'])
         self._fsdb_file = self.config('file',
                                       help="The file name to read the bro data stream from")
-        self._value_column = self.config('key',
-                                         help="The column name to use for pulling threat data")
 
     def open(self):
         self._tfh = pyfsdb.Fsdb(self._fsdb_file,
@@ -42,6 +40,10 @@ class FsdbThreatFeed(ThreatFeed):
         array = []
         dictionary = {}
         for (count,entry) in enumerate(self._tfh):
+            
+            if self._maybe_drop_entry(entry, self._value_column):
+                continue
+
             array.append(entry)
             dictionary[entry[self._value_column]] = entry # note, may erase older ones; build array?
             if max_records and count+1 >= max_records:

@@ -1,7 +1,7 @@
 import sys
 import json
 
-from gawseed.threatfeed import ThreatFeed
+from gawseed.threatfeed.feeds import ThreatFeed
 
 from kafka import KafkaConsumer
 from kafka.structs import TopicPartition
@@ -49,7 +49,7 @@ class KafkaThreatFeed(ThreatFeed):
     def next_row(self):
         return next(self._consumer)
 
-    def read(self, max_records=None, value_column='value', remove_duplicates=True):
+    def read(self, max_records=None, remove_duplicates=True):
         array = []
         dictionary = {}
         if not max_records:
@@ -65,15 +65,9 @@ class KafkaThreatFeed(ThreatFeed):
                 # tmp hack to work around kafka hanging on some topics;
                 # thus we start from the beginning and read everything.
                 # this naturally won't scale.
-                if timestamp and int(float(entry['timestamp'])) < timestamp:
+                if self._maybe_drop_entry(entry, value_column):
                     continue
-
-                if value_column not in entry:
-                    continue
-
-                if entry[value_column] in self._exclude_list:
-                    continue
-
+                
                 # don't duplicate signatures if requested not to
                 if remove_duplicates and entry[value_column] in dictionary:
                     continue
