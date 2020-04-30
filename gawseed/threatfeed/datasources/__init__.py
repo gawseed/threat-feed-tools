@@ -6,6 +6,12 @@ class DataSource(Config):
 
         self._binary = self.config("binary", self.default_is_binary(),
                                    help="If the datasource is binary (bytes) data, set this to convert when necessary")
+        self._exclude_column = self.config('exclude_key', 'value',
+                                           help="The primary column/key name to use for checking whether to exclude data")
+
+        self._exclude_list = self.config('exclude', [],
+                                         help='A list of entries to ignore in the threat feed')
+        
 
     def initialize(self):
         super().initialize()
@@ -117,3 +123,15 @@ class DataSource(Config):
 
     def close(self):
         pass
+
+
+    def maybe_drop_entry(self, entry):
+        if self._exclude_column not in entry:
+            return True
+
+        if entry[self._exclude_column] in self._exclude_list:
+            return True
+
+        return False
+        
+    
