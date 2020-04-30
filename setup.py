@@ -30,6 +30,7 @@ setuptools.setup(
                       'pyyaml>5',
                       'msgpack',
                       'lz4',
+                      'graphviz',
                       'dnssplitter',
                       'urllib3'],
     python_requires = '>=3.0',
