@@ -73,7 +73,10 @@ class KafkaDataSource(DataSource):
                     raise StopIteration()
 
                 # see if it's within the time window
-                if decoded_time >= self._begin_time and decoded_time <= self._end_time:
+                # and that it's not in the filter list
+                if decoded_time >= self._begin_time \
+                   and decoded_time <= self._end_time \
+                   and entry[self._exclude_column] in self._exclude_list:
                     # self.verbose("row found after" + str(count)+ " rows")
                     return decoded_row
 

@@ -40,9 +40,13 @@ class JsonDataSource(DataSource):
         return self
 
     def __next__(self):
-        row = next(self._file_handle)
-        row = json.loads(row)
-        if self._end_time and self.parse_time(row[self._time_column]) >= self._end_time:
-            raise StopIteration()
+        while True:
+            row = next(self._file_handle)
+            row = json.loads(row)
+            if self._end_time and self.parse_time(row[self._time_column]) >= self._end_time:
+                raise StopIteration()
+            if not self.maybe_drop_entry(row):
+                break # don't filter
+
         return row
 
