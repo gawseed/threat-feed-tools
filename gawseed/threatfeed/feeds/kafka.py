@@ -65,14 +65,14 @@ class KafkaThreatFeed(ThreatFeed):
                 # tmp hack to work around kafka hanging on some topics;
                 # thus we start from the beginning and read everything.
                 # this naturally won't scale.
-                if self._maybe_drop_entry(entry, value_column):
+                if self.maybe_drop_entry(entry, self._value_column):
                     continue
                 
                 # don't duplicate signatures if requested not to
-                if remove_duplicates and entry[value_column] in dictionary:
+                if remove_duplicates and entry[self._value_column] in dictionary:
                     continue
                 
-                dictionary[entry[value_column]] = entry # note, may erase older ones; build array?
+                dictionary[entry[self._value_column]] = entry # note, may erase older ones; build array?
                 array.append(entry)
             except Exception as e:
                 sys.stderr.write("dropping kafka feed entry due to a parse error: " + str(entry) + "\n")
