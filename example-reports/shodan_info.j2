@@ -1,0 +1,31 @@
+{% if enrichments.shodan_info %}
+
+### Additional information from SHODAN data
+
+The following information is provided by SHODAN (an external resource) about {{row.id_orig_h}}:
+
++ Region: {{enrichments.shodan_info.region_code}}
++ Country: {{enrichments.shodan_info.country_code}} ({{enrichments.shodan_info.country_name}})
++ Area: {{enrichments.shodan_info.area_code}}
++ City: {{enrichments.shodan_info.city}}
++ IP ownership: {{enrichments.shodan_info.org}} 
++ ISP: {{enrichments.shodan_info.isp}} / ASN{{enrichments.shodan_info.asn}}
++ Location: {{enrichments.shodan_info.latitude}} / {{enrichments.shodan_info.longitude}}
++ Last updated: {{enrichments.shodan_info.last_update}}
+{%- if enrichments.shodan_info.hostnames | length > 1 %}
++ Hostnames:
+{% for hostname in enrichments.shodan_info.hostnames %}
+    + {{hostname}},
+{% endfor %}
+{% endif %}
++ Domains:
+{% for domain in enrichments.shodan_info.domains %}
+    + {{domain}},
+{% endfor %}
+{% endif %}
+{%- if enrichments.shodan_info.ports | length > 1 %}
++ Ports open: {% for port in enrichments.shodan_info.ports %}{{port}}, {% endfor %}
+{% endif %}
+
+{% endif %}
+
