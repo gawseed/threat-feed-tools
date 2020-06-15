@@ -18,6 +18,12 @@ def parse_args():
     parser.add_argument("-J", "--jinja-extra-information", default=None, type=str,
                         help="Extra information in YAML format to include with report generation in 'extra' an field")
 
+    parser.add_argument("--json", default=None, type=argparse.FileType('rb'),
+                        help="An extra json file to read")
+
+    parser.add_argument("--json-extra-name", default="test", type=str,
+                        help="The tag name to load the json data into")
+
     parser.add_argument("pickle_file", type=argparse.FileType('rb'),
                         nargs='?', default=sys.stdin,
                         help="The input pickle archive file to load")
@@ -36,6 +42,11 @@ def main():
     conf = { 'module': 'reporter',
              'template': args.jinja_template,
              'extra_information': args.jinja_extra_information}
+
+    if args.json:
+        import json
+        data[args.json_extra_name] = json.loads(args.json.read())
+        data['enrichments'][args.json_extra_name] = data[args.json_extra_name]
 
     loader = Loader()
     reporter = loader.create_instance(conf, loader.REPORTER_KEY)
