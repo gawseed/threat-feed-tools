@@ -436,7 +436,9 @@ def main():
 
     if len(threat_conf) == 1:
         # don't bother with all that subprocessing
-        launch_process(threat_conf[0], args, 1)
+        launch_process(threat_conf[0], args, 0)
+        verbose("")
+        return
 
     for number, combination in enumerate(threat_conf):
         subprocess = multiprocessing.Process(target=launch_process,
