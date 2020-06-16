@@ -41,7 +41,7 @@ class FsdbThreatFeed(ThreatFeed):
         dictionary = {}
         for (count,entry) in enumerate(self._tfh):
             
-            if self._maybe_drop_entry(entry, self._value_column):
+            if self.maybe_drop_entry(entry, self._value_column):
                 continue
 
             array.append(entry)
