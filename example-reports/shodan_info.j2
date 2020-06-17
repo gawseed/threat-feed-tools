@@ -18,6 +18,7 @@ The following information is provided by SHODAN (an external resource) about {{r
     + {{hostname}},
 {% endfor %}
 {% endif %}
+{%- if enrichments.shodan_info.domains | length > 1 %}
 + Domains:
 {% for domain in enrichments.shodan_info.domains %}
     + {{domain}},
