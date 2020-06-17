@@ -36,10 +36,10 @@ class SimilarIPsGraph(Config):
         if self._enrichment_key not in enrichment_data:
             self.verbose("key '" + self._enrichment_key +
                          "' is not in the enrichment data")
-            return
+            return (None, None)
 
         if enrichment_data[self._enrichment_key]['status'] == 'error':
-            return
+            return (None, None)
             
         (fh, name) = tempfile.mkstemp(dir=self._output_dir,
                                       suffix="." + self._output_type)
