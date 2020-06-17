@@ -76,7 +76,7 @@ class SimilarIPsGraph(Config):
                         s=5, label="Other Addresses")
 
         if (self._time_key):
-            row_stamp = int(float(row[self._time_key]))
+            row_stamp = int(self.parse_time(row[self._time_key]))
             row_stamp = dates.epoch2num(row_stamp)
             ax0.plot([row_stamp, row_stamp],
                      [0, len(enrichment_data[self._enrichment_key]['cluster'])],
