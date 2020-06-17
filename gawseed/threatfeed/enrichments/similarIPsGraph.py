@@ -24,6 +24,8 @@ class SimilarIPsGraph(Config):
                                       help="The match key column name to be used")
         self._data_key = self.config('data_key', 'key',
                                      help="The data key to use within the data row")
+        self._time_key = self.config('time_key', 'ts',
+                                     help="The time key to use within the data row")
 
         self._seen = {}
 
@@ -73,6 +75,14 @@ class SimilarIPsGraph(Config):
             ax0.scatter(extra_addresses_x, extra_addresses_y,
                         s=5, label="Other Addresses")
 
+        if (self._time_key):
+            row_stamp = int(float(row[self._time_key]))
+            row_stamp = dates.epoch2num(row_stamp)
+            ax0.plot([row_stamp, row_stamp],
+                     [0, len(enrichment_data[self._enrichment_key]['cluster'])],
+                     label="Event Time", linewidth=1, ms=1,
+                     color="green")
+
         if (len(match_x)) > 0:
             match_x = dates.epoch2num(match_x)
             ax0.scatter(match_x, match_y,
@@ -80,6 +90,7 @@ class SimilarIPsGraph(Config):
                         label="Matched address")
 
         plt.ylabel("Enumerated Addresses")
+        ax0.legend(loc='best')
 
         # deals with long labels:
         plt.tight_layout()
