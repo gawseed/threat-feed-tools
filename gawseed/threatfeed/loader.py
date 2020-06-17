@@ -48,6 +48,7 @@ MODULE_XFORMS = {
         'dnssummarizer': 'gawseed.threatfeed.enrichments.dnssummarizer.DNSSummarizer',
         'connectioncounter': 'gawseed.threatfeed.enrichments.connectionCounter.ConnectionCounter',
         'connectiongrapher': 'gawseed.threatfeed.enrichments.connectionGrapher.ConnectionGrapher',
+        'similaripsgraph': 'gawseed.threatfeed.enrichments.similarIPsGraph.SimilarIPsGraph',
     },
 }
 
