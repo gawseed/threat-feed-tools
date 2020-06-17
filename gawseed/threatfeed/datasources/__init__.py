@@ -126,8 +126,10 @@ class DataSource(Config):
 
 
     def maybe_drop_entry(self, entry):
+        """Returns false if the entry should not be dropped (ie, should be
+        searched)"""
         if self._exclude_column not in entry:
-            return True
+            return False
 
         if entry[self._exclude_column] in self._exclude_list:
             return True
