@@ -62,7 +62,7 @@ class DruidDataSource(DataSource):
                 self._sql += "__time <= time_parse('%s') and " % \
                     (self.format_unix_epoch(self._end_time))
 
-            for item in self._exclude_list
+            for item in self._exclude_list:
                 self._sql += "%s <> '%s' and " % \
                     (self._exclude_key, item)
                 
