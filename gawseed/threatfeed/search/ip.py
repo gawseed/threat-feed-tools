@@ -14,6 +14,8 @@ class IPSearch(Search):
     
     def search(self, row):
         for key in self._search_keys:
+            if key not in row:
+                continue
             if row[key] in self._search_list:
                 return self._search_list[row[key]]
         return None
