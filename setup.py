@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gawseed-threat-feed-tools",
-    version="1.0",
+    version="1.1",
     author="Wes Hardaker and USC/ISI",
     author_email="opensource@hardakers.net",
     description="Tools to search network data logs for threat feed data",
@@ -23,7 +23,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    install_requires=['pyfsdb>=0.9.2',
+    install_requires=['pyfsdb>=0.9.92',
                       'kafka-python',
                       'python-dateutil',
                       'jinja2',
