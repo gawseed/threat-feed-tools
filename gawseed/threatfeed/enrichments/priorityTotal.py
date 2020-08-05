@@ -1,13 +1,13 @@
 from gawseed.threatfeed.config import Config
 
-class PrioritySum(Config):
+class PriorityTotal(Config):
     """Combines priorities found in the base match, and all enrichment
     data.  Uses the 'priority_adj' field as a search criteria.
     """
     def __init__(self, conf, search_index, dataset, is_binary, loader=None):
         super().__init__(conf, search_index, dataset, is_binary, loader)
         
-        self._output_key = self.config('output_key', 'priority_summary',
+        self._output_key = self.config('output_key', 'priority_total',
                                        help="The output key to store the summarized priority in.")
 
         self._search_key = self.config('search_key', 'priority_adj',

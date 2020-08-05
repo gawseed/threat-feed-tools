@@ -49,7 +49,7 @@ MODULE_XFORMS = {
         'connectioncounter': 'gawseed.threatfeed.enrichments.connectionCounter.ConnectionCounter',
         'connectiongrapher': 'gawseed.threatfeed.enrichments.connectionGrapher.ConnectionGrapher',
         'similaripsgraph': 'gawseed.threatfeed.enrichments.similarIPsGraph.SimilarIPsGraph',
-        'prioritysum': 'gawseed.threatfeed.enrichments.prioritySum.PrioritySum',
+        'prioritytotal': 'gawseed.threatfeed.enrichments.prioritySum.PriorityTotal',
     },
 }
 
