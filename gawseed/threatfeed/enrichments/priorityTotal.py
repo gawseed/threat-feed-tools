@@ -5,7 +5,7 @@ class PriorityTotal(Config):
     data.  Uses the 'priority_adj' field as a search criteria.
     """
     def __init__(self, conf, search_index, dataset, is_binary, loader=None):
-        super().__init__(conf, search_index, dataset, is_binary, loader)
+        super().__init__(conf)
         
         self._output_key = self.config('output_key', 'priority_total',
                                        help="The output key to store the summarized priority in.")
