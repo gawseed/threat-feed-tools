@@ -23,9 +23,6 @@ class PriorityTotal(Config):
         elif 'priority' in row:
             priority = row['priority'] # also unlikely
             
-        if not self.check_enrichment_data(enrichment_data):
-            return (None, None)
-
         for key in enrichment_data:
             edata = enrichment_data[key]
             if isinstance(edata, dict):
