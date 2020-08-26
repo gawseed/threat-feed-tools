@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 
+import sys
+import os
+
 import pickle
 import pprint
+import pyfsdb
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, FileType
-import sys
 
 def parse_args():
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter,
@@ -18,8 +21,11 @@ def parse_args():
     parser.add_argument("-d", "--dump-pkls", action="store_true",
                         help="Just output a pprinted version of the pkl files")
 
-    parser.add_argument("input_file", type=FileType('rb'), nargs="+",
-                        help="Input pkl files to read from")
+    parser.add_argument("-f", "--fsdb", default=None, type=FileType('w'),
+                        help="Write the results as a keyed table")
+
+    parser.add_argument("input_file", nargs="+",
+                        help="Input pkl files to read from, or a directory of *.pkl files")
 
     args = parser.parse_args()
 
@@ -33,7 +39,15 @@ def main():
     # read in the results into a file
     results = []
     for infile in args.input_file:
-        results.append(pickle.load(infile))
+        if os.path.isfile(infile):
+            results.append(pickle.load(open(infile, "rb")))
+        elif os.path.isdir(infile):
+            for dirfile in os.listdir(infile):
+                if dirfile[-4:] == '.pkl':
+                    joined = os.path.join(infile, dirfile)
+                    results.append(pickle.load(open(joined, "rb")))
+                else:
+                    print(f'ignoring {dirfile}')
 
     # just print them?
     if args.dump_pkls:
@@ -42,8 +56,8 @@ def main():
 
     # process the request comparisons into chunks
     comparisons = [x.split('.') for x in args.comparison_records]
-    print(comparisons)
     
+    # store a nested tree structure of results for counting in N dimensions
     table_results={}
     for record in results:
         values=[]
@@ -66,7 +80,32 @@ def main():
             spot['ans'] = 0
         spot['ans'] += 1
 
-    pprint.pprint(table_results)
+    if args.fsdb:
+        fh = pyfsdb.Fsdb(out_file_handle=args.fsdb)
+        column_names = []
+        for comparison in comparisons:
+            # just record the final struct name
+            # (XXX: this won't work in a parallel tree with identical names)
+            column_names.append(comparison[-1])
+        column_names.append('count')
+
+        fh.column_names = column_names
+
+        for resultkey in table_results:
+            save_results(fh, table_results[resultkey], [resultkey])
+
+    else:
+        # just print the results
+        pprint.pprint(table_results)
+
+
+def save_results(fh, struct, resultkeys):
+    """Recursively descend and save the tree"""
+    if 'ans' in struct:
+        fh.append([*resultkeys, struct['ans']])
+    else:
+        for key in struct:
+            save_results(fh, struct[key], [*resultkeys, key])
 
 if __name__ == "__main__":
     main()
