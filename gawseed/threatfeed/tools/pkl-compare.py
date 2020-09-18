@@ -66,7 +66,10 @@ def main():
             # collect the value from the nested structure
             value = record
             for item in comparison:
-                value = value[item]
+                if isinstance(value, list):
+                    value = value[int(item)]
+                else:
+                    value = value[item]
             values.append(value)
 
         # descend the tree creating spots as needed
