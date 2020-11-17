@@ -1,6 +1,3 @@
-import sys
-import re
-
 from gawseed.threatfeed.search.re import RESearch
 
 
