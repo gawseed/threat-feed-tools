@@ -1,5 +1,6 @@
 from gawseed.threatfeed.config import Config
 
+
 class Search(Config):
     def __init__(self, conf, search_list, data_iterator, binary_search,
                  status_queue=None, report_every=10000):
@@ -12,7 +13,7 @@ class Search(Config):
 
     def initialize(self):
         self._search_list = self._data_iterator.encode_dict(self._search_list)
-    
+
     def __iter__(self):
         for (n, row) in enumerate(self._data_iterator):
             match = self.search(row)
