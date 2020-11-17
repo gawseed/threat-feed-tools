@@ -1,17 +1,21 @@
 from gawseed.threatfeed.config import Config
 
+
 class DataSource(Config):
     def __init__(self, conf):
         super().__init__(conf)
 
         self._binary = self.config("binary", self.default_is_binary(),
-                                   help="If the datasource is binary (bytes) data, set this to convert when necessary")
+                                   help="If the datasource is binary (bytes)" +
+                                   " data, set this to convert when necessary")
         self._exclude_column = self.config('exclude_key', 'value',
-                                           help="The primary column/key name to use for checking whether to exclude data")
+                                           help="The primary column/key name" +
+                                           " to use for checking whether to " +
+                                           " exclude data")
 
         self._exclude_list = self.config('exclude', [],
-                                         help='A list of entries to ignore in the threat feed')
-        
+                                         help='A list of entries to ignore' +
+                                         ' in the threat feed')
 
     def initialize(self):
         super().initialize()
@@ -25,7 +29,7 @@ class DataSource(Config):
     def convert_row_to_utf8(self, row):
         if not self._binary:
             return row
-            
+
         utf8_row = {}
         for item in row:
             utf8_row[self.decode_item(item)] = self.decode_item(row[item])
@@ -58,7 +62,8 @@ class DataSource(Config):
         return item
 
     def encode_dict(self, old_dict):
-        """Creates a new dict that contains both binary and string based indexes for all entries"""
+        """Creates a new dict that contains both binary and string
+        based indexes for all entries"""
 
         # don't encode if not needed
         if not self._binary:
@@ -111,7 +116,7 @@ class DataSource(Config):
         for value in values:
             new_list.append(self.maybe_convert_token_to_binary(value))
         return new_list
-    
+
     def set_hints(self, keynames, hint_dict):
         """Sets a set of hints for things to look for; datasources that can
         more easily sub-select can use these hints to refine their
@@ -124,7 +129,6 @@ class DataSource(Config):
     def close(self):
         pass
 
-
     def maybe_drop_entry(self, entry):
         """Returns false if the entry should not be dropped (ie, should be
         searched)"""
@@ -135,5 +139,3 @@ class DataSource(Config):
             return True
 
         return False
-        
-    
