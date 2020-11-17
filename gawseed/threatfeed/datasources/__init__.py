@@ -1,5 +1,9 @@
 from gawseed.threatfeed.config import Config
 
+BINARY_YES = True
+BINARY_NO = False
+BINARY_MAYBE = "u"
+
 
 class DataSource(Config):
     def __init__(self, conf):
@@ -7,7 +11,8 @@ class DataSource(Config):
 
         self._binary = self.config("binary", self.default_is_binary(),
                                    help="If the datasource is binary (bytes)" +
-                                   " data, set this to convert when necessary")
+                                   " data, set this to convert when necessary; " +
+                                   " set this to 'u' if unknown or a mix")
         self._exclude_column = self.config('exclude_key', 'value',
                                            help="The primary column/key name" +
                                            " to use for checking whether to " +
