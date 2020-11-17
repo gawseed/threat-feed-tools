@@ -8,8 +8,8 @@ class IPSearch(Search):
         super().__init__(conf, search_list, data_iterator, binary_search)
         self._search_keys = self.config('search_keys',
                                         ['id_orig_h', 'id_resp_h'],
-                                        help="A list of fields to search for IP" +
-                                        "addresses in the data stream")
+                                        help="A list of fields to search " +
+                                        "for IP addresses in the data stream")
 
     def initialize(self):
         super().initialize()
