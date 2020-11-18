@@ -26,9 +26,10 @@ MODULE_XFORMS = {
         'druid': 'gawseed.threatfeed.datasources.druid.DruidDataSource',
     },
     SEARCHER_KEY: {
-        'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
+        'keys': 'gawseed.threatfeed.search.keys.KeysSearch',
         'ip': 'gawseed.threatfeed.search.ip.IPSearch',
         'iprange': 'gawseed.threatfeed.search.iprange.IPRangeSearch',
+        'ssh': 'gawseed.threatfeed.search.ssh.SSHSearch',
         'http': 'gawseed.threatfeed.search.http.HTTPSearch',
         'dns': 'gawseed.threatfeed.search.dns.DNSSearch',
         're': 'gawseed.threatfeed.search.re.RESearch',
