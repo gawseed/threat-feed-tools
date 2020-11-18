@@ -26,7 +26,7 @@ loader = None
 
 
 def parse_args():
-    formatter = argparse.ArgumentParser
+    formatter = argparse.ArgumentDefaultsHelpFormatter
     parser = argparse.ArgumentParser(formatter_class=formatter,
                                      description="""This uses data from threat
                                      feeds (in kafka topics or files) to search
