@@ -123,7 +123,7 @@ def parse_args():
                        type=str,
                        help="""Extra information in YAML format to
                         include with report generation in 'extra' an field""")
-    parser.add_argument("--threads", default=2, type=int,
+    parser.add_argument("--threads", default=1, type=int,
                         help="Number of output stream threads to create.")
 
     # Configuration
