@@ -1,4 +1,5 @@
 import sys
+from io import StringIO
 
 from gawseed.threatfeed.config import Config
 
@@ -8,7 +9,7 @@ class EventStream(Config):
         stream = self.config('stream')
         if type(stream) == str:
             if stream == "stdout":
-                self._stream = sys.stdout
+                self._stream = StringIO()
             elif stream == "stderr":
                 self._stream = sys.stderr
             else:
@@ -16,7 +17,7 @@ class EventStream(Config):
         else:
             self._stream_pattern = None
             if stream == None:
-                self._stream = sys.stdout
+                self._stream = StringIO()
             else:
                 self._stream = stream # assume an opened filehandle
 
@@ -37,6 +38,8 @@ class EventStream(Config):
     def maybe_close_output(self, output_stream=None):
         if not output_stream:
             output_stream = self._stream
+        if isinstance(output_stream, StringIO):
+            sys.stdout.write(output_stream.getvalue())
         if self._stream_pattern:
             output_stream.close()
 
