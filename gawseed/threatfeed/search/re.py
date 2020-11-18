@@ -34,6 +34,7 @@ class RESearch(Search):
     def search(self, row):
         """If the `source` value matches any stored expression,
            the expression will be returned."""
+        # we must always convert a binary to a string in order to regexp
         return self.search_one(self._data_iterator.decode_item(row[self._key]))
 
     def search_one(self, source):
