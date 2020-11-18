@@ -56,7 +56,7 @@ class Parallel(Search):
                     # we should stop running
                     # XXX: really need to keep looping to catch ending events 
                     running = False
-                    
+
                 if not row:
                     continue
 
