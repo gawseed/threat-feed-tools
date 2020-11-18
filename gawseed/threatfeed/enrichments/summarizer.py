@@ -31,7 +31,6 @@ class Summarizer(Config):
 
         return True
 
-
     def gather(self, count, row, match, enrichment_data):
         """Re-sort all the enrichment data based on the specified column"""
 
