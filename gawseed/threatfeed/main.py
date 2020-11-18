@@ -415,7 +415,7 @@ def launch_process(combination, args, number):
         output_threads.append(thread)
 
     # loop through the outputs of the searcher and create reports
-    for count, results in enumerate(next(searcher)):
+    for count, results in enumerate(searcher):
         row, match = results
 
         event_queue.put(
