@@ -25,10 +25,10 @@ class ArchiveReporter(EventStream):
         else:
             raise ValueError("Unsupported archive format: " + self._format)
 
-    def write_row(self, count, row, match, enrichments):
+    def write_row(self, count, row, match, enrichments, output_stream=None):
         output = self._dumps({ 'count': count,
                                'row': row,
                                'match': match,
                                'enrichments': enrichments})
-        self.output(output)
+        self.output(output, output_stream)
 

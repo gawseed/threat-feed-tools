@@ -295,9 +295,9 @@ def found_event(found_queue, enrichers, outputs):
         # loop through the outputs to create stuff
         for output in outputs:
             try:
-                output.new_output(count)
-                output.write(count, row, match, enrichment_data)
-                output.maybe_close_output()
+                outh = output.new_output(count)
+                output.write(count, row, match, enrichment_data, outh)
+                output.maybe_close_output(outh)
 
             except Exception as e:
                 sys.stderr.write("The output module failed: " + str(e) + "\n")

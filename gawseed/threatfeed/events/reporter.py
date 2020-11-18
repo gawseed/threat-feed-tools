@@ -30,11 +30,11 @@ class EventStreamReporter(EventStream):
             fh = open(self._jinja_extra_information, "r")
             self._jinja_extra_information = yaml.load(fh, Loader=yaml.FullLoader)
 
-    def write_row(self, count, row, match, enrichments):
+    def write_row(self, count, row, match, enrichments, output_stream):
         output = self._template.render({ 'count': count,
                                          'row': row,
                                          'match': match,
                                          'extra': self._jinja_extra_information,
                                          'enrichments': enrichments})
-        self.output(output + "\n")
+        self.output(output + "\n", output_stream)
 
