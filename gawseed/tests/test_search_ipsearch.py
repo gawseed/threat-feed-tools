@@ -108,3 +108,25 @@ class test_ip_search(unittest.TestCase):
                                       b'abcd'), "data is correct")
 
         self.assertequal(count, 2, "two matches returned")
+
+    def test_mixed_fails(self):
+        "The simplistic case: do ascii search strings match ascii data"
+        from gawseed.threatfeed.search.ip import IPSearch
+
+        #
+        # with ascii keys passed in -- should get converted inside for searching
+        #
+        config = {'search_keys': ['key']}
+        datasource = fakebinary(data=[{'key': 'abcd'},
+                                      {b'key': b'abcd'}], binary=BINARY_NO)
+        created = IPSearch(config, {b'abcd': b'abcd'}, datasource, False)
+        created.initialize()
+
+        count = 0
+        for match in created:
+            count += 1
+            self.assertEqual(match, ({'key': 'abcd'},
+                                      b'abcd'), "data is correct")
+
+        self.assertequal(count, 1, "only one match returned")
+        
