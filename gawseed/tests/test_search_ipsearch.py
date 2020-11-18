@@ -16,8 +16,11 @@ class fakebinary(DataSource):
 
     def convert_row_to_utf8(self, row):
         from gawseed.threatfeed.datasources import DataSource
-        DataSource.convert_row_to_utf8(self, row)
+        return DataSource.convert_row_to_utf8(self, row)
 
+    def encode_dict(self, item):
+        from gawseed.threatfeed.datasources import DataSource
+        return DataSource.encode_dict(self, item)
 
 class test_ip_search(unittest.TestCase):
     def test_load_ip_search(self):
@@ -30,12 +33,13 @@ class test_ip_search(unittest.TestCase):
                          "created a gawseed.threatfeed.search.ip.IPSearch")
 
     def test_non_binary_search(self):
+        "The simplistic case: do ascii search strings match ascii data"
         from gawseed.threatfeed.search.ip import IPSearch
 
         config = {'search_keys': ['key']}
         datasource = fakebinary()
         created = IPSearch(config, {'abcd': 'abcd'}, datasource, False)
-
+        created.initialize()
         count = 0
         for match in created:
             count += 1
@@ -44,33 +48,39 @@ class test_ip_search(unittest.TestCase):
         self.assertEqual(count, 2, "two matches returned")
 
     def test_binary_search(self):
+        "Do binary search strings match binary data?  But it returns utf-8 decoded."
         from gawseed.threatfeed.search.ip import IPSearch
 
         #
-        # with non binary keys
-        config = {'search_keys': ['key']}
-        datasource = fakebinary(data=[{'key': b'abcd'},
-                                      {'key': b'abcd'}], binary=BINARY_YES)
-        created = IPSearch(config, {b'abcd': b'abcd'}, datasource, False)
-
-        count = 0
-        for match in created:
-            count += 1
-            self.assertEqual(match, (None, b'abcd'), "data is correct")
-
-        self.assertEqual(count, 2, "two matches returned")
-
-        #
-        # with binary keys
+        # with binary keys passed in
         config = {'search_keys': [b'key']}
         datasource = fakebinary(data=[{b'key': b'abcd'},
                                       {b'key': b'abcd'}], binary=BINARY_YES)
         created = IPSearch(config, {b'abcd': b'abcd'}, datasource, False)
+        created.initialize()
 
         count = 0
         for match in created:
             count += 1
-            self.assertEqual(match, (None, b'abcd'), "data is correct")
+            # returns a DECODED row
+            self.assertEqual(match, ({'key': 'abcd'}, b'abcd'), "data is correct")
 
         self.assertEqual(count, 2, "two matches returned")
-        
+
+        #
+        # with ascii keys passed in -- should get converted inside for searching
+        #
+        config = {'search_keys': ['key']}
+        datasource = fakebinary(data=[{b'key': b'abcd'},
+                                      {b'key': b'abcd'}], binary=BINARY_YES)
+        created = IPSearch(config, {'abcd': 'abcd'}, datasource, False)
+        created.initialize()
+
+        count = 0
+        for match in created:
+            count += 1
+            self.assertEqual(match, ({'key': 'abcd'},
+                                      'abcd'), "data is correct")
+
+        self.assertEqual(count, 2, "two matches returned")
+
