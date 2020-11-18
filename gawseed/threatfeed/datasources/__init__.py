@@ -43,20 +43,12 @@ class DataSource(Config):
     def encode_item(self, item):
         """converts a string item to a utf-8 bytes version of it"""
 
-        # don't encode if not needed
-        if not self._binary:
-            return item
-
         if type(item) == bytes:
             return item
         return bytes(item, 'utf-8')
 
     def decode_item(self, item):
         """Decodes a bytes object into a utf-8 string"""
-
-        # don't decode if not needed
-        if not self._binary:
-            return item
 
         if type(item) == bytes:
             return item.decode()
@@ -65,6 +57,11 @@ class DataSource(Config):
             return self.decode_list(item) 
 
         return item
+
+    def encode_or_decode_dict(self, old_dict):
+        if self._binary:
+            return self.encode_dict(old_dict)
+        return self.decode_dict(old_dict)
 
     def encode_dict(self, old_dict):
         """Creates a new dict that contains both binary and string
@@ -81,8 +78,24 @@ class DataSource(Config):
             new_dict[key] = old_dict[key]
         return new_dict
 
+    def decode_dict(self, old_dict):
+        """Creates a new dict that contains both binary and string
+        based indexes for all entries"""
+
+        new_dict = {}
+        for key in old_dict:
+            # stores both new binary key and the old
+            new_dict[self.decode_item(key)] = old_dict[key]
+            new_dict[key] = old_dict[key]
+        return new_dict
+
+    def encode_or_decode_list(self, old_list):
+        if self._binary:
+            return self.encode_list(old_list)
+        return self.decode_list(old_list)
+
     def encode_list(self, old_list):
-        """Creates a new  list converted to binary if necessary"""
+        """Creates a new list converted to binary if necessary"""
 
         # don't encode if not needed
         if not self._binary:

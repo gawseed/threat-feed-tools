@@ -12,7 +12,8 @@ class Search(Config):
         self._counter_threshold = report_every
 
     def initialize(self):
-        self._search_list = self._data_iterator.encode_dict(self._search_list)
+        self._search_list = \
+            self._data_iterator.encode_or_decode_dict(self._search_list)
 
     def __iter__(self):
         for (n, row) in enumerate(self._data_iterator):
