@@ -43,7 +43,7 @@ class test_ip_search(unittest.TestCase):
         count = 0
         for match in created:
             count += 1
-            self.assertEqual(match, (None, 'abcd'), "data is correct")
+            self.assertEqual(match, ({'key': 'abcd'}, 'abcd'), "data is correct")
 
         self.assertEqual(count, 2, "two matches returned")
 
