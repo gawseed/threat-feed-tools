@@ -8,7 +8,9 @@ from gawseed.threatfeed.config import Config
 class EventStream(Config):
     def __init__(self, conf):
         super().__init__(conf)
-        stream = self.config('stream')
+        stream = self.config('stream',
+                             help="The stream name or filename to write to. This may be 'stdout' or 'stderr' to write to those unix streams, or may be a filename.  If a filename, then you can include tokens from the row or match data in the filename using {} wrappers around the name with 'count', row', and 'match' variables describing the data.  For example: path/{row[id_orig_h]}.txt will pull out a origin IP from bro datasets.  OR (but not both) you can include a '%d' which will be replaced by the event number.")
+
         if type(stream) == str:
             if stream == "stdout":
                 self._stream = StringIO()
