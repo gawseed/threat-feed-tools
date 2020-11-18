@@ -25,5 +25,5 @@ class SSHSearch(IPSearch):
             return None
         if row[self._auth_success_key] != self._auth_success_value:
             return None
-        return super().search(row)
+        return super().search(row)  # pass the rest to the IP searcher
 
