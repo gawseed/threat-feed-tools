@@ -4,7 +4,7 @@ from gawseed.threatfeed.search import Search
 from gawseed.threatfeed.loader import Loader
 
 class Parallel(Search):
-    """Searches for IP address threats in multiple search_keys fields"""
+    """Applies multiple searches in parallel using multi-processes"""
     def __init__(self, conf, search_list, data_iterator, binary_search):
         super().__init__(conf, search_list, data_iterator, binary_search)
         self._processes = self.config("processes", default=4,
