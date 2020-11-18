@@ -1,4 +1,5 @@
 from gawseed.threatfeed.search import Search
+from gawseed.threatfeed.datasources import BINARY_MAYBE
 
 
 class IPSearch(Search):
@@ -17,6 +18,9 @@ class IPSearch(Search):
         self._data_iterator.set_hints(self._search_keys, self._search_list)
 
     def search(self, row):
+        if self._data_iterator.is_binary() == BINARY_MAYBE:
+            # we'll just (expensively) convert everything
+            row = self._data_iterator.decode_dict(row)
         for key in self._search_keys:
             if key not in row:
                 continue
