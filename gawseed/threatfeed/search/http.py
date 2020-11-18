@@ -17,10 +17,6 @@ class HTTPSearch(RESearch):
 
     def initialize(self):
         super().initialize()
-        self._auth_success_key = \
-            self._data_iterator.encode_item(self._host_key)
-        self._auth_success_value = \
-            self._data_iterator.encode_item(self._uri_key)
 
     def search(self, row):
         # XXX: currently assumes a split host/uri scheme like bro.
