@@ -1,4 +1,6 @@
 import sys
+import os.path
+import pathlib
 from io import StringIO
 
 from gawseed.threatfeed.config import Config
@@ -23,6 +25,12 @@ class EventStream(Config):
 
         self._output_type = "w"
 
+    def open_file(self, filename):
+        dir = os.path.dirname(filename)
+        if not os.path.isdir(dir):
+            pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
+        return open(filename, self._output_type)
+
     def new_output(self, count, **kwargs):
         output_stream = None
         if self._stream_pattern:
@@ -31,8 +39,10 @@ class EventStream(Config):
             else:
                 filename = self._stream_pattern.format(count=count, **kwargs)
 
-            output_stream = open(filename, self._output_type)
+            # mkdir and open
+            output_stream = self.open_file(filename)
             self._stream = output_stream
+
         return output_stream
 
     def maybe_close_output(self, output_stream=None):
