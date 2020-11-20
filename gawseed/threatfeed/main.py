@@ -295,7 +295,9 @@ def found_event(found_queue, enrichers, outputs):
         # loop through the outputs to create stuff
         for output in outputs:
             try:
-                outh = output.new_output(count)
+                outh = output.new_output(count,
+                                         row=row,
+                                         match=match)
                 output.write(count, row, match, enrichment_data, outh)
                 output.maybe_close_output(outh)
 
