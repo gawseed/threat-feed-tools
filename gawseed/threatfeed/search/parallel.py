@@ -43,7 +43,7 @@ class Parallel(Search):
     def shutdown(self):
         self._pool.shutdown()
 
-    def __next__(self):
+    def __iter__(self):
         running = True
         while running:
             # load up the futures queue with PRELOAD items from the data source
