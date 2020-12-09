@@ -15,7 +15,7 @@ class ThreatFeed(Config):
         self._value_column = self.config('key', 'value',
                                          help="The primary column/key name to use for pulling threat data")
 
-        self._tag_column = self.config('tag', None,
+        self._tag_column = self.config('tag', 'tag',
                                        help="The tag column name to use for matching priorities (see below)")
 
         self._exclude_list = self.config('exclude', [],
