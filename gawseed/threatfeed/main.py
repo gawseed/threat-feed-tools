@@ -213,6 +213,7 @@ def get_data_source(number, args, conf=None):
 
     # just print it?
     if args.dump_data:
+        data_source.open()
         import json
         for finding in data_source:
             print(json.dumps(data_source.convert_row_to_utf8(finding)))
@@ -450,7 +451,7 @@ def main():
     if args.config:
         conf = loader.load_yaml_config(args.config, args.config_parameters)
     else:
-        conf = convert_args_to_config
+        conf = convert_args_to_config(args)
 
     threat_conf = conf[loader.YAML_KEY]
 
