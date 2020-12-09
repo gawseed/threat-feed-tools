@@ -16,26 +16,26 @@ class PriorityTotal(Config):
     def gather(self, count, row, match, enrichment_data):
         """Sum the various priority fields together for a final value."""
 
-        priority = 0 # starting value
+        priority = 0  # starting value
 
         if 'priority' in match:
-            priority = int(match['priority']) # unlikely
+            priority = int(match['priority'])  # unlikely
         elif 'priority' in row:
-            priority = int(row['priority']) # also unlikely
-            
+            priority = int(row['priority'])  # also unlikely
+
         for key in enrichment_data:
             edata = enrichment_data[key]
             if isinstance(edata, dict):
                 edata = [edata]
             elif not isinstance(edata, list):
-                continue # unknown type to search
-            
+                continue  # unknown type to search
+
             for data in edata:
                 if isinstance(data, dict):
                     if self._search_key in data:
                         priority += int(edata[self._search_key])
-                
+
         return (self._output_key, {
             self._output_key: priority
         })
-                
+
