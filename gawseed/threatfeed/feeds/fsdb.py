@@ -40,8 +40,9 @@ class FsdbThreatFeed(ThreatFeed):
         array = []
         dictionary = {}
         for (count,entry) in enumerate(self._tfh):
-            
-            if self.maybe_drop_entry(entry, self._value_column):
+
+            if self.drop_or_prioritize(entry, self._value_column,
+                                       self._tag_column):
                 continue
 
             array.append(entry)

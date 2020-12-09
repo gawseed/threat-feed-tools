@@ -15,8 +15,14 @@ class ThreatFeed(Config):
         self._value_column = self.config('key', 'value',
                                          help="The primary column/key name to use for pulling threat data")
 
+        self._tag_column = self.config('tag', None,
+                                       help="The tag column name to use for matching priorities (see below)")
+
         self._exclude_list = self.config('exclude', [],
                                          help='A list of entries to ignore in the threat feed')
+        self._priorities = self.config('priorities', {},
+                                       help="A dictionary containing base priorities for each feed tag.  If unfound, a default of 0 will be used.")
+
 
     def initialize(self):
         if type(self._exclude_list) != list:
@@ -31,7 +37,7 @@ class ThreatFeed(Config):
             raise StopIteration()
         return row
 
-    def maybe_drop_entry(self, entry, value_column):
+    def drop_or_prioritize(self, entry, value_column, tag_column):
         if self._begin_time and int(float(entry[self._time_column])) < self._begin_time:
             return True
         
@@ -40,6 +46,11 @@ class ThreatFeed(Config):
 
         if entry[value_column] in self._exclude_list:
             return True
+
+        if tag_column and \
+           not entry.get('priority') and \
+           self._priorities.get(entry.get(tag_column)):
+            entry['priority'] = self._priorities[entry.get(tag_column)]
 
         return False
         

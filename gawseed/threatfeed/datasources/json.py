@@ -45,7 +45,7 @@ class JsonDataSource(DataSource):
             row = json.loads(row)
             if self._end_time and self.parse_time(row[self._time_column]) >= self._end_time:
                 raise StopIteration()
-            if not self.maybe_drop_entry(row):
+            if not self.drop_or_prioritize(row):
                 break # don't filter
 
         return row

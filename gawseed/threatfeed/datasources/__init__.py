@@ -149,7 +149,7 @@ class DataSource(Config):
     def close(self):
         pass
 
-    def maybe_drop_entry(self, entry):
+    def drop_or_prioritize(self, entry):
         """Returns false if the entry should not be dropped (ie, should be
         searched)"""
         if self._exclude_column not in entry:
