@@ -19,9 +19,9 @@ class PriorityTotal(Config):
         priority = 0 # starting value
 
         if 'priority' in match:
-            priority = match['priority'] # unlikely
+            priority = int(match['priority']) # unlikely
         elif 'priority' in row:
-            priority = row['priority'] # also unlikely
+            priority = int(row['priority']) # also unlikely
             
         for key in enrichment_data:
             edata = enrichment_data[key]
@@ -33,7 +33,7 @@ class PriorityTotal(Config):
             for data in edata:
                 if isinstance(data, dict):
                     if self._search_key in data:
-                        priority += edata[self._search_key]
+                        priority += int(edata[self._search_key])
                 
         return (self._output_key, {
             self._output_key: priority
