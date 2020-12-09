@@ -298,7 +298,8 @@ def found_event(found_queue, enrichers, outputs):
             try:
                 outh = output.new_output(count,
                                          row=row,
-                                         match=match)
+                                         match=match,
+                                         enrichments=enrichment_data)
                 output.write(count, row, match, enrichment_data, outh)
                 output.maybe_close_output(outh)
 
