@@ -73,6 +73,10 @@ class KafkaThreatFeed(ThreatFeed):
                 if remove_duplicates and entry[self._value_column] in dictionary:
                     continue
 
+                if self.drop_or_prioritize(entry, self._value_column,
+                                           self._tag_column):
+                    continue
+
                 dictionary[entry[self._value_column]] = entry # note, may erase older ones; build array?
                 array.append(entry)
             except Exception as e:
