@@ -24,6 +24,9 @@ def parse_args():
     parser.add_argument("-f", "--fsdb", default=None, type=FileType('w'),
                         help="Write the results as a keyed table")
 
+    parser.add_argument("-V", "--verbose", action="store_true",
+                        help="Verbose output")
+
     parser.add_argument("input_file", nargs="+",
                         help="Input pkl files to read from, or a directory of *.pkl files")
 
@@ -33,21 +36,34 @@ def parse_args():
         raise ValueError("At least one comparison record type must be passed to -c")
     return args
 
-def main():
-    args = parse_args()
 
-    # read in the results into a file
+def find_results(input_files, verbose=False):
     results = []
-    for infile in args.input_file:
+
+    for infile in input_files:
         if os.path.isfile(infile):
             results.append(pickle.load(open(infile, "rb")))
         elif os.path.isdir(infile):
             for dirfile in os.listdir(infile):
-                if dirfile[-4:] == '.pkl':
-                    joined = os.path.join(infile, dirfile)
-                    results.append(pickle.load(open(joined, "rb")))
-                else:
-                    print(f'ignoring {dirfile}')
+                if dirfile[0] == '.':
+                    continue
+
+                path = os.path.join(infile, dirfile)
+
+                if os.path.isdir(path):
+                    results.extend(find_results([path]))
+                elif dirfile[-4:] == '.pkl':
+                    results.append(pickle.load(open(path, "rb")))
+                elif verbose:
+                    sys.stderr.write(f'ignoring {path}')
+
+    return results
+
+def main():
+    args = parse_args()
+
+    # read in the results into a file
+    results = find_results(args.input_file, args.verbose)
 
     # just print them?
     if args.dump_pkls:
@@ -56,7 +72,7 @@ def main():
 
     # process the request comparisons into chunks
     comparisons = [x.split('.') for x in args.comparison_records]
-    
+
     # store a nested tree structure of results for counting in N dimensions
     table_results={}
     for record in results:
