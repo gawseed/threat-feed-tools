@@ -77,27 +77,33 @@ def main():
     table_results={}
     for record in results:
         values=[]
-        for comparison in comparisons:
 
-            # collect the value from the nested structure
-            value = record
-            for item in comparison:
-                if isinstance(value, list):
-                    value = value[int(item)]
-                else:
-                    value = value[item]
-            values.append(value)
+        # if a tree doesn't have an item, we skip the counting
+        try:
+            for comparison in comparisons:
 
-        # descend the tree creating spots as needed
-        spot = table_results
-        for value in values:
-            if value not in spot:
-                spot[value] = {}
-            spot = spot[value]
+                # collect the value from the nested structure
+                value = record
+                for item in comparison:
+                    if isinstance(value, list):
+                        value = value[int(item)]
+                    else:
+                        value = value[item]
+                values.append(value)
 
-        if 'ans' not in spot:
-            spot['ans'] = 0
-        spot['ans'] += 1
+            # descend the tree creating spots as needed
+            spot = table_results
+            for value in values:
+                if value not in spot:
+                    spot[value] = {}
+                spot = spot[value]
+
+            if 'ans' not in spot:
+                spot['ans'] = 0
+            spot['ans'] += 1
+        except Exception:
+            #print(f"failed to find {comparisons}")
+            pass
 
     if args.fsdb:
         fh = pyfsdb.Fsdb(out_file_handle=args.fsdb)
