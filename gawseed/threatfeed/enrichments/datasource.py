@@ -77,7 +77,7 @@ class Datasource(Config):
         # collect everything from the datasource into a row 
         enrich_rows = []
         try:
-            for finding in next(searcher):
+            for finding in searcher:
                 enrich_rows.append(finding[0])
         except Exception as e:
             print(traceback.format_exc())
