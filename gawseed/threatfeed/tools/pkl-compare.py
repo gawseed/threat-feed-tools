@@ -37,8 +37,11 @@ def parse_args():
     return args
 
 
-def find_results(input_files, verbose=False):
-    results = []
+def find_results(input_files, verbose=False, starting_results=[]):
+    """Read in a (recursive) directory of pkl files and return a list of
+    their contents
+    """
+    results = starting_results
 
     for infile in input_files:
         if os.path.isfile(infile):
@@ -59,24 +62,25 @@ def find_results(input_files, verbose=False):
 
     return results
 
-def main():
-    args = parse_args()
 
-    # read in the results into a file
-    results = find_results(args.input_file, args.verbose)
+warnings = {}
+def warn_once(warning):
+    if warning not in warnings:
+        warnings[warning] = 1
+        sys.stderr.write(warning)
 
-    # just print them?
-    if args.dump_pkls:
-        pprint.pprint(results)
-        sys.exit()
+
+def flatten_results(results, comparison_records, print_warning=True):
+    """Flattens and extract a deep structure of results based on a list of
+    comparisons desired."""
 
     # process the request comparisons into chunks
-    comparisons = [x.split('.') for x in args.comparison_records]
+    comparisons = [x.split('.') for x in comparison_records]
 
     # store a nested tree structure of results for counting in N dimensions
-    table_results={}
+    table_results = {}
     for record in results:
-        values=[]
+        values = []
 
         # if a tree doesn't have an item, we skip the counting
         try:
@@ -102,26 +106,11 @@ def main():
                 spot['ans'] = 0
             spot['ans'] += 1
         except Exception:
-            #print(f"failed to find {comparisons}")
+            if print_warning:
+                print(f"failed to find {comparisons}")
             pass
 
-    if args.fsdb:
-        fh = pyfsdb.Fsdb(out_file_handle=args.fsdb)
-        column_names = []
-        for comparison in comparisons:
-            # just record the final struct name
-            # (XXX: this won't work in a parallel tree with identical names)
-            column_names.append(comparison[-1])
-        column_names.append('count')
-
-        fh.column_names = column_names
-
-        for resultkey in table_results:
-            save_results(fh, table_results[resultkey], [resultkey])
-
-    else:
-        # just print the results
-        pprint.pprint(table_results)
+    return table_results
 
 
 def save_results(fh, struct, resultkeys):
@@ -131,6 +120,42 @@ def save_results(fh, struct, resultkeys):
     else:
         for key in struct:
             save_results(fh, struct[key], [*resultkeys, key])
+
+
+def output_to_fsdb(table_results, comparisons, out_file_handle):
+    fh = pyfsdb.Fsdb(out_file_handle=out_file_handle)
+    column_names = []
+    for comparison in comparisons:
+        # just record the final struct name
+        # (XXX: this won't work in a parallel tree with identical names)
+        column_names.append(comparison[-1])
+    column_names.append('count')
+
+    fh.column_names = column_names
+
+    for resultkey in table_results:
+        save_results(fh, table_results[resultkey], [resultkey])
+
+
+def main():
+    args = parse_args()
+
+    # read in the results into a file
+    results = find_results(args.input_file, args.verbose)
+
+    # just print them?
+    if args.dump_pkls:
+        pprint.pprint(results)
+        sys.exit()
+
+    table_results = flatten_results(results, args.comparison_records)
+
+    if args.fsdb:
+        output_to_fsdb(table_results, args.comparison_records, args.fsdb)
+    else:
+        # just print the results
+        pprint.pprint(table_results)
+
 
 if __name__ == "__main__":
     main()
