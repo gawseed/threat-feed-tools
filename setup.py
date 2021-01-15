@@ -15,8 +15,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': [
-            'threat-search.py = gawseed.threatfeed.main:main',
-            'pkl-to-report.py = gawseed.threatfeed.pkl2report:main',
+            'threat-search = gawseed.threatfeed.tools.main:main',
+            'pkl-to-report = gawseed.threatfeed.tools.pkl2report:main',
+            'pkl-compare = gawseed.threatfeed.tools.pklcompare:main',
         ]
     },
     classifiers=[
