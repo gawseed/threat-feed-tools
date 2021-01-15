@@ -1,6 +1,5 @@
 import unittest
-from gawseed.threatfeed.datasources import DataSource, \
-    BINARY_YES, BINARY_NO, BINARY_MAYBE
+from gawseed.threatfeed.datasources import DataSource, BINARY_YES, BINARY_NO, BINARY_MAYBE
 
 
 class fakebinary(DataSource):
