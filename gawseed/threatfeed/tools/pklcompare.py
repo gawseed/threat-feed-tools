@@ -37,11 +37,11 @@ def parse_args():
     return args
 
 
-def find_results(input_files, verbose=False, starting_results=[]):
+def find_results(input_files, verbose=False):
     """Read in a (recursive) directory of pkl files and return a list of
     their contents
     """
-    results = starting_results
+    results = []
 
     for infile in input_files:
         if os.path.isfile(infile):
@@ -70,7 +70,7 @@ def warn_once(warning):
         sys.stderr.write(warning)
 
 
-def flatten_results(results, comparison_records, print_warning=True):
+def flatten_results(results, comparison_records, print_warning=False):
     """Flattens and extract a deep structure of results based on a list of
     comparisons desired."""
 
@@ -105,24 +105,33 @@ def flatten_results(results, comparison_records, print_warning=True):
             if 'ans' not in spot:
                 spot['ans'] = 0
             spot['ans'] += 1
-        except Exception:
+        except Exception as excep:
             if print_warning:
-                print(f"failed to find {comparisons}")
+                print(f"failed to find {comparisons}\n  exception: {excep}\n  data: {record}")
             pass
 
     return table_results
 
 
-def save_results(fh, struct, resultkeys):
+def save_results(fh, struct, resultkeys, save_list=None, save_columns=None):
     """Recursively descend and save the tree"""
+
     if 'ans' in struct:
-        fh.append([*resultkeys, struct['ans']])
+        row = [*resultkeys, struct['ans']]
+        fh.append(row)
+        if save_list is not None and save_columns is not None:
+            dict_row = {save_columns[0]: resultkeys[0],
+                        save_columns[1]: resultkeys[1],
+                        save_columns[2]: struct['ans']}
+            save_list.append(dict_row)
+
     else:
         for key in struct:
-            save_results(fh, struct[key], [*resultkeys, key])
+            save_results(fh, struct[key], [*resultkeys, key], save_list, save_columns)
 
 
-def output_to_fsdb(table_results, comparisons, out_file_handle):
+def output_to_fsdb(table_results, comparisons, out_file_handle,
+                   save_list=None, save_columns=None):
     fh = pyfsdb.Fsdb(out_file_handle=out_file_handle)
     column_names = []
     for comparison in comparisons:
@@ -134,7 +143,10 @@ def output_to_fsdb(table_results, comparisons, out_file_handle):
     fh.column_names = column_names
 
     for resultkey in table_results:
-        save_results(fh, table_results[resultkey], [resultkey])
+        save_results(fh, table_results[resultkey], [resultkey],
+                     save_list=save_list, save_columns=save_columns)
+    fh.close()
+    return save_list
 
 
 def main():
