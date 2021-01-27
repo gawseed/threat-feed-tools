@@ -4,12 +4,15 @@
 for generating reports from archived data"""
 
 import pickle
-from gawseed.threatfeed.loader import Loader
+from gawseed.threatfeed.loader import Loader, MODULE_XFORMS, REPORTER_KEY
 
 import argparse
 import sys
 
 def parse_args():
+
+    reporters = list(MODULE_XFORMS[REPORTER_KEY].keys())
+
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="""Reads a gawseed-threat-feed pickle file and pipes it to a reporter for generating reports from archived data""")
 
     parser.add_argument("-j", "--jinja-template", default=None, type=str,
@@ -21,11 +24,10 @@ def parse_args():
     parser.add_argument("--json", default=None, type=argparse.FileType('rb'),
                         help="An extra json file to read")
 
-    parser.add_argument("--json-extra-name", default="test", type=str,
-                        help="The tag name to load the json data into")
+    parser.add_argument("--json-extra-name", default="test", type=str,                        help="The tag name to load the json data into")
 
     parser.add_argument("-r", "--reporter", default="reporter", type=str,
-                        help="The reporter type to load.  The default reporter is a jinja2 template reporter")
+                        help=f"The reporter type to load.  The default reporter is a jinja2 template reporter. Available options: {reporters} ")
 
     parser.add_argument("pickle_file", type=argparse.FileType('rb'),
                         nargs='?', default=sys.stdin,
