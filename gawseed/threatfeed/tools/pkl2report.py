@@ -24,14 +24,17 @@ def parse_args():
     parser.add_argument("--json-extra-name", default="test", type=str,
                         help="The tag name to load the json data into")
 
+    parser.add_argument("-r", "--reporter", default="reporter", type=str,
+                        help="The reporter type to load.  The default reporter is a jinja2 template reporter")
+
     parser.add_argument("pickle_file", type=argparse.FileType('rb'),
                         nargs='?', default=sys.stdin,
                         help="The input pickle archive file to load")
 
     args = parser.parse_args()
 
-    if not args.jinja_template:
-        raise ValueError("-j is a required argument")
+    if args.reporter == 'reporter' and not args.jinja_template:
+        raise ValueError("-j is a required argument with reporter")
 
     return args
 
@@ -39,7 +42,7 @@ def main():
     args = parse_args()
 
     data = pickle.loads(args.pickle_file.read())
-    conf = { 'module': 'reporter',
+    conf = { 'module': args.reporter,
              'template': args.jinja_template,
              'extra_information': args.jinja_extra_information}
 
