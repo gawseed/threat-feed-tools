@@ -40,6 +40,7 @@ MODULE_XFORMS = {
         'printer': 'gawseed.threatfeed.events.printer.EventStreamPrinter',
         'reporter': 'gawseed.threatfeed.events.reporter.EventStreamReporter',
         'archiver': 'gawseed.threatfeed.events.archiver.ArchiveReporter',
+        'misp': 'gawseed.threatfeed.events.misp.EventMisp',
     },
     ENRICHMENT_KEY: {
         'url': 'gawseed.threatfeed.enrichments.EnrichmentURL',
