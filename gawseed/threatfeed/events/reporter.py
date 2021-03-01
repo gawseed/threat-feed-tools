@@ -3,8 +3,10 @@ import jinja2
 import yaml
 
 from gawseed.threatfeed.events import EventStream
+from gawseed.threatfeed.events.extrainfo import ExtraInfo
 
-class EventStreamReporter(EventStream):
+
+class EventStreamReporter(EventStream, ExtraInfo):
     """Formats output based on a jinja2 template.  The template is passed
     the following data fields:
        count: the match number for this run
@@ -14,6 +16,7 @@ class EventStreamReporter(EventStream):
        enrichments: A dictionary of any enrichments that were retrieved"""
     def __init__(self, conf):
         super().__init__(conf)
+        ExtraInfo.__init__(self, conf)
 
         self.require(['template'])
         self._template = self.config('template',
@@ -22,19 +25,20 @@ class EventStreamReporter(EventStream):
                                                     help="A YAML file name to be loaded as an extra_information field passed to the jinja2 template")
 
     def initialize(self):
+        self.load_extra_info()
+
         self._jinja_template = open(self._template, "r").read()
-        self._template = jinja2.Environment(loader=jinja2.FileSystemLoader("./")).from_string(self._jinja_template)
-
-
-        if self._jinja_extra_information:
-            fh = open(self._jinja_extra_information, "r")
-            self._jinja_extra_information = yaml.load(fh, Loader=yaml.FullLoader)
+        loader = jinja2.FileSystemLoader("./")
+        template = jinja2.Environment(loader=loader)
+        self._template = template.from_string(self._jinja_template)
 
     def write_row(self, count, row, match, enrichments, output_stream):
-        output = self._template.render({ 'count': count,
-                                         'row': row,
-                                         'match': match,
-                                         'extra': self._jinja_extra_information,
-                                         'enrichments': enrichments})
+        args = {'count': count,
+                'row': row,
+                'match': match,
+                'extra': self._jinja_extra_information,
+                'extra_dict': self._jinja_extra_information_by_tag,
+                'enrichments': enrichments}
+        output = self._template.render(args)
         self.output(output + "\n", output_stream)
 
