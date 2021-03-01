@@ -1,10 +1,11 @@
-import sys
 import pymisp
 import time
 
 from gawseed.threatfeed.events import EventStream
+from gawseed.threatfeed.events.extrainfo import ExtraInfo
 
-class EventMisp(EventStream):
+
+class EventMisp(EventStream, ExtraInfo):
     """Prints simple summaries of events found."""
     def __init__(self, conf):
         super().__init__(conf)
@@ -20,11 +21,15 @@ class EventMisp(EventStream):
 
     def initialize(self):
         self._misp = pymisp.PyMISP(self._url, self._key, False) ### false
+        self.load_extra_info()
 
     def write_row(self, count, row, match, enrichments, output_stream):
         me = pymisp.MISPEvent()
 
-        me.info = f'GAWSEED: match: {match["tag"]} priority {match["priority"]}'
+        extra_info = self._extra_information_by_tag
+        tag = match['tag']
+
+        me.info = f'Feed {extra_info[tag]["name"]} priority {match["priority"]} match on {extra_info[tag]["data_type"]}'
         me.published = False
         me.distribution="1"
 
@@ -37,8 +42,6 @@ class EventMisp(EventStream):
         # me.add_attribute(type='src-port', value=row['id_orig_p'],
         #                  category='Network activity')
 
-        ts = time.gmtime(float(row['ts']))
-        #me.date = f'{ts.tm_year}-{ts.tm_mon}-{ts.tm_mday}'
         me.set_date(float(row['ts']))
 
         # insert optional attributes depending on type
