@@ -13,7 +13,8 @@ def parse_args():
 
     reporters = list(MODULE_XFORMS[REPORTER_KEY].keys())
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description="""Reads a gawseed-threat-feed pickle file and pipes it to a reporter for generating reports from archived data""")
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                     description=__doc__)
 
     parser.add_argument("-j", "--jinja-template", default=None, type=str,
                         help="The jinja template to use when generating reports")
