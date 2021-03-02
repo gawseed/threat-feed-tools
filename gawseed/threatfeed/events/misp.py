@@ -29,7 +29,7 @@ class EventMisp(EventStream, ExtraInfo):
         extra_info = self._extra_information_by_tag
         tag = match['tag']
 
-        me.info = f'Feed {extra_info[tag]["name"]} priority {match["priority"]} match on {extra_info[tag]["data_type"]}'
+        me.info = f'P{match["priority"]} Match: {extra_info[tag]["name"]}, match: {extra_info[tag]["data_type"]}={match["value"]}'
         me.published = False
         me.distribution="1"
 
@@ -56,6 +56,20 @@ class EventMisp(EventStream, ExtraInfo):
         if 'query' in row and row['uri'] != '-' and 'host' in row:
             me.add_attribute(type='domain', category='Network activity',
                              value=row['query'])
+
+        row_description = ""
+        for item in row:
+            row_description += f"{item}: {row[item]}\n"
+        me.add_attribute(type='text', category="External analysis",
+                         value=row_description,
+                         comment="zeek row")
+
+        match_description = ""
+        for item in match:
+            match_description += f"{item}: {match[item]}\n"
+        me.add_attribute(type='text', category="External analysis",
+                         value=match_description,
+                         comment="threat source information")
 
         # fake a priority
         if 'priority' in match:
