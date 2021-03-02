@@ -19,6 +19,9 @@ class EventMisp(EventStream, ExtraInfo):
         self._timestamp = self.config('timestamp','ts',
                                       help="The column name of the timestamp data")
 
+        self._web_report_urls = self.config('web_report_urls', [],
+                                      help="A location to link to a html or other produced report")
+
     def initialize(self):
         self._misp = pymisp.PyMISP(self._url, self._key, False) ### false
         self.load_extra_info()
@@ -53,7 +56,7 @@ class EventMisp(EventStream, ExtraInfo):
             me.add_attribute(type='url', category='Network activity',
                              value=f'http://{row["host"]}:{row["id_resp_p"]}{row["uri"]}')
 
-        if 'query' in row and row['uri'] != '-' and 'host' in row:
+        if 'query' in row and row['query'] != '-':
             me.add_attribute(type='domain', category='Network activity',
                              value=row['query'])
 
@@ -70,6 +73,19 @@ class EventMisp(EventStream, ExtraInfo):
         me.add_attribute(type='text', category="External analysis",
                          value=match_description,
                          comment="threat source information")
+
+        if self._web_report_urls:
+            if not isinstance(self._web_report_urls, list):
+                self._web_report_urls = [self._web_report_urls]
+
+            for url in self._web_report_urls:
+                location = url.format(count=count,
+                                      row=row,
+                                      match=match,
+                                      enrichments=enrichments)
+                me.add_attribute(type='link', category="External analysis",
+                                 value=location,
+                                 comment="GAWSEED report")
 
         # fake a priority
         if 'priority' in match:
