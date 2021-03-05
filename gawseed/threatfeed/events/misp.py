@@ -32,7 +32,7 @@ class EventMisp(EventStream, ExtraInfo):
         extra_info = self._extra_information_by_tag
         tag = match['tag']
 
-        me.info = f'P{match["priority"]} Match: {extra_info[tag]["name"]}, match: {extra_info[tag]["data_type"]}={match["value"]}'
+        me.info = f'P{match["priority"]} Match: {extra_info[tag]["name"]}, match: {extra_info[tag]["data_type"]}={match["value"]}, port={row["id_resp_p"]}'
         me.published = False
         me.distribution="1"
 
