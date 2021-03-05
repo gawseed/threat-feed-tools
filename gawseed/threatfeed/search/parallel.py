@@ -93,12 +93,10 @@ class Parallel(Search):
 # sub-process searching / state
 
 searcher=None
-var=None
 
 def search_init(loader, conf, search_index, data_source, binary_search):
     global searcher
     import random
-    var = random.randint(0,1000)
     data_source.close()
     searcher = \
         loader.create_instance(conf, loader.SEARCHER_KEY,
