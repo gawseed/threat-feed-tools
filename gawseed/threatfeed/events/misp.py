@@ -1,5 +1,6 @@
 import pymisp
 import time
+import dateparser
 
 from gawseed.threatfeed.events import EventStream
 from gawseed.threatfeed.events.extrainfo import ExtraInfo
@@ -22,9 +23,60 @@ class EventMisp(EventStream, ExtraInfo):
         self._web_report_urls = self.config('web_report_urls', [],
                                       help="A location to link to a html or other produced report")
 
+        self._report_tags = self.config('info_fields',
+                                       {'priority': 'P',
+                                        'name': 'Match',
+                                        'value': 'match',
+                                        'id_resp_p': 'port',
+                                        'q': 'query',
+                                        'source': 'src',
+                                        'mime_type': 'mime',
+                                        'host': 'host',
+                                        'server_name': 'server',
+                                        'uri': 'uri',
+                                        'status': 'status'},
+                                       help="A list of fields to construct the info line with")
+
+        self._attribute_tags = self.config('attribute_fields',
+                                           {'ip_resp_h':
+                                            ['ip-dst', 'Network activity'],
+
+                                            'ip_resp_p':
+                                            ['dst-port', 'Network activity'],
+
+                                            'ip_orig_h':
+                                            ['ip-src', 'Network activity'],
+
+                                            'ip_orig_p':
+                                            ['src-port', 'Network activity'],
+
+                                            'server_name':
+                                            ['hostname', 'Network activity'],
+
+                                            'query':
+                                            ['domain', 'Network activity'],
+                                            },
+                                           help="A row to misp attributes to use")
+
     def initialize(self):
         self._misp = pymisp.PyMISP(self._url, self._key, False) ### false
         self.load_extra_info()
+
+    def construct_info(self, containers):
+        output_parts = []
+        for tag in self._report_tags:
+            for container in containers:
+                if tag in container:
+                    output_parts.append(f"{self._report_tags[tag]}: {container[tag]}")
+        return ", ".join(output_parts)
+
+    def add_attributes(self, me, containers):
+        for tag in self._attribute_tags:
+            for container in containers:
+                if tag in container:
+                    me.add_attribute(type=self._attribute_tags[tag][0],
+                                     category=self._attribute_tags[tag][1],
+                                     value=container[tag])
 
     def write_row(self, count, row, match, enrichments, output_stream):
         me = pymisp.MISPEvent()
@@ -32,34 +84,36 @@ class EventMisp(EventStream, ExtraInfo):
         extra_info = self._extra_information_by_tag
         tag = match['tag']
 
-        me.info = f'P{match["priority"]} Match: {extra_info[tag]["name"]}, match: {extra_info[tag]["data_type"]}={match["value"]}, port={row["id_resp_p"]}'
+        containers = [row, match]
+        if tag in extra_info:
+            containers.append(extra_info[tag])
+
+        # create the "subject" (info) line
+        me.info = self.construct_info(containers)
+
+        # create attributes
+        self.add_attributes(me, containers)
+
+        # set basic attributes
         me.published = False
-        me.distribution="1"
+        me.distribution = "1"
+        try:
+            ts = float(row['ts'])
+            me.set_date(ts)
+        except Exception:
+            try:
+                t = dateparser.parse(row['ts'])
+                me.set_date(t.timestamp())
+            except Exception:
+                sys.stderr.write(f"couldn't convert date: {row['ts']}\n")
 
-        me.add_attribute(type='ip-dst', value=row['id_resp_h'],
-                         category='Network activity')
-        # me.add_attribute(type='dst-port', value=row['id_resp_p'],
-        #                  category='Network activity')
-        me.add_attribute(type='ip-src', value=row['id_orig_h'],
-                         category='Network activity')
-        # me.add_attribute(type='src-port', value=row['id_orig_p'],
-        #                  category='Network activity')
-
-        me.set_date(float(row['ts']))
-
-        # insert optional attributes depending on type
-        if 'server_name' in row:
-            me.add_attribute(type='hostname', category='Network activity',
-                             value=row["server_name"])
-
+        # manually constructed attributes
         if 'uri' in row and row['uri'] != '-' and 'host' in row:
             me.add_attribute(type='url', category='Network activity',
                              value=f'http://{row["host"]}:{row["id_resp_p"]}{row["uri"]}')
 
-        if 'query' in row and row['query'] != '-':
-            me.add_attribute(type='domain', category='Network activity',
-                             value=row['query'])
 
+        # add in the row itself
         row_description = ""
         for item in row:
             row_description += f"{item}: {row[item]}\n"
@@ -67,6 +121,7 @@ class EventMisp(EventStream, ExtraInfo):
                          value=row_description,
                          comment="zeek row")
 
+        # and the match
         match_description = ""
         for item in match:
             match_description += f"{item}: {match[item]}\n"
@@ -74,6 +129,7 @@ class EventMisp(EventStream, ExtraInfo):
                          value=match_description,
                          comment="threat source information")
 
+        # If there is an external link to use, add it
         if self._web_report_urls:
             if not isinstance(self._web_report_urls, list):
                 self._web_report_urls = [self._web_report_urls]
