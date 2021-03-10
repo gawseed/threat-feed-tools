@@ -1,3 +1,5 @@
 pyfsdb
 kafka
 dnssplitter
+dateparser
+pymisp
