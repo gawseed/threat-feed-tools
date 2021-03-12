@@ -29,12 +29,13 @@ class EventMisp(EventStream, ExtraInfo):
                                         'value': 'match',
                                         'id_resp_p': 'port',
                                         'q': 'query',
-                                        'source': 'src',
                                         'mime_type': 'mime',
                                         'host': 'host',
                                         'server_name': 'server',
                                         'uri': 'uri',
-                                        'status': 'status'},
+                                        'status': 'status',
+                                        'source': 'src',
+                                        },
                                        help="A list of fields to construct the info line with")
 
         self._attribute_tags = self.config('attribute_fields',
