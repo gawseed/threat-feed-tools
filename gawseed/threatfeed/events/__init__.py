@@ -6,6 +6,20 @@ from io import StringIO
 from gawseed.threatfeed.config import Config
 
 class EventStream(Config):
+    """Allows events to be logged to a stream (aka file or stdout)
+
+    The sequence of functions called by tools/main is:
+
+      report.new_output(count, row, match, enrichments)
+      report.write(count, row, match, enrichments, OUT_HANDLE)
+      report.maybe_close(OUT_HANDLE)
+
+    When the entire sequence of findings have finished, a final:
+
+      report.close()
+
+    is called."""
+
     def __init__(self, conf):
         super().__init__(conf)
         stream = self.config('stream',
@@ -78,3 +92,7 @@ class EventStream(Config):
         row = self.maybe_convert(row)
         self.write_row(count, row, match, enrichments, output_stream)
         self.verbose("created output for event %d" % (count,))
+
+    def close(self):
+        """Allows overriding modules to close any final shutdown requirements."""
+        pass
