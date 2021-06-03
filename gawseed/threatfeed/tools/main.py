@@ -310,6 +310,9 @@ def found_event(found_queue, enrichers, outputs):
         # signal this entry is done
         found_queue.task_done()
 
+    # we're done -- allow it to do any needed closing tasks
+    for output in outputs:
+        output.close()
 
 def convert_args_to_config(args):
     subconf = {}
@@ -390,26 +393,28 @@ def launch_process(combination, args, number):
             else:
                 item['verbose'] = True
 
+    # Open the DATASOURCE we wish to read
     (threat_source, search_data, search_index) = \
         get_threat_feed(number, args, combination,
                         args.threat_max_records, args.dump_threat_feed)
 
     data_source = get_data_source(number, args, combination)
+
+    # SEARCHERs: bind the datasource to the search engines
     searcher = get_searcher(number, args, search_index,
                             data_source, combination)
 
     data_source.open()
 
+    # ENRICHMENT: build the list of engines to augment reports with
     enrichers = get_enrichments(number, combination, search_index, data_source)
 
+
+
+    # REPORTS: create threads without outputs to handle the results
     outputs = get_outputs(number, combination)
     verbose(number, "created outputs: " + str(outputs))
 
-    # loop through all the data for matches
-    if debug:
-        print("reports created: 0", end="\r")
-
-    # create threads to handle the results
     event_queue = queue.Queue()
     output_threads = []
     for i in range(args.threads):
@@ -418,7 +423,12 @@ def launch_process(combination, args, number):
         thread.start()
         output_threads.append(thread)
 
+    #
+    # MAIN LOOP
+    #
+
     # loop through the outputs of the searcher and create reports
+    # - searchers report only things that match their criteria
     for count, results in enumerate(searcher):
         row, match = results
 
