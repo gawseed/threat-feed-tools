@@ -29,10 +29,14 @@ class Summarizer(EventStream):
 
     def close(self):
         "output the results"
+        output = self.new_output(0, output_type="match")
         for key in self._match_fields:
             for value in self._match_values[key]:
-                print(f"match {key} {value} = {self._match_values[key][value]}")
+                output.write(f"match {key} {value} = {self._match_values[key][value]}\n")
+        self.maybe_close_output(output)
 
+        output = self.new_output(1, output_type="row")
         for key in self._row_fields:
             for value in self._row_values[key]:
-                print(f"row {key} {value} = {self._row_values[key][value]}")
+                output.write(f"row {key} {value} = {self._row_values[key][value]}\n")
+        self.maybe_close_output(output)

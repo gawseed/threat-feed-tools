@@ -22,6 +22,10 @@ class EventStream(Config):
 
     def __init__(self, conf):
         super().__init__(conf)
+
+        self._stream_pattern = None
+        self._stream = None
+
         stream = self.config('stream',
                              help="The stream name or filename to write to. This may be 'stdout' or 'stderr' to write to those unix streams, or may be a filename.  If a filename, then you can include tokens from the row or match data in the filename using {} wrappers around the name with 'count', row', and 'match' variables describing the data.  For example: path/{row[id_orig_h]}.txt will pull out a origin IP from bro datasets.  OR (but not both) you can include a '%d' which will be replaced by the event number.")
 
@@ -48,7 +52,7 @@ class EventStream(Config):
         return open(filename, self._output_type)
 
     def new_output(self, count, **kwargs):
-        output_stream = None
+        output_stream = self._stream
         if self._stream_pattern:
             if self._stream_pattern.find("%d") != -1:
                 filename = self._stream_pattern % (count)
