@@ -70,8 +70,6 @@ class EventStream(Config):
             output_stream = self._stream
         if isinstance(output_stream, StringIO):
             sys.stdout.write(output_stream.getvalue())
-        if self._stream_pattern:
-            output_stream.close()
 
     def output(self, something, output_stream=None):
         if not output_stream:
