@@ -31,7 +31,7 @@ class EventStream(Config):
 
         if type(stream) == str:
             if stream == "stdout":
-                self._stream = StringIO()
+                self._stream = StringIO() # buffer it -- why???
             elif stream == "stderr":
                 self._stream = sys.stderr
             else:
