@@ -4,10 +4,11 @@ import sys
 import urllib3
 from dateutil import parser
 
+
 class Config():
     def __init__(self, config={}):
         self._config = config
-        self._number_re=re.compile("^@?[0-9.]+$")
+        self._number_re = re.compile("^@?[0-9.]+$")
         self._verbose = False
         self._pool = urllib3.PoolManager()
         self._cache = {}
@@ -17,10 +18,10 @@ class Config():
     def initialize(self):
         """Overridable function for doing things beyond config copying in __init__"""
         pass
-    
+
     def set_defaults(self, defaults={}):
         for default in defaults:
-            if default not in self_.config:
+            if default not in self._config:
                 self._config = defaults[default]
 
     def require(self, requirements):
@@ -31,11 +32,12 @@ class Config():
             return
 
         if 'use' in self._config:
-            return # assume they'll pull it from something named
+            return  # assume they'll pull it from something named
 
         for requirement in requirements:
             if requirement not in self._config:
-                self.config_error("'%s' is a requirement argument for %s" % (requirement, type(self)))
+                self.config_error("'%s' is a requirement argument for %s" %
+                                  (requirement, type(self)))
 
     def config(self, name, default=None, help=None, datatype=None):
         if 'dump_config' in self._config:
@@ -63,7 +65,7 @@ class Config():
 
         if datatype == 'file_handle' and value == 'stdin':
             value = sys.stdin
-        
+
         return value
 
     def get_config(self):
@@ -86,14 +88,13 @@ class Config():
 
         value = float(timestr) * multiplier
         return value
-        
 
     def parse_time(self, timestr):
         if timestr[0] == '+' or timestr[0] == '-':
             # return an offset from now
             now = time.time()
             return now + self.parse_offset(timestr)
-        elif self._number_re.match(timestr): # assume epoch seconds
+        elif self._number_re.match(timestr):  # assume epoch seconds
             if timestr[0] == '@':
                 timestr = timestr[1:]
             return float(timestr)
@@ -108,10 +109,10 @@ class Config():
     def cache(self, key, value):
         if not self._cache_time:
             return value
-        self._cache[key] = { 'data': value,
-                             'timestamp': time.time() }
+        self._cache[key] = {'data': value,
+                            'timestamp': time.time()}
         return value
-        
+
     def check_cache(self, key):
         if not self._cache_time:
             return None
@@ -119,12 +120,11 @@ class Config():
         if key in self._cache and time.time() < self._cache[key]['timestamp'] + self._cache_time:
             return self._cache[key]['data']
 
-
     def geturl(self, url, reqtype='GET', params={}):
         prior_results = self.check_cache(url)
         if prior_results:
             return prior_results
-        
+
         self.verbose("Fetching URL: " + url)
         r = self._pool.request(reqtype, url)
         if r.status != 200:
