@@ -1,3 +1,4 @@
+import io
 import pyfsdb
 from . import DataSource
 
@@ -9,7 +10,7 @@ class FsdbDataSource(DataSource):
         self._file_handle = self.config('file_handle', datatype='file_handle',
                                         help="A python3 opened file handle for the BRO data to be streamed")
         self._file = self.config('file',
-                                 help="The file name to read the bro data stream from")
+                                 help="The file name (or url) to read the bro data stream from")
         self._begin_time = self.config('begin_time', datatype='time',
                                        help="The time to start searching from; no value will mean end of stream")
         self._end_time = self.config('end_time', datatype='time',
@@ -21,6 +22,11 @@ class FsdbDataSource(DataSource):
         super().initialize()
         if not self._file_handle and not self._file:
             self.config_error("either file_handle or file is required for the %s module" % (type(self)))
+        if not self._file_handle and (self._file.startswith("http:") or
+                                      self._file.startswith("https:")):
+            fetched = self.geturl(self._file)
+            self._file = None
+            self._file_handle = io.StringIO(fetched)
 
     def open(self):
         self._fh = pyfsdb.Fsdb(file_handle=self._file_handle, filename=self._file,
