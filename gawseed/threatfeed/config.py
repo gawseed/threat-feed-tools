@@ -1,6 +1,7 @@
 import re
 import time
 import sys
+import urllib3
 from dateutil import parser
 
 class Config():
@@ -8,6 +9,8 @@ class Config():
         self._config = config
         self._number_re=re.compile("^@?[0-9.]+$")
         self._verbose = False
+        self._pool = urllib3.PoolManager()
+        self._cache = {}
         if 'verbose' in config:
             self._verbose = True
 
@@ -101,3 +104,33 @@ class Config():
     def verbose(self, message):
         if self._verbose:
             sys.stderr.write(str(message) + "\n")
+
+    def cache(self, key, value):
+        if not self._cache_time:
+            return value
+        self._cache[key] = { 'data': value,
+                             'timestamp': time.time() }
+        return value
+        
+    def check_cache(self, key):
+        if not self._cache_time:
+            return None
+
+        if key in self._cache and time.time() < self._cache[key]['timestamp'] + self._cache_time:
+            return self._cache[key]['data']
+
+
+    def geturl(self, url, reqtype='GET', params={}):
+        prior_results = self.check_cache(url)
+        if prior_results:
+            return prior_results
+        
+        self.verbose("Fetching URL: " + url)
+        r = self._pool.request(reqtype, url)
+        if r.status != 200:
+            print("  failed to fetch URL:" + str(r.status))
+            return None
+
+        # XXX: check against the expected type (self._type)
+        return self.cache(url, r.data)
+
