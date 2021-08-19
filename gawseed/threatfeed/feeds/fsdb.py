@@ -1,3 +1,4 @@
+import io
 import pyfsdb
 from gawseed.threatfeed.feeds import ThreatFeed
 
@@ -7,11 +8,18 @@ class FsdbThreatFeed(ThreatFeed):
         super().__init__(config)
         self.require(['file', 'key'])
         self._fsdb_file = self.config('file',
-                                      help="The file name to read the bro data stream from")
+                                      help="The file name (or URL) to read the bro data stream from")
 
     def open(self):
-        self._tfh = pyfsdb.Fsdb(self._fsdb_file,
-                                return_type=pyfsdb.RETURN_AS_DICTIONARY)
+        if (self._fsdb_file.startswith("http:") or
+            self._fsdb_file.startswith("https:")):
+            fetched = self.geturl(self._fsdb_file)
+            self._file_handle = io.StringIO(fetched)
+            self._tfh = pyfsdb.Fsdb(file_handle=self._file_handle,
+                                    return_type=pyfsdb.RETURN_AS_DICTIONARY)
+        else:
+            self._tfh = pyfsdb.Fsdb(self._fsdb_file,
+                                    return_type=pyfsdb.RETURN_AS_DICTIONARY)
         self._tfh_index_column = self._tfh.get_column_number(self._value_column)
 
         if self._begin_time or self._end_time:
