@@ -24,7 +24,7 @@ class FsdbDataSource(DataSource):
             self.config_error("either file_handle or file is required for the %s module" % (type(self)))
         if not self._file_handle and (self._file.startswith("http:") or
                                       self._file.startswith("https:")):
-            fetched = self.geturl(self._file)
+            fetched = self.geturl(self._file).decode()
             self._file = None
             self._file_handle = io.StringIO(fetched)
 
