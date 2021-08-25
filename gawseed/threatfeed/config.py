@@ -14,6 +14,9 @@ class Config():
         self._cache = {}
         if 'verbose' in config:
             self._verbose = True
+        self._cache_time = self.config('cache_time', 3600,
+                                       help="If set, will cache the data for a particular key for this number of seconds")
+
 
     def initialize(self):
         """Overridable function for doing things beyond config copying in __init__"""
