@@ -13,7 +13,7 @@ class FsdbThreatFeed(ThreatFeed):
     def open(self):
         if (self._fsdb_file.startswith("http:") or
             self._fsdb_file.startswith("https:")):
-            fetched = self.geturl(self._fsdb_file)
+            fetched = self.geturl(self._fsdb_file).decode()
             self._file_handle = io.StringIO(fetched)
             self._tfh = pyfsdb.Fsdb(file_handle=self._file_handle,
                                     return_type=pyfsdb.RETURN_AS_DICTIONARY)
