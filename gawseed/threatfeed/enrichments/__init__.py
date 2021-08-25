@@ -28,9 +28,6 @@ class EnrichmentURL(Config):
         self._output_key = self.config('output_key', 'geturl',
                                        help="The output key to store the returned data in.")
 
-        self._cache_time = self.config('cache_time', 3600,
-                                       help="If set, will cache the data for a particular key for this number of seconds")
-
     def convert(self, result):
         if self._type == 'text/plain' or self._type == 'text':
             return result.decode()
