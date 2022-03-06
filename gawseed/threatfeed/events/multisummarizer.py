@@ -1,0 +1,84 @@
+import sys
+import jinja2
+import yaml
+import collections
+import pyfsdb
+from io import StringIO
+
+from gawseed.threatfeed.events import EventStream
+
+
+class MultiSummarizer(EventStream):
+    """Counts field values in a row and/or match and reports them at the end"""
+
+    def __init__(self, conf):
+        super().__init__(conf)
+
+        self._match_values = collections.defaultdict(collections.Counter)
+        self._row_values = collections.defaultdict(collections.Counter)
+        self.data = {}
+        self._in_close = False
+
+        self._row_fields = \
+            self.config('row_fields', [],
+                        help="An array of row columns to summarize")
+        self._match_fields = \
+            self.config('match_fields', [],
+                        help="An array of match columns to summarize")
+
+        self._format = \
+            self.config('format',
+                        help="Output format to use: text, fsdb, or json")
+
+    def new_output(self, count, **kwargs):
+        "only run the parent new_output during close()"
+        if self._in_close:
+            return super().new_output(count, **kwargs)
+
+    def add_keys(self, keys, values, value=1):
+        num_keys = len(keys)
+
+        pointer = self.data
+        for keynum in range(num_keys - 2):
+            this_value = values[keys[keynum]]
+            if this_value not in pointer:
+                pointer[this_value] = {}
+            pointer = pointer[this_value]
+
+        this_value = values[keys[-2]]
+        if this_value not in pointer:
+            pointer[this_value] = collections.Counter()
+
+        final_value = values[keys[-1]]
+        pointer[this_value][final_value] += value
+
+    def flatten_step(self, point, values, data):
+        if isinstance(point, collections.Counter):
+            # final step in the depth
+            for key in point:
+                data.append(values + [key, point[key]])
+        else:
+            for key in point:
+                self.flatten_step(point[key], values + [key], data)
+
+    def flatten(self):
+        return_data = []
+        self.flatten_step(self.data, [], return_data)
+        return return_data
+
+    def write(self, count, row, match, enrichments, stream):
+        "Count each value for each requested key in match/row"
+        self.add_keys(self._row_fields, row)
+
+    def close(self):
+        "output the results"
+        self._in_close = True
+
+        output = self.new_output(0, output_type="match")
+        if self._format == "fsdb":
+            output = pyfsdb.Fsdb(out_file_handle=output)
+            output.out_column_names = self.row_fields + ['count']
+        for row in self.flatten():
+            output.append(row)
+
+        self.maybe_close_output()
