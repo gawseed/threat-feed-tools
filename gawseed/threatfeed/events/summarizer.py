@@ -18,14 +18,14 @@ class Summarizer(EventStream):
         self._in_close = False
 
         self._row_fields = \
-            self.config('row_fields',
+            self.config('row_fields', default=[],
                         help="An array of row columns to summarize")
         self._match_fields = \
-            self.config('match_fields',
+            self.config('match_fields', default=[],
                         help="An array of match columns to summarize")
 
         self._format = \
-            self.config('format',
+            self.config('format', default="fsdb",
                         help="Output format to use: text, fsdb, or json")
 
 
