@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gawseed-threat-feed-tools",
-    version="1.1.9",
+    version="1.1.10",
     author="Wes Hardaker and USC/ISI",
     author_email="opensource@hardakers.net",
     description="Tools to search network data logs for threat feed data",
