@@ -9,7 +9,7 @@ from gawseed.threatfeed.events import EventStream
 
 
 class MultiSummarizer(EventStream):
-    """Counts field values in a row and/or match and reports them at the end"""
+    """Counts field values in a row and/or match and reports them with many sub-keys at the end"""
 
     def __init__(self, conf):
         super().__init__(conf)
