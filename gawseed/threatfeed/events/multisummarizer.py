@@ -14,17 +14,12 @@ class MultiSummarizer(EventStream):
     def __init__(self, conf):
         super().__init__(conf)
 
-        self._match_values = collections.defaultdict(collections.Counter)
-        self._row_values = collections.defaultdict(collections.Counter)
         self.data = {}
         self._in_close = False
 
         self._row_fields = \
             self.config('row_fields', [],
                         help="An array of row columns to summarize")
-        self._match_fields = \
-            self.config('match_fields', [],
-                        help="An array of match columns to summarize")
 
         self._format = \
             self.config('format',
@@ -77,7 +72,7 @@ class MultiSummarizer(EventStream):
         output = self.new_output(0, output_type="match")
         if self._format == "fsdb":
             output = pyfsdb.Fsdb(out_file_handle=output)
-            output.out_column_names = self.row_fields + ['count']
+            output.out_column_names = self._row_fields + ['count']
         for row in self.flatten():
             output.append(row)
 
