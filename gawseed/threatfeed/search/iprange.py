@@ -38,6 +38,15 @@ class IPRangeSearch(IPSearch):
                                          'right': ip_rht,
                                          'match': search_item})
 
+            elif "-" in search_item:
+                (left, right) = search_item.split("-")
+                (ip_lft, mask) = self.ip_to_int(left.strip())
+                (ip_rht, mask) = self.ip_to_int(right.strip())
+                self._left_keys.append(ip_lft)
+                self._range_list.append({"left": ip_lft,
+                                         'right': ip_rht,
+                                         'match': search_item})
+
             # or it should be a address/netmask format
             else:
                 results = reblock.search(search_item)
