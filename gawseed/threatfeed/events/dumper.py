@@ -17,7 +17,7 @@ class EventStreamDumper(EventStream):
         else:
             self._printer = str
 
-    def write(self, count, row, match, enrichments):
+    def write(self, count, row, match, enrichments, stream):
         self.output("match #" + self._printer(count) + ":\n")
         self.output("row: " + self._printer(row) + "\n")
         self.output("--\n")
