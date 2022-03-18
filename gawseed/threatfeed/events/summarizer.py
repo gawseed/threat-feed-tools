@@ -37,9 +37,11 @@ class Summarizer(EventStream):
     def write(self, count, row, match, enrichments, stream):
         "Count each value for each requested key in match/row"
         for key in self._match_fields:
-            self._match_values[key][match[key]] += 1
+            if key in match:
+                self._match_values[key][match[key]] += 1
         for key in self._row_fields:
-            self._row_values[key][row[key]] += 1
+            if key in row:
+                self._row_values[key][row[key]] += 1
 
     def close(self):
         "output the results"
