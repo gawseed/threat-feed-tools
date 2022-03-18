@@ -92,4 +92,7 @@ class MultiSummarizer(EventStream):
         for row in self.flatten():
             output.append(row)
 
-        self.maybe_close_output()
+        if not (isinstance(output, StringIO) or
+                output == sys.stdout or
+                output == sys.stderr):
+            output.close()
