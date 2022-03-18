@@ -312,7 +312,11 @@ def found_event(found_queue, enrichers, outputs):
 
     # we're done -- allow it to do any needed closing tasks
     for output in outputs:
-        output.close()
+        try:
+            output.close()
+        except Exception as e:
+            sys.stderr.write("The output module close() failed: " + str(e) + "\n")
+            sys.stderr.write("".join(traceback.format_exc()))
 
 def convert_args_to_config(args):
     subconf = {}
