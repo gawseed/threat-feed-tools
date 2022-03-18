@@ -4,7 +4,7 @@ import yaml
 import collections
 import pyfsdb
 from io import StringIO
-
+from logging import warning
 from gawseed.threatfeed.events import EventStream
 
 
@@ -16,6 +16,7 @@ class MultiSummarizer(EventStream):
 
         self.data = {}
         self._in_close = False
+        self.have_warned = False
 
         self._row_fields = \
             self.config('row_fields', [],
@@ -35,15 +36,30 @@ class MultiSummarizer(EventStream):
 
         pointer = self.data
         for keynum in range(num_keys - 2):
+            if keys[keynum] not in values:
+                if not self.have_warned:
+                    self.have_warned = True
+                    warning(f"one time warning: failed to find {keys[keynum]} in {values}")
+                return
             this_value = values[keys[keynum]]
             if this_value not in pointer:
                 pointer[this_value] = {}
             pointer = pointer[this_value]
 
+        if keys[-2] not in values:
+            if not self.have_warned:
+                self.have_warned = True
+                warning(f"one time warning: failed to find {keys[-2]} in {values}")
+            return
         this_value = values[keys[-2]]
         if this_value not in pointer:
             pointer[this_value] = collections.Counter()
 
+        if keys[-1] not in values:
+            if not self.have_warned:
+                self.have_warned = True
+                warning(f"one time warning: failed to find {keys[-1]} in {values}")
+            return
         final_value = values[keys[-1]]
         pointer[this_value][final_value] += value
 
