@@ -85,3 +85,34 @@ class test_urllib_caching(unittest.TestCase):
         response = configtest.geturl(url1)
         self.assertEqual(response, "hello world -- yes!")
         self.assertFalse(os.path.exists(url1_cache_spot))
+
+    def test_urllib_memory_cache(self):
+        "A duplicate version that makes sure a cache isn't used"
+        configtest = Config()
+        url1 = "http://localhost/fake.json"
+        url1_cache_spot = os.path.join(self.cachedir, configtest.cache_url_string(url1))
+
+        if os.path.exists(url1_cache_spot):
+            os.unlink(url1_cache_spot)
+
+        fakedata = Mock(
+            status=200,
+            data="hello world"
+        )
+        configtest._pool = MagicMock(return_value=fakedata)
+        configtest._pool.request = MagicMock(return_value=fakedata)
+        response = configtest.geturl(url1)
+
+        self.assertEqual(response, "hello world")
+        self.assertFalse(os.path.exists(url1_cache_spot))
+
+        # now refetch but with a new fake-data that is wrong to test that the cache is used
+        fakedata = Mock(
+            status=200,
+            data="hello world -- yes!"
+        )
+        configtest._pool = MagicMock(return_value=fakedata)
+        configtest._pool.request = MagicMock(return_value=fakedata)
+        response = configtest.geturl(url1)
+        self.assertEqual(response, "hello world")
+        self.assertFalse(os.path.exists(url1_cache_spot))
