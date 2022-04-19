@@ -1,7 +1,9 @@
+import os
 import re
 import time
 import sys
 import urllib3
+import hashlib
 from dateutil import parser
 
 
@@ -16,6 +18,8 @@ class Config():
             self._verbose = True
         self._cache_time = self.config('cache_time', 3600,
                                        help="If set, will cache the data for a particular key for this number of seconds")
+        self._cache_urldir = self.config('url_cache_directory',
+                                         help="Directory to store cache items for duplicate downloads")
 
 
     def initialize(self):
@@ -114,6 +118,11 @@ class Config():
             return value
         self._cache[key] = {'data': value,
                             'timestamp': time.time()}
+
+        disk_cache_location = self.cache_url_location(key)
+        if disk_cache_location:
+            with open(disk_cache_location, "w") as f:
+                f.write(value)
         return value
 
     def check_cache(self, key):
@@ -122,6 +131,11 @@ class Config():
 
         if key in self._cache and time.time() < self._cache[key]['timestamp'] + self._cache_time:
             return self._cache[key]['data']
+
+        disk_cache_location = self.cache_url_location(key)
+        if disk_cache_location and os.path.exists(disk_cache_location):
+            with open(disk_cache_location) as f:
+                return f.read()
 
     def geturl(self, url, reqtype='GET', params={}):
         prior_results = self.check_cache(url)
@@ -137,3 +151,13 @@ class Config():
         # XXX: check against the expected type (self._type)
         return self.cache(url, r.data)
 
+    #
+    # disk caching support
+    #
+    def cache_url_string(self, value):
+        return hashlib.sha256(value.encode('utf-8')).hexdigest()[0:20]
+
+    def cache_url_location(self, value):
+        if not self._cache_urldir:
+            return None
+        return os.path.join(self._cache_urldir, self.cache_url_string(value))
