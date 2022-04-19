@@ -4,6 +4,7 @@ import time
 import sys
 import urllib3
 import hashlib
+import tempfile
 from dateutil import parser
 
 
@@ -121,8 +122,11 @@ class Config():
 
         disk_cache_location = self.cache_url_location(key)
         if disk_cache_location:
-            with open(disk_cache_location, "w") as f:
-                f.write(value)
+            fp = tempfile.NamedTemporaryFile(dir=self._cache_urldir, delete=False)
+            filename = fp.name
+            fp.write(value.encode('utf-8'))
+            fp.close()
+            os.rename(filename, disk_cache_location)
         return value
 
     def check_cache(self, key):
