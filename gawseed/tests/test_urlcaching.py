@@ -74,7 +74,7 @@ class test_urllib_caching(unittest.TestCase):
         self.assertEqual(response, "hello world")
         self.assertFalse(os.path.exists(url1_cache_spot))
 
-        # now refetch but with a new fake-data that is wrong to test that the cache is used
+        # now refetch but with a new fake-data to ensure its used when caching is off
         configtest = Config()
         fakedata = Mock(
             status=200,
