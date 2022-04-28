@@ -124,7 +124,10 @@ class Config():
         if disk_cache_location:
             fp = tempfile.NamedTemporaryFile(dir=self._cache_urldir, delete=False)
             filename = fp.name
-            fp.write(value.encode('utf-8'))
+            if not isinstance(value, bytes):
+                fp.write(value.encode('utf-8'))
+            else:
+                fp.write(value)
             fp.close()
             os.rename(filename, disk_cache_location)
         return value
