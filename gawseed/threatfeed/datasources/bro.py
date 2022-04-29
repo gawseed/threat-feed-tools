@@ -21,7 +21,7 @@ class BroDataSource(FsdbDataSource):
     def open(self):
         if self._file and not self._file_handle:
             self._file_handle = open(self._file, "r")
-        
+
         column_names = None
         for line in self._file_handle:
             if line[0] != "#": # skip at end of headers

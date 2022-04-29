@@ -5,6 +5,7 @@ import sys
 import urllib3
 import hashlib
 import tempfile
+from logging import debug
 from dateutil import parser
 
 
@@ -111,8 +112,8 @@ class Config():
             return parser.parse(timestr).timestamp()
 
     def verbose(self, message):
-        if self._verbose:
-            sys.stderr.write(str(message) + "\n")
+#        if self._verbose:
+        debug(str(message) + "\n")
 
     def cache(self, key, value):
         if not self._cache_time:
