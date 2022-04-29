@@ -17,10 +17,10 @@ import traceback
 import multiprocessing
 import threading
 import queue
+from logging import debug, info, warning, error, critical
+import logging
 
 from gawseed.threatfeed.loader import Loader
-
-debug = False
 
 loader = None
 
@@ -155,10 +155,16 @@ def parse_args():
     group.add_argument("-V", "--verbose", action="store_true",
                        help="Verbose/Debugging output")
 
+    parser.add_argument("--log-level", "--ll", default="info",
+                        help="Define the logging verbosity level (debug, info, warning, error, fotal, critical).")
+
     args = parser.parse_args()
+
+    log_level = args.log_level.upper()
     if args.verbose:
-        global debug
-        debug = True
+        log_level = 'debug'
+    logging.basicConfig(level=log_level,
+                        format="%(levelname)-10s:\t%(message)s")
 
     if args.config_templates:
         loader.dump_config_options(debug)
@@ -177,7 +183,7 @@ def verbose(number, msg=None):
         msg = "ps " + str(number) + ": " + msg
 
     if debug:
-        print(msg)
+        debug(msg)
 
 
 def get_threat_feed(number, args, conf=None, max_records=None, dump=False):
@@ -441,8 +447,7 @@ def launch_process(combination, args, number):
              'match': deepcopy(match),
              'count': count})
 
-        if debug:
-            print("%d: events found: %d" % (number, count+1), end="\r")
+        debug("%d: events found: %d" % (number, count+1), end="\r")
 
         if args.max_records and count >= args.max_records:
             break
